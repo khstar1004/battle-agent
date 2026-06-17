@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WAR GROUND | 작전 리허설 콘솔</title>
+    <link rel="icon" href="assets/bpk-logo.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.js",
+          "three/addons/loaders/GLTFLoader.js": "./vendor/three/GLTFLoader.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="terrain-bg" aria-hidden="true"></div>
+    <div class="noise-layer" aria-hidden="true"></div>
+
+    <div class="hud-shell">
+      <header class="top-command">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true"><span>WG</span></div>
+          <div>
+            <p class="eyebrow">작전 리허설 콘솔</p>
+            <h1>WAR GROUND</h1>
+          </div>
+        </div>
+
+        <div class="mission-strip" aria-label="작전 상태">
+          <div>
+            <span>임무</span>
+            <strong id="missionLabel">OP NIGHT-MOVE / READY</strong>
+          </div>
+          <div>
+            <span>현재 화면</span>
+            <strong id="phaseLabel">자료 투입</strong>
+          </div>
+          <div>
+            <span>운용 타이머</span>
+            <strong id="demoClockLabel">03:30</strong>
+          </div>
+          <div>
+            <span>검증 상태</span>
+            <strong class="danger-text" id="alertLabel">자료 대기</strong>
+          </div>
+        </div>
+
+        <div class="system-actions" aria-label="빠른 이동">
+          <button class="icon-button" id="focusGraph" type="button" title="그래프 화면으로 이동" aria-label="그래프 화면으로 이동">
+            <i data-lucide="network" aria-hidden="true"></i>
+          </button>
+          <button class="icon-button" id="runCycle" type="button" title="참모 검토 재실행" aria-label="참모 검토 재실행">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <section class="presenter-console" aria-label="운용 제어">
+        <div class="demo-actions">
+          <button class="combat-button" id="loadScenarioButton" type="button">
+            <i data-lucide="file-input" aria-hidden="true"></i>
+            작전계획 접수
+          </button>
+          <button class="combat-button" id="generateAgentsButton" type="button" disabled>
+            <i data-lucide="users-round" aria-hidden="true"></i>
+            가상부대 생성
+          </button>
+          <button class="combat-button" id="runRehearsalButton" type="button" disabled>
+            <i data-lucide="play" aria-hidden="true"></i>
+            수행 리허설 실행
+          </button>
+          <button class="combat-button inverse" id="autoDemoButton" type="button">
+            <i data-lucide="zap" aria-hidden="true"></i>
+            자동 진행
+          </button>
+          <button class="combat-button ghost" id="resetDemoButton" type="button">
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+            리셋
+          </button>
+        </div>
+        <div class="demo-flow" aria-label="운용 진행 단계">
+          <span class="flow-step is-active" data-flow-step="scenario"><i data-lucide="file-check-2" aria-hidden="true"></i>계획서</span>
+          <span class="flow-step" data-flow-step="agents"><i data-lucide="users-round" aria-hidden="true"></i>가상부대</span>
+          <span class="flow-step" data-flow-step="rehearsal"><i data-lucide="route" aria-hidden="true"></i>리허설</span>
+          <span class="flow-step" data-flow-step="failure"><i data-lucide="triangle-alert" aria-hidden="true"></i>실패경로</span>
+          <span class="flow-step" data-flow-step="decision"><i data-lucide="clipboard-check" aria-hidden="true"></i>결심카드</span>
+        </div>
+      </section>
+
+      <nav class="workspace-tabs" aria-label="작업 화면">
+        <button class="workspace-tab is-active" data-stage="data" type="button">
+          <span>01</span><b>자료 투입</b>
+        </button>
+        <button class="workspace-tab" data-stage="ontology" type="button">
+          <span>02</span><b>그래프 구축</b>
+        </button>
+        <button class="workspace-tab" data-stage="agents" type="button">
+          <span>03</span><b>가상부대</b>
+        </button>
+        <button class="workspace-tab" data-stage="rehearsal" type="button">
+          <span>04</span><b>수행 리허설</b>
+        </button>
+        <button class="workspace-tab" data-stage="risk" type="button">
+          <span>05</span><b>실패경로</b>
+        </button>
+        <button class="workspace-tab" data-stage="decision" type="button">
+          <span>06</span><b>결심카드</b>
+        </button>
+      </nav>
+
+      <main class="workspace-pages">
+        <section class="page-view data-page is-active" data-page="data">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">계획서가 작전 시드로 변환됩니다.</p>
+              <h2>자료 투입</h2>
+            </div>
+            <div class="page-status">
+              <span id="mockStatusLabel">작전 자료 대기</span>
+              <span id="nodeCountLabel">0개 노드</span>
+              <span id="edgeCountLabel">0개 관계</span>
+            </div>
+          </div>
+
+          <div class="page-guide-strip" id="dataGuideStrip" aria-label="자료 투입 읽는 법">
+            <article>
+              <span>1</span>
+              <b>무엇이 들어왔나</b>
+              <em>왼쪽에서 입력 문서와 자료 종류를 확인합니다.</em>
+            </article>
+            <article>
+              <span>2</span>
+              <b>무엇을 뽑았나</b>
+              <em>임무, 시간, 제한사항이 제대로 추출됐는지 봅니다.</em>
+            </article>
+            <article>
+              <span>3</span>
+              <b>어떤 방책을 비교하나</b>
+              <em>A/B/C 방책의 시간, 통신, 군수 위험을 비교합니다.</em>
+            </article>
+          </div>
+
+          <div class="data-grid">
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>작전 자료 패키지</span>
+                <b id="scenarioLoadState">대기</b>
+              </div>
+              <ul class="file-stack" id="fileStack" aria-label="작전 자료 파일"></ul>
+            </section>
+
+            <section class="hard-panel wide-panel scenario-card">
+              <div class="panel-heading">
+                <span>작전계획 추출 필드</span>
+                <b id="scenarioSourceLabel">자료 접수 전</b>
+              </div>
+              <div class="scenario-summary">
+                <article>
+                  <span>작전명</span>
+                  <strong id="operationName">접수 전</strong>
+                </article>
+                <article>
+                  <span>임무</span>
+                  <strong id="missionText">작전계획을 접수하면 임무가 표시됩니다.</strong>
+                </article>
+                <article>
+                  <span>시간</span>
+                  <strong id="operationTime">--:-- / --:--</strong>
+                </article>
+              </div>
+              <div class="constraint-grid" id="constraintGrid" aria-label="제한사항"></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>구조화 파이프라인</span>
+                <b id="pipelineState">준비</b>
+              </div>
+              <div class="pipeline-list" id="pipelineList"></div>
+            </section>
+
+            <section class="hard-panel wide-panel">
+              <div class="panel-heading">
+                <span>A/B/C 방책 비교</span>
+                <b id="coaState">접수 필요</b>
+              </div>
+              <div class="coa-table" id="coaTable" aria-label="방책 비교표"></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>운용 준비 상태</span>
+                <b id="demoReadinessLabel">부분 가능</b>
+              </div>
+              <div class="readiness-list" id="readinessList"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-view graph-page" data-page="ontology">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">문서가 아니라 관계를 봅니다.</p>
+              <h2>그래프 구축</h2>
+            </div>
+            <div class="graph-modes" role="tablist" aria-label="그래프 필터">
+              <button class="mode-button is-active" data-graph-mode="all" type="button">전체</button>
+              <button class="mode-button" data-graph-mode="evidence" type="button">근거</button>
+              <button class="mode-button" data-graph-mode="debate" type="button">토론</button>
+              <button class="mode-button" data-graph-mode="failure" type="button">실패경로</button>
+              <button class="mode-button" data-graph-mode="decision" type="button">결심</button>
+            </div>
+          </div>
+
+          <div class="page-guide-strip" id="graphGuideStrip" aria-label="그래프 구축 읽는 법">
+            <article>
+              <span>1</span>
+              <b>근거가 어디에 연결됐나</b>
+              <em>문서, 방책, 실패경로, 결심 사이의 연결선을 봅니다.</em>
+            </article>
+            <article>
+              <span>2</span>
+              <b>노드를 선택한다</b>
+              <em>오른쪽에서 선택 노드의 근거와 관련 발언을 확인합니다.</em>
+            </article>
+            <article>
+              <span>3</span>
+              <b>필터로 좁힌다</b>
+              <em>근거, 토론, 실패경로, 결심만 따로 확인합니다.</em>
+            </article>
+          </div>
+
+          <div class="graph-workspace">
+            <section class="graph-theater" aria-label="온톨로지 그래프">
+              <div class="graph-backdrop" aria-hidden="true"></div>
+              <div class="graph-stage">
+                <svg id="ontologySvg" viewBox="0 0 1000 700" role="img" aria-labelledby="ontologyTitle ontologyDesc">
+                  <title id="ontologyTitle">작전 온톨로지 네트워크</title>
+                  <desc id="ontologyDesc">작전 자료, 방책, 제약, 에이전트, 실패경로, 결심카드를 연결한 온톨로지 그래프.</desc>
+                  <defs>
+                    <filter id="nodeGlow" x="-40%" y="-40%" width="180%" height="180%">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                      <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <g class="grid-lines" aria-hidden="true"></g>
+                  <g id="edgeLayer"></g>
+                  <g id="nodeLayer"></g>
+                </svg>
+              </div>
+            </section>
+
+            <aside class="hard-panel graph-inspector">
+              <div class="panel-heading">
+                <span>그래프 인스펙터</span>
+                <b id="ontologyCountLabel">0개 노드</b>
+              </div>
+              <div class="legend-block">
+                <span class="legend-chip document"></span>문서/근거
+                <span class="legend-chip coa"></span>방책
+                <span class="legend-chip agent"></span>에이전트
+                <span class="legend-chip factor"></span>제약
+                <span class="legend-chip risk"></span>위험
+                <span class="legend-chip decision"></span>결심
+              </div>
+              <div class="selected-node" id="selectedNode">
+                <b>선택 노드</b>
+                <span>노드를 선택하면 관련 파일, 에이전트 발언, 실패경로 연결을 표시합니다.</span>
+              </div>
+              <div class="evidence-panel" id="evidencePreview" aria-live="polite"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="page-view agents-page" data-page="agents">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">참모 판단, 현장 수행 조건, 대항군 변수를 함께 검토합니다.</p>
+              <h2>가상부대 생성</h2>
+            </div>
+            <div class="page-status">
+              <span id="agentFactoryState">생성 대기</span>
+              <span id="agentReadyCount">0 / 23</span>
+              <span id="agentProgressLabel">0%</span>
+            </div>
+          </div>
+
+          <div class="page-guide-strip" id="agentsGuideStrip" aria-label="가상부대 읽는 법">
+            <article>
+              <span>1</span>
+              <b>누가 무엇을 검토하나</b>
+              <em>아군, 대항군, 전장 변수, 통제 역할을 먼저 나눠 봅니다.</em>
+            </article>
+            <article>
+              <span>2</span>
+              <b>프로필을 선택한다</b>
+              <em>오른쪽에서 역할, 산출물, 인계 대상을 확인합니다.</em>
+            </article>
+            <article>
+              <span>3</span>
+              <b>토론 결론을 본다</b>
+              <em>아래 로그와 분야별 결론에서 합의점을 확인합니다.</em>
+            </article>
+          </div>
+
+          <div class="agents-workspace">
+            <section class="hard-panel agent-factory-panel">
+              <div class="panel-heading">
+                <span>생성 진행률</span>
+                <b id="agentLayerState">대기</b>
+              </div>
+              <div class="agent-filter-controls" id="agentFilterControls" aria-label="가상부대 분류 필터">
+                <button class="agent-filter-button is-active" data-agent-filter="all" type="button">전체</button>
+                <button class="agent-filter-button" data-agent-filter="blue" type="button">아군</button>
+                <button class="agent-filter-button" data-agent-filter="opfor" type="button">대항군</button>
+                <button class="agent-filter-button" data-agent-filter="environment" type="button">전장 변수</button>
+                <button class="agent-filter-button" data-agent-filter="control" type="button">통제</button>
+              </div>
+              <div class="agent-formation-grid" id="agentFormationSummary" aria-label="가상부대 편성 요약"></div>
+              <div class="factory-progress" aria-label="가상부대 생성 진행률">
+                <span id="agentProgressBar"></span>
+              </div>
+              <div class="agent-layer-board" id="agentLayerBoard"></div>
+            </section>
+
+            <section class="hard-panel agent-profile-panel" id="agentProfilePanel" aria-live="polite"></section>
+
+            <section class="hard-panel discussion-panel">
+              <div class="panel-heading">
+                <span>에이전트 토론 로그</span>
+                <b id="staffState">접수 필요</b>
+              </div>
+              <div id="debateStream" class="debate-stream"></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>분야별 결론</span>
+                <b>5개 쟁점</b>
+              </div>
+              <div class="staff-matrix" id="staffMatrix"></div>
+            </section>
+
+            <section class="hard-panel consensus-card">
+              <span>합의 결론</span>
+              <strong>B안 우선, A안 조건부 보완</strong>
+              <p>통신 음영, 보급 대기점, 재판단 기준을 보완하지 않으면 A안은 지휘공백 리스크가 가장 큽니다.</p>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-view rehearsal-page" data-page="rehearsal">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">마찰은 시간순 이벤트로 드러납니다.</p>
+              <h2>수행 리허설</h2>
+            </div>
+            <div class="rehearsal-controls" aria-label="리허설 제어">
+              <button class="mode-button" id="rehearsalPauseButton" type="button">일시정지</button>
+              <button class="mode-button" id="rehearsalReplayButton" type="button">다시보기</button>
+              <button class="mode-button" id="rehearsalSpeedButton" type="button">속도 1x</button>
+            </div>
+          </div>
+
+          <div class="page-guide-strip" id="rehearsalGuideStrip" aria-label="수행 리허설 읽는 법">
+            <article>
+              <span>1</span>
+              <b>언제 문제가 터지나</b>
+              <em>왼쪽 시간순 이벤트에서 마찰 발생 시각을 확인합니다.</em>
+            </article>
+            <article>
+              <span>2</span>
+              <b>3D에서 위치를 본다</b>
+              <em>승진훈련장 지형에서 경로, 자산, 효과를 같이 봅니다.</em>
+            </article>
+            <article>
+              <span>3</span>
+              <b>누가 반응했나</b>
+              <em>오른쪽 점등 에이전트와 무전 로그로 판단 근거를 봅니다.</em>
+            </article>
+          </div>
+
+          <div class="rehearsal-workspace">
+            <section class="hard-panel timeline-panel">
+              <div class="panel-heading">
+                <span>시간순 이벤트</span>
+                <b id="timelineState">대기</b>
+              </div>
+              <div id="timelineEvents" class="timeline-events" aria-live="polite"></div>
+            </section>
+
+            <section class="hard-panel rehearsal-map-panel">
+              <div class="panel-heading">
+                <span>승진훈련장 3D 전투 리허설</span>
+                <b id="rehearsalRiskLabel">위험 대기</b>
+              </div>
+              <div class="war-ground-3d-shell" id="rehearsalMap" aria-label="승진훈련장 3D 수행 리허설">
+                <canvas id="warGround3dCanvas" aria-label="승진훈련장 3D 전투 시각화"></canvas>
+                <div class="war-ground-3d-hud">
+                  <span>VISTA 지형 런타임</span>
+                  <b id="warGround3dStatus">3D 초기화 대기</b>
+                </div>
+                <aside class="asset-command-rail" id="assetCommandRail" aria-label="3D 자산 배치 및 편집">
+                  <div class="asset-rail-heading">
+                    <span>자산 배치</span>
+                    <b id="assetModeStatus">선택 모드</b>
+                  </div>
+                  <div class="asset-edit-toolbar" aria-label="자산 조작 모드">
+                    <button class="mode-button is-active placement-mode" id="selectAssetModeButton" type="button" data-asset-mode="select">
+                      <i data-lucide="mouse-pointer-2" aria-hidden="true"></i>
+                      선택
+                    </button>
+                    <button class="mode-button placement-mode" id="placementModeButton" type="button" data-asset-mode="place">
+                      <i data-lucide="map-pin-plus" aria-hidden="true"></i>
+                      배치
+                    </button>
+                    <button class="mode-button placement-mode" id="moveAssetModeButton" type="button" data-asset-mode="move">
+                      <i data-lucide="move-3d" aria-hidden="true"></i>
+                      이동
+                    </button>
+                  </div>
+                  <div class="asset-palette-list" id="assetPaletteList" aria-label="배치 가능한 VISTA 자산"></div>
+                </aside>
+                <div class="camera-control-stack" id="cameraControlStack" aria-label="지도 관측 제어">
+                  <button class="mode-button" type="button" data-camera-mode="overview">전체전장</button>
+                  <button class="mode-button" type="button" data-camera-mode="target_observe">표적관측</button>
+                  <button class="mode-button" type="button" data-camera-mode="drone_follow">드론추적</button>
+                  <button class="mode-button" type="button" data-camera-mode="objective_focus">목표중심</button>
+                  <button class="mode-button" type="button" data-camera-mode="ground_move">지상이동</button>
+                </div>
+                <div class="war-ground-zoom-controls" id="warGroundZoomControls" aria-label="3D 지도 확대 축소">
+                  <button class="mode-button" type="button" data-camera-zoom="in" aria-label="3D 지도 확대" title="확대">+</button>
+                  <button class="mode-button" type="button" data-camera-zoom="out" aria-label="3D 지도 축소" title="축소">-</button>
+                  <button class="mode-button" type="button" data-camera-zoom="reset" aria-label="3D 지도 줌 기준 복귀" title="줌 기준">1x</button>
+                </div>
+                <div class="layer-control-stack" id="layerControlStack" aria-label="3D 지도 레이어 제어">
+                  <button class="mode-button is-active" type="button" data-layer-toggle="routes">경로</button>
+                  <button class="mode-button is-active" type="button" data-layer-toggle="labels">표찰</button>
+                  <button class="mode-button is-active" type="button" data-layer-toggle="effects">효과</button>
+                  <button class="mode-button is-active" type="button" data-layer-toggle="threat">위협</button>
+                </div>
+                <aside class="selected-asset-inspector" id="selectedAssetInspector" aria-label="선택 자산 편집">
+                  <div class="asset-inspector-empty">
+                    <span>선택 자산</span>
+                    <strong>지도 자산을 선택하세요.</strong>
+                    <p>배치 모드에서 지형을 클릭하면 VISTA 모델 기반 자산이 실제 DEM 높이에 맞춰 생성됩니다.</p>
+                  </div>
+                </aside>
+                <aside class="strike-telemetry-panel" id="strikeTelemetryPanel" aria-label="타격 재생 상황판" hidden>
+                  <div class="strike-telemetry-heading">
+                    <span>FOCUS-FIRE</span>
+                    <b id="strikeTelemetryState">대기</b>
+                  </div>
+                  <div class="strike-engagement-strip" aria-label="타격 진행률 및 피해평가">
+                    <div class="strike-progress-meter" id="strikeProgressMeter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                      <span></span>
+                    </div>
+                    <div class="strike-engagement-kpis">
+                      <span>ETA <b class="strike-impact-eta" id="strikeImpactEta">--</b></span>
+                      <span>BDA <b class="strike-bda-readout" id="strikeBdaReadout">대기</b></span>
+                    </div>
+                  </div>
+                  <div class="strike-timeline-steps" id="strikeTimelineSteps"></div>
+                  <div class="strike-asset-readout" id="strikeAssetReadout"></div>
+                </aside>
+                <div class="agent-radio-overlay" id="agentRadioOverlay" aria-live="polite" aria-label="멀티에이전트 무전 알림"></div>
+                <div class="war-ground-3d-controls" aria-label="3D 보기 제어">
+                  <button class="mode-button" id="terrainAnalysisButton" type="button">지형분석</button>
+                  <button class="mode-button" id="commanderViewButton" type="button">지휘관 결과</button>
+                  <button class="mode-button" id="strikeReplayButton" type="button">타격 재생</button>
+                </div>
+              </div>
+              <div id="currentEventCard" class="current-event-card"></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>관련 에이전트 점등</span>
+                <b id="activeAgentCount">0명</b>
+              </div>
+              <div id="activeAgentChips" class="active-agent-chips"></div>
+              <div id="agentRadioLog" class="agent-radio-log" aria-live="polite" aria-label="멀티에이전트 무전 대화 로그"></div>
+              <div class="terrain-analysis-panel" id="terrainAnalysisPanel">
+                <div class="panel-heading compact-heading">
+                  <span>지형분석</span>
+                  <b>실 DEM 적용</b>
+                </div>
+                <div id="terrainMetricGrid" class="terrain-metric-grid"></div>
+                <ul id="terrainBriefList" class="terrain-brief-list"></ul>
+              </div>
+              <div class="commander-visualization-panel" id="commanderVisualizationPanel">
+                <div class="panel-heading compact-heading">
+                  <span>지휘관 결과 시각화</span>
+                  <b id="commanderConfidenceLabel">--</b>
+                </div>
+                <strong id="commanderRecommendation">결과 대기</strong>
+                <p id="commanderMessage">리허설 완료 후 지형·통신·군수 종합 결과가 표시됩니다.</p>
+                <div id="commanderOverlayList" class="commander-overlay-list"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-view risk-page" data-page="risk">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">문제가 실제 실패로 번지는 순서를 보여줍니다.</p>
+              <h2>어디서 막아야 하는가</h2>
+            </div>
+            <div class="page-status">
+              <button class="mode-button" id="compareLlmButton" type="button">기존 출력 비교</button>
+              <span>4개 문제 흐름</span>
+              <span id="highestRiskLabel">가장 위험한 흐름 --</span>
+            </div>
+          </div>
+
+          <div class="risk-guide-strip" id="riskGuideStrip" aria-label="실패경로 읽는 법">
+            <article>
+              <span>1</span>
+              <b>문제 흐름 선택</b>
+              <em>왼쪽에서 가장 위험한 흐름을 먼저 봅니다.</em>
+            </article>
+            <article>
+              <span>2</span>
+              <b>막을 지점 확인</b>
+              <em>선택한 흐름에서 결심해야 할 시각과 조건을 봅니다.</em>
+            </article>
+            <article>
+              <span>3</span>
+              <b>바로 할 조치 반영</b>
+              <em>아래 조치를 결심카드와 단편명령에 반영합니다.</em>
+            </article>
+          </div>
+
+          <div class="selected-failure-story" id="selectedFailureStory" aria-live="polite"></div>
+
+          <div class="risk-workspace">
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>우선 막아야 할 문제 흐름</span>
+                <b>점수가 높을수록 먼저 확인</b>
+              </div>
+              <div class="risk-stack" id="riskStack"></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>현재 선택한 흐름</span>
+                <b id="failureLensState">지휘공백</b>
+              </div>
+              <div id="failureLensPanel"></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>위험 점수 근거</span>
+                <b>영향 / 가능성 / 연결성</b>
+              </div>
+              <div class="risk-metric-matrix" id="riskMetricMatrix"></div>
+            </section>
+
+            <section class="hard-panel wide-panel">
+              <div class="panel-heading">
+                <span>발생 순서</span>
+                <b>앞 단계가 다음 문제를 만듭니다</b>
+              </div>
+              <div class="failure-chain" id="failureChain"></div>
+            </section>
+
+            <section class="hard-panel wide-panel">
+              <div class="panel-heading">
+                <span>바로 막는 조치</span>
+                <b>지금 결심카드에 반영</b>
+              </div>
+              <div class="mitigation-board" id="mitigationBoard"></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>판단 근거</span>
+                <b id="riskEvidenceState">검증 대기</b>
+              </div>
+              <div id="riskEvidenceList" class="evidence-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-view decision-page" data-page="decision">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">WAR GROUND는 명령이 아니라 검토안과 근거를 제공합니다.</p>
+              <h2>결심카드</h2>
+            </div>
+            <div class="decision-actions">
+              <button class="mode-button is-active" id="decisionTabCard" data-decision-tab="card" type="button">결심카드</button>
+              <button class="mode-button" id="decisionTabOrder" data-decision-tab="order" type="button">단편명령 작성안</button>
+              <button class="combat-button inverse" id="exportDecisionButton" type="button"><i data-lucide="download" aria-hidden="true"></i>검토안 내보내기</button>
+            </div>
+          </div>
+
+          <div class="page-guide-strip" id="decisionGuideStrip" aria-label="결심카드 읽는 법">
+            <article>
+              <span>1</span>
+              <b>무엇을 승인할까</b>
+              <em>추천 방책과 조건부 시행 여부를 먼저 확인합니다.</em>
+            </article>
+            <article>
+              <span>2</span>
+              <b>조건이 충분한가</b>
+              <em>통신, 군수, 재판단, 후송 조건이 채워졌는지 봅니다.</em>
+            </article>
+            <article>
+              <span>3</span>
+              <b>근거가 붙었나</b>
+              <em>오른쪽에서 지휘관 확인 항목과 근거 문서를 확인합니다.</em>
+            </article>
+          </div>
+
+          <div class="decision-workspace">
+            <section class="hard-panel decision-main">
+              <div class="decision-scoreboard" id="decisionScoreboard"></div>
+              <div id="decisionCardPanel"></div>
+              <div id="fragmentaryOrderPanel" hidden></div>
+            </section>
+
+            <section class="hard-panel">
+              <div class="panel-heading">
+                <span>지휘관 확인</span>
+                <b id="decisionEvidenceState">검증 완료</b>
+              </div>
+              <div class="commander-checklist" id="commanderChecklist"></div>
+              <div class="decision-trace-panel" id="decisionTracePanel"></div>
+              <div class="entity-table" id="decisionEvidenceTable"></div>
+              <div class="human-loop-notice" id="humanLoopNotice">의사결정 지원 검토안 / 지휘관 승인 필요</div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="node_modules/lucide/dist/umd/lucide.min.js"></script>
+    <script src="app.js"></script>
+    <script type="module" src="war-ground-3d.js"></script>
+  </body>
+</html>

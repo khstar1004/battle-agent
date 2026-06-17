@@ -1,0 +1,224 @@
+{
+  "training_area": {
+    "name": "승진훈련장",
+    "source": "VISTA offline-map/seungjin 실 위성 타일 및 Terrarium DEM 기반",
+    "center": {
+      "latitude": 38.07775,
+      "longitude": 127.354386
+    },
+    "bounds_label": "포천 산악 훈련장 추상 구역",
+    "width_km": 7.4,
+    "depth_km": 5.1,
+    "height_profile": "남측 후방 낮은 기동축, 중앙 협곡, 북동 고지대"
+  },
+  "real_terrain_source": {
+    "manifest": "ref/VISTA/client/public/offline-map/seungjin/manifest.json",
+    "satellite_texture": "assets/vista-terrain/seungjin-satellite-z14-x13986-13990-y6313-6317.png",
+    "dem_grid": "assets/vista-terrain/seungjin-dem-grid-z14-x13986-13990-y6313-6317.json",
+    "encoding": "terrarium",
+    "terrarium_formula": "heightMeters = R * 256 + G + B / 256 - 32768",
+    "zoom": 14,
+    "tile_range": {
+      "x_start": 13986,
+      "x_end": 13990,
+      "y_start": 6313,
+      "y_end": 6317
+    },
+    "elevation_m": {
+      "min": 138.95,
+      "max": 911.03
+    }
+  },
+  "terrain_layers": [
+    {
+      "key": "road",
+      "label": "도로중심선",
+      "role": "기동 축선, 보급로, 우회로 확인",
+      "status": "enabled"
+    },
+    {
+      "key": "forest",
+      "label": "산림입지도",
+      "role": "은폐 가능성과 시야 차단 보조",
+      "status": "enabled"
+    },
+    {
+      "key": "steep",
+      "label": "급경사 제한",
+      "role": "차량 전개 제한과 후송 지연 가능 지역",
+      "status": "enabled"
+    },
+    {
+      "key": "comm_gap",
+      "label": "통신 음영",
+      "role": "A안 2단계 지휘 갱신 취약 구역",
+      "status": "enabled"
+    }
+  ],
+  "routes": [
+    {
+      "id": "coa_a",
+      "label": "A안 최단 경로",
+      "risk": "high",
+      "points": [
+        [-26, -18],
+        [-16, -7],
+        [-6, 0],
+        [8, 4],
+        [25, 10]
+      ]
+    },
+    {
+      "id": "coa_b",
+      "label": "B안 우회 경로",
+      "risk": "low",
+      "points": [
+        [-27, -20],
+        [-18, -17],
+        [-8, -15],
+        [5, -12],
+        [18, -5],
+        [27, 9]
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "blue_command",
+      "name": "대대 지휘소",
+      "side": "blue",
+      "kind": "command",
+      "model": "low_poly_cargo_container",
+      "position": [-24, -21],
+      "heading": 18
+    },
+    {
+      "id": "blue_apc_1",
+      "name": "선두 장갑차 1",
+      "side": "blue",
+      "kind": "ground",
+      "model": "south_korean_km900_apc",
+      "route": "coa_b",
+      "offset": 0,
+      "heading": 35
+    },
+    {
+      "id": "blue_apc_2",
+      "name": "선두 장갑차 2",
+      "side": "blue",
+      "kind": "ground",
+      "model": "south_korean_km900_apc",
+      "route": "coa_b",
+      "offset": -2,
+      "heading": 35
+    },
+    {
+      "id": "relay_c1",
+      "name": "예비 중계팀 C1",
+      "side": "blue",
+      "kind": "relay",
+      "model": "low_poly_cargo_container",
+      "position": [-9, -8],
+      "heading": 0
+    },
+    {
+      "id": "supply_point",
+      "name": "보급 대기점",
+      "side": "blue",
+      "kind": "supply",
+      "model": "low_poly_cargo_container",
+      "position": [3, -15],
+      "heading": 90
+    },
+    {
+      "id": "enemy_delay_cell",
+      "name": "적 지연행동 셀",
+      "side": "red",
+      "kind": "enemy",
+      "model": "low_poly_cargo_container",
+      "position": [6, 3],
+      "heading": 215
+    },
+    {
+      "id": "air_patrol",
+      "name": "상공 ISR/초계",
+      "side": "blue",
+      "kind": "air",
+      "model": "low_poly_f-15",
+      "position": [-12, 13],
+      "altitude": 10,
+      "heading": 42
+    },
+    {
+      "id": "objective_alpha",
+      "name": "목표 집결지",
+      "side": "neutral",
+      "kind": "objective",
+      "model": "low_poly_cargo_container",
+      "position": [27, 9],
+      "heading": 0
+    }
+  ],
+  "event_bindings": {
+    "start": {
+      "focus": "blue_command",
+      "camera": "overview",
+      "visual": "route_compare"
+    },
+    "fog": {
+      "focus": "blue_apc_1",
+      "camera": "low_route",
+      "visual": "fog_band"
+    },
+    "enemy_delay": {
+      "focus": "enemy_delay_cell",
+      "camera": "threat",
+      "visual": "enemy_contact"
+    },
+    "comm_gap": {
+      "focus": "relay_c1",
+      "camera": "comm_gap",
+      "visual": "comm_shadow"
+    },
+    "supply_gap": {
+      "focus": "supply_point",
+      "camera": "logistics",
+      "visual": "supply_warning"
+    },
+    "criteria_gap": {
+      "focus": "blue_command",
+      "camera": "command",
+      "visual": "decision_delay"
+    },
+    "reserve_delay": {
+      "focus": "blue_apc_2",
+      "camera": "risk_chain",
+      "visual": "risk_chain"
+    },
+    "b_stabilized": {
+      "focus": "objective_alpha",
+      "camera": "commander_result",
+      "visual": "commander_result"
+    }
+  },
+  "terrain_analysis": {
+    "terrain_class": "산악 협곡형 훈련장",
+    "key_metrics": [
+      { "label": "기복", "value": "고" },
+      { "label": "가시선", "value": "제한" },
+      { "label": "기동성", "value": "중" },
+      { "label": "통신 안정성", "value": "A안 취약 / B안 안정" }
+    ],
+    "brief": [
+      "중앙 협곡과 북동 고지대가 A안 통신 갱신을 제한한다.",
+      "B안은 이동거리는 증가하지만 남측 우회축으로 보급·후송 접근성이 유지된다.",
+      "예비 중계팀 C1 선배치가 지휘공백 실패경로를 가장 직접적으로 완화한다."
+    ]
+  },
+  "commander_visualization": {
+    "recommendation": "B안 우회 경로 안정 전개",
+    "confidence": 0.86,
+    "overlays": ["B안 경로 강조", "A안 통신 음영 표시", "예비 중계팀", "재판단 기준 04:20"],
+    "message": "지형·통신·군수 제약을 종합하면 B안을 기본 기동방책으로 준비하고 A안은 조건부 승인한다."
+  }
+}

@@ -1,0 +1,83 @@
+[
+  {
+    "id": "ev_plan_mission",
+    "type": "작전계획서 문장",
+    "title": "임무와 제한시간",
+    "status": "근거 있음",
+    "source": "operation_plan_mock.pdf",
+    "preview": "야간 제한시계 조건에서 지정 집결지까지 기동 후 예비대 전개태세 유지.",
+    "linked_items": ["대대급 야간 기동훈련", "B안 우선"]
+  },
+  {
+    "id": "ev_coa_a",
+    "type": "COA 비교표",
+    "title": "A안 최단 경로 위험",
+    "status": "근거 있음",
+    "source": "coa_options.xlsx",
+    "preview": "A안은 이동시간이 짧지만 통신 위험 high, 적 예측 가능성 high로 표시됨.",
+    "linked_items": ["최단 경로 신속 전개", "지휘공백"]
+  },
+  {
+    "id": "ev_coa_b",
+    "type": "COA 비교표",
+    "title": "B안 안정성",
+    "status": "근거 있음",
+    "source": "coa_options.xlsx",
+    "preview": "B안은 이동시간이 증가하나 통신과 군수 위험이 low로 정규화됨.",
+    "linked_items": ["우회 경로 안정 전개", "추천 방책"]
+  },
+  {
+    "id": "ev_comm_gap",
+    "type": "통신 커버리지 지도",
+    "title": "A안 2단계 통신 음영",
+    "status": "근거 있음",
+    "source": "comm_coverage_map.png",
+    "preview": "A안 협곡 구간에 18분 음영이 겹쳐 보고 주기 갱신이 불안정.",
+    "linked_items": ["통신 음영", "보고 지연", "지휘공백"]
+  },
+  {
+    "id": "ev_logistics_supply",
+    "type": "군수 현황표",
+    "title": "보급대기점 부족",
+    "status": "근거 있음",
+    "source": "logistics_status.xlsx",
+    "preview": "현재 대기점 1개, 요구 대기점 2개. 정비 가능 시간 35분으로 제한.",
+    "linked_items": ["보급대기점 부족", "작전 지속성 저하"]
+  },
+  {
+    "id": "ev_weather_fog",
+    "type": "기상 JSON",
+    "title": "새벽 안개",
+    "status": "근거 있음",
+    "source": "weather_mock.json",
+    "preview": "03:50-04:35 구간 제한시계. 이동 속도 보정 +12분.",
+    "linked_items": ["새벽 안개", "사고 대응 지연"]
+  },
+  {
+    "id": "ev_sop_criteria",
+    "type": "SOP 발췌",
+    "title": "재판단 기준 명시 필요",
+    "status": "추가 확인 필요",
+    "source": "sop_excerpt.txt",
+    "preview": "중단/전환/증원 요청 기준은 있으나 본 계획서의 시간 기준과 연결되지 않음.",
+    "linked_items": ["재판단 지연", "단편명령 초안"]
+  },
+  {
+    "id": "ev_redteam_delay",
+    "type": "에이전트 토론 로그",
+    "title": "적 지연행동 가설",
+    "status": "추정",
+    "source": "agent_discussion.log",
+    "preview": "레드팀은 A안 교차로와 협곡 입구에서 선두 제대 지연 가능성을 제시.",
+    "linked_items": ["적 지연행동", "지휘공백"]
+  },
+  {
+    "id": "ev_evac_route",
+    "type": "후송로 검토",
+    "title": "후송 대체로 필요",
+    "status": "추정",
+    "source": "operation_plan_mock.pdf",
+    "preview": "주 후송로가 협소하여 사고 발생 시 의무반 접근 시간이 증가할 수 있음.",
+    "linked_items": ["후송로 제한", "사고 대응 지연"]
+  }
+]

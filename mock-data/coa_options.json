@@ -1,0 +1,35 @@
+[
+  {
+    "id": "A",
+    "name": "최단 경로 신속 전개",
+    "travel_time": 78,
+    "comm_risk": "high",
+    "logistics_risk": "medium",
+    "enemy_predictability": "high",
+    "strength": "제한 시간 충족 가능성이 가장 높음",
+    "weakness": "통신 음영과 적 지연행동이 동시에 걸릴 때 지휘공백 발생 가능",
+    "condition": "예비 통신수단, 보급대기점, 재판단 기준 보완 시 조건부 가능"
+  },
+  {
+    "id": "B",
+    "name": "우회 경로 안정 전개",
+    "travel_time": 96,
+    "comm_risk": "low",
+    "logistics_risk": "low",
+    "enemy_predictability": "medium",
+    "strength": "통신, 보급, 후송 안정성이 가장 높음",
+    "weakness": "도착 시간 여유가 줄어 속도 저하 이벤트에 민감",
+    "condition": "기상 저하 시 선두 제대 속도 보정 필요"
+  },
+  {
+    "id": "C",
+    "name": "단계별 전개 후 예비대 대기",
+    "travel_time": 112,
+    "comm_risk": "medium",
+    "logistics_risk": "low",
+    "enemy_predictability": "low",
+    "strength": "예비대 운용과 재판단 여지가 큼",
+    "weakness": "제한 시간 초과 위험이 큼",
+    "condition": "집결지 도착 시각 조정 또는 임무 단계 분리 필요"
+  }
+]

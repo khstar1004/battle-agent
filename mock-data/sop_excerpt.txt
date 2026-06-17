@@ -1,0 +1,6 @@
+BATTLE-PROOF K MOCK SOP EXCERPT
+
+1. If communications are lost for more than 30 minutes, the subordinate commander must report through an alternate channel and reassess the current course of action.
+2. If supply delay exceeds the planned window, the unit must shift to a designated alternate supply waiting point.
+3. If MEDEVAC is constrained to a single route, the plan must designate a backup evacuation point before movement.
+4. If the order does not specify a reassessment trigger, the commander must add one before execution.

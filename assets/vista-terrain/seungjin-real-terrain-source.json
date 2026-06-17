@@ -1,0 +1,50 @@
+{
+    "id":  "seungjin-real-terrain-z14",
+    "label":  "VISTA 승진훈련장 실제 지형 타일",
+    "sourceManifest":  "ref/VISTA/client/public/offline-map/seungjin/manifest.json",
+    "satelliteTexture":  "assets/vista-terrain/seungjin-satellite-z14-x13986-13990-y6313-6317.png",
+    "demGrid":  "assets/vista-terrain/seungjin-dem-grid-z14-x13986-13990-y6313-6317.json",
+    "tileSet":  {
+                    "zoom":  14,
+                    "xStart":  13986,
+                    "xEnd":  13990,
+                    "yStart":  6313,
+                    "yEnd":  6317,
+                    "tileCount":  5
+                },
+    "center":  {
+                   "longitude":  127.354386,
+                   "latitude":  38.07775
+               },
+    "sourceSatelliteTiles":  [
+                                 "raster/satellite/14/13986/6313.jpg",
+                                 "raster/satellite/14/13986/6314.jpg",
+                                 "raster/satellite/14/13986/6315.jpg",
+                                 "raster/satellite/14/13986/6316.jpg",
+                                 "raster/satellite/14/13986/6317.jpg",
+                                 "raster/satellite/14/13987/6313.jpg",
+                                 "raster/satellite/14/13987/6314.jpg",
+                                 "raster/satellite/14/13987/6315.jpg",
+                                 "raster/satellite/14/13987/6316.jpg",
+                                 "raster/satellite/14/13987/6317.jpg",
+                                 "raster/satellite/14/13988/6313.jpg",
+                                 "raster/satellite/14/13988/6314.jpg",
+                                 "raster/satellite/14/13988/6315.jpg",
+                                 "raster/satellite/14/13988/6316.jpg",
+                                 "raster/satellite/14/13988/6317.jpg",
+                                 "raster/satellite/14/13989/6313.jpg",
+                                 "raster/satellite/14/13989/6314.jpg",
+                                 "raster/satellite/14/13989/6315.jpg",
+                                 "raster/satellite/14/13989/6316.jpg",
+                                 "raster/satellite/14/13989/6317.jpg",
+                                 "raster/satellite/14/13990/6313.jpg",
+                                 "raster/satellite/14/13990/6314.jpg",
+                                 "raster/satellite/14/13990/6315.jpg",
+                                 "raster/satellite/14/13990/6316.jpg",
+                                 "raster/satellite/14/13990/6317.jpg"
+                             ],
+    "sourceTerrainTemplate":  "ref/VISTA/client/public/offline-map/seungjin/terrain/terrarium/{z}/{x}/{y}.png",
+    "terrariumFormula":  "heightMeters = R * 256 + G + B / 256 - 32768",
+    "minElevationM":  138.95,
+    "maxElevationM":  911.03
+}

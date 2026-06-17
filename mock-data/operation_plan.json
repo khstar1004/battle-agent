@@ -1,0 +1,54 @@
+{
+  "operation_name": "대대급 야간 기동훈련",
+  "mission": "야간 제한시계 조건에서 지정 집결지까지 기동 후 예비대 전개태세 유지",
+  "start_time": "03:40",
+  "deadline": "05:20",
+  "source_disclaimer": "가상 데이터 기반 목업",
+  "documents": [
+    { "id": "operation_plan_mock", "name": "operation_plan_mock.pdf", "type": "작전계획" },
+    { "id": "coa_options", "name": "coa_options.xlsx", "type": "방책" },
+    { "id": "logistics_status", "name": "logistics_status.xlsx", "type": "군수" },
+    { "id": "comm_coverage_map", "name": "comm_coverage_map.png", "type": "통신" },
+    { "id": "weather_mock", "name": "weather_mock.json", "type": "기상" },
+    { "id": "sop_excerpt", "name": "sop_excerpt.txt", "type": "SOP" }
+  ],
+  "constraints": [
+    "통신 음영",
+    "보급대기점 부족",
+    "차량 정비 제한",
+    "새벽 안개",
+    "후송로 제한"
+  ],
+  "forces": {
+    "unit": "가상 대대 전투단",
+    "maneuver_elements": ["A중대", "B중대", "예비소대"],
+    "support_elements": ["통신반", "정비반", "의무반", "보급반"]
+  },
+  "equipment": {
+    "vehicles": 18,
+    "radios": 31,
+    "maintenance_window_minutes": 35
+  },
+  "logistics": {
+    "supply_points": 1,
+    "required_supply_points": 2,
+    "fuel_margin": "제한",
+    "maintenance_capacity": "부분 가능"
+  },
+  "weather": {
+    "visibility": "저하",
+    "fog_window": "03:50-04:35",
+    "movement_penalty_minutes": 12
+  },
+  "communications": {
+    "coverage_gap_minutes": 18,
+    "primary_gap": "A안 2단계 협곡 구간",
+    "relay_candidates": ["C1", "C2"]
+  },
+  "extracted_fields": [
+    { "label": "작전명", "value": "대대급 야간 기동훈련", "source": "operation_plan_mock.pdf" },
+    { "label": "임무", "value": "제한 시간 내 지정 집결지 도착", "source": "operation_plan_mock.pdf" },
+    { "label": "제한사항", "value": "통신 음영, 보급, 정비, 안개, 후송로", "source": "operation_plan_mock.pdf" },
+    { "label": "재판단 기준", "value": "문서 내 명시 부족", "source": "sop_excerpt.txt" }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "operation": "OO battalion night maneuver training",
+  "forecast_window": "0300-0700",
+  "conditions": [
+    {
+      "time": "0300",
+      "visibility_m": 900,
+      "fog": "moderate",
+      "precipitation_probability": 0.28,
+      "impact": "reduced convoy speed"
+    },
+    {
+      "time": "0500",
+      "visibility_m": 600,
+      "fog": "dense",
+      "precipitation_probability": 0.42,
+      "impact": "higher collision and delay risk"
+    }
+  ],
+  "agent_note": "Early morning fog can combine with shortest-route movement and limited MEDEVAC options."
+}
