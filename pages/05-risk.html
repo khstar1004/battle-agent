@@ -1,0 +1,37 @@
+﻿<section class="page-view risk-page report-page" data-page="risk">
+  <div class="page-heading report-heading">
+    <div class="report-title-block">
+      <p class="eyebrow">실패경로</p>
+      <h2>무엇 때문에 실패했나</h2>
+      <p class="report-heading-copy">문제 원인과 실패 결과를 먼저 확인합니다.</p>
+      <div class="report-dossier" aria-label="실패경로 보고서 식별 정보">
+        <span><b>문서번호</b>WG-FP-05</span>
+        <span><b>검토상태</b>근거 대조 완료</span>
+        <span><b>작성기준</b>리허설 04:20</span>
+        <span><b>배포범위</b>지휘관 검토</span>
+      </div>
+    </div>
+    <div class="page-status report-meta">
+      <button class="mode-button" id="compareLlmButton" type="button">기존 출력 비교</button>
+      <span>4개 문제 흐름</span>
+      <span id="highestRiskLabel">가장 위험한 흐름 --</span>
+    </div>
+  </div>
+
+  <div class="risk-guide-strip" id="riskGuideStrip" aria-label="실패경로 읽는 법">
+    <article><span>1</span><b>문제 흐름 선택</b><em>왼쪽에서 가장 위험한 흐름을 먼저 봅니다.</em></article>
+    <article><span>2</span><b>막을 지점 확인</b><em>선택한 흐름에서 결심해야 할 시각과 조건을 봅니다.</em></article>
+    <article><span>3</span><b>바로 할 조치 반영</b><em>아래 조치를 결심카드와 단편명령에 반영합니다.</em></article>
+  </div>
+
+  <div class="selected-failure-story" id="selectedFailureStory" aria-live="polite"></div>
+
+  <div class="risk-workspace">
+    <section class="hard-panel"><div class="panel-heading"><span>우선 막아야 할 문제 흐름</span><b>점수가 높을수록 먼저 확인</b></div><div class="risk-stack" id="riskStack"></div></section>
+    <section class="hard-panel"><div class="panel-heading"><span>현재 선택한 흐름</span><b id="failureLensState">지휘공백</b></div><div id="failureLensPanel"></div></section>
+    <section class="hard-panel"><div class="panel-heading"><span>위험 점수 근거</span><b>영향 / 가능성 / 연결성</b></div><div class="risk-metric-matrix" id="riskMetricMatrix"></div><div class="failure-coverage-matrix" id="failureCoverageMatrix" aria-label="실패경로 근거 커버리지"></div></section>
+    <section class="hard-panel wide-panel"><div class="panel-heading"><span>발생 순서</span><b>앞 단계가 다음 문제를 만듭니다</b></div><div class="failure-chain" id="failureChain"></div></section>
+    <section class="hard-panel wide-panel"><div class="panel-heading"><span>바로 막는 조치</span><b>지금 결심카드에 반영</b></div><div class="mitigation-board" id="mitigationBoard"></div></section>
+    <section class="hard-panel"><div class="panel-heading"><span>판단 근거</span><b id="riskEvidenceState">검증 대기</b></div><div id="riskEvidenceList" class="evidence-list"></div></section>
+  </div>
+</section>

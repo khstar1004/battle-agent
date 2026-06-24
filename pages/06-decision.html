@@ -1,0 +1,46 @@
+﻿<section class="page-view decision-page report-page" data-page="decision">
+  <div class="page-heading report-heading">
+    <div class="report-title-block">
+      <p class="eyebrow">지휘관 결심카드</p>
+      <h2>결심카드</h2>
+      <p class="report-heading-copy">승인할 방책, 조건, 즉시 조치만 남깁니다.</p>
+      <div class="report-dossier" aria-label="결심카드 보고서 식별 정보">
+        <span><b>문서번호</b>WG-DC-06</span>
+        <span><b>검토상태</b>조건부 승인안</span>
+        <span><b>책임원칙</b>Human-in-the-loop</span>
+        <span><b>근거잠금</b>4/7 직접 연결</span>
+      </div>
+    </div>
+    <div class="decision-actions">
+      <button class="mode-button is-active" id="decisionTabCard" data-decision-tab="card" type="button">결심카드</button>
+      <button class="mode-button" id="decisionTabOrder" data-decision-tab="order" type="button">단편명령 작성안</button>
+      <button class="combat-button inverse" id="exportDecisionButton" type="button"><i data-lucide="download" aria-hidden="true"></i>검토안 내보내기</button>
+    </div>
+  </div>
+
+  <div class="page-guide-strip" id="decisionGuideStrip" aria-label="결심카드 읽는 법">
+    <article><span>1</span><b>무엇을 승인할까</b><em>추천 방책과 조건부 시행 여부를 먼저 확인합니다.</em></article>
+    <article><span>2</span><b>조건이 충분한가</b><em>통신, 군수, 재판단, 후송 조건이 채워졌는지 봅니다.</em></article>
+    <article><span>3</span><b>근거가 붙었나</b><em>오른쪽에서 지휘관 확인 항목과 근거 문서를 확인합니다.</em></article>
+  </div>
+
+  <div class="decision-workspace">
+    <section class="hard-panel decision-main">
+      <div class="decision-scoreboard" id="decisionScoreboard"></div>
+      <div id="decisionCardPanel"></div>
+      <div id="decisionExecutionMatrix" class="decision-execution-matrix" aria-label="결심 조치 실행 매트릭스"></div>
+      <div id="decisionImpactSimulator" class="decision-impact-simulator" aria-label="조건별 위험 감쇄 시뮬레이터"></div>
+      <div id="decisionApprovalBoard" class="decision-approval-board" aria-label="지휘관 승인 게이트"></div>
+      <div id="fragmentaryOrderPanel" hidden></div>
+    </section>
+
+    <section class="hard-panel">
+      <div class="panel-heading"><span>지휘관 확인</span><b id="decisionEvidenceState">검증 완료</b></div>
+      <div class="commander-checklist" id="commanderChecklist"></div>
+      <div class="decision-signature-flow" id="decisionSignatureFlow" aria-label="결심 승인 흐름"></div>
+      <div class="decision-trace-panel" id="decisionTracePanel"></div>
+      <div class="entity-table" id="decisionEvidenceTable"></div>
+      <div class="human-loop-notice" id="humanLoopNotice">의사결정 지원 검토안 / 지휘관 승인 필요</div>
+    </section>
+  </div>
+</section>

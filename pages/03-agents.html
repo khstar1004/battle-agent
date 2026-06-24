@@ -1,0 +1,49 @@
+﻿<section class="page-view agents-page" data-page="agents">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">참모 판단, 현장 수행 조건, 대항군 변수를 함께 검토합니다.</p>
+      <h2>가상부대 생성</h2>
+    </div>
+    <div class="page-status"><span id="agentFactoryState">생성 대기</span><span id="agentReadyCount">0 / 23</span><span id="agentProgressLabel">0%</span></div>
+  </div>
+
+  <div class="page-guide-strip" id="agentsGuideStrip" aria-label="가상부대 읽는 법">
+    <article><span>1</span><b>누가 무엇을 검토하나</b><em>아군, 대항군, 전장 변수, 통제 역할을 먼저 나눠 봅니다.</em></article>
+    <article><span>2</span><b>프로필을 선택한다</b><em>오른쪽에서 역할, 산출물, 인계 대상을 확인합니다.</em></article>
+    <article><span>3</span><b>토론 결론을 본다</b><em>아래 로그와 분야별 결론에서 합의점을 확인합니다.</em></article>
+  </div>
+
+  <div class="agents-workspace">
+    <section class="hard-panel agent-factory-panel">
+      <div class="panel-heading"><span>생성 진행률</span><b id="agentLayerState">대기</b></div>
+      <div class="agent-filter-controls" id="agentFilterControls" aria-label="가상부대 분류 필터">
+        <button class="agent-filter-button is-active" data-agent-filter="all" type="button">전체</button>
+        <button class="agent-filter-button" data-agent-filter="blue" type="button">아군</button>
+        <button class="agent-filter-button" data-agent-filter="opfor" type="button">대항군</button>
+        <button class="agent-filter-button" data-agent-filter="environment" type="button">전장 변수</button>
+        <button class="agent-filter-button" data-agent-filter="control" type="button">통제</button>
+      </div>
+      <div class="agent-formation-grid" id="agentFormationSummary" aria-label="가상부대 편성 요약"></div>
+      <div class="factory-progress" aria-label="가상부대 생성 진행률"><span id="agentProgressBar"></span></div>
+      <div class="agent-layer-board" id="agentLayerBoard"></div>
+    </section>
+
+    <section class="hard-panel agent-profile-panel" id="agentProfilePanel" aria-live="polite"></section>
+
+    <section class="hard-panel discussion-panel">
+      <div class="panel-heading"><span>에이전트 토론 로그</span><b id="staffState">접수 필요</b></div>
+      <div id="debateStream" class="debate-stream"></div>
+    </section>
+
+    <section class="hard-panel">
+      <div class="panel-heading"><span>분야별 결론</span><b>5개 쟁점</b></div>
+      <div class="staff-matrix" id="staffMatrix"></div>
+    </section>
+
+    <section class="hard-panel consensus-card">
+      <span>합의 결론</span>
+      <strong>B안 우선, A안 조건부 보완</strong>
+      <p>통신 음영, 보급 대기점, 재판단 기준을 보완하지 않으면 A안은 지휘공백 리스크가 가장 큽니다.</p>
+    </section>
+  </div>
+</section>

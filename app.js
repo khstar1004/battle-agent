@@ -753,6 +753,45 @@ const stageMeta = {
   decision: { phase: "결심카드", alert: "B안 우선" }
 };
 
+const stageTransitionCopy = {
+  data: {
+    kicker: "INTAKE PIPELINE",
+    title: "작전 자료 구조화",
+    detail: "문서 해시, 임무 필드, 방책 표를 시연용 데이터 패킷으로 정규화합니다.",
+    steps: ["원천 문서 수신", "임무/제약 추출", "방책 비교표 정규화"]
+  },
+  ontology: {
+    kicker: "SEMANTIC GRAPH",
+    title: "온톨로지 관계 생성",
+    detail: "문서, 방책, 위험, 결심 노드를 연결하고 근거 체인의 신뢰도를 계산합니다.",
+    steps: ["노드 타입 분류", "관계 엣지 생성", "결심 경로 잠금"]
+  },
+  agents: {
+    kicker: "VIRTUAL UNIT",
+    title: "가상부대 역할 매핑",
+    detail: "참모, 현장 제대, 대항군, 환경 에이전트를 작전 쟁점에 배치합니다.",
+    steps: ["역할 카드 로드", "쟁점별 책임 할당", "토론 채널 개방"]
+  },
+  rehearsal: {
+    kicker: "MISSION REHEARSAL",
+    title: "수행 리허설 동기화",
+    detail: "시간순 이벤트와 3D 지형, 포격·기동 시각화를 같은 타임라인에 연결합니다.",
+    steps: ["이벤트 타임라인 장전", "지형 좌표 동기화", "전술 액션 재생 준비"]
+  },
+  risk: {
+    kicker: "FAILURE PATH",
+    title: "실패경로 압축",
+    detail: "마찰 이벤트를 지휘공백, 지속성, 사고 대응, 재판단 경로로 묶습니다.",
+    steps: ["위험 신호 수집", "인과 사슬 정렬", "차단 조치 우선순위화"]
+  },
+  decision: {
+    kicker: "COMMAND CARD",
+    title: "결심카드 패키징",
+    detail: "추천 방책, 시행 조건, 근거 테이블을 지휘관 확인 양식으로 잠급니다.",
+    steps: ["추천 방책 검증", "승인 조건 결합", "브리핑 패킷 생성"]
+  }
+};
+
 const REHEARSAL_EVENT_DURATION_MS = 4200;
 
 const state = {
@@ -768,14 +807,26 @@ const state = {
   rehearsalPaused: false,
   rehearsalSpeed: 1,
   autoTimer: null,
+  transitionTimer: null,
   compareLlm: false,
   demoRemaining: 210,
   selectedAgentId: "red_team_agent",
   agentFilter: "all",
   selectedFailureId: "command_gap",
+  selectedEvidenceId: "ev_comm_gap",
+  focusMode: false,
+  presenterMode: false,
+  lastRehearsalRiskEventId: null,
+  decisionConditionState: {
+    comms: true,
+    logistics: true,
+    rejudge: true,
+    evac: true
+  },
   radioLog: [],
   radioTimers: [],
-  radioSerial: 0
+  radioSerial: 0,
+  routeSyncReady: false
 };
 
 function qs(selector) {
@@ -817,6 +868,75 @@ function riskLabel(value) {
 
 function refreshIcons() {
   window.lucide?.createIcons?.();
+}
+
+function getStageTransitionCopy(stage, overrides = {}) {
+  const base = stageTransitionCopy[stage] || stageTransitionCopy.data;
+  return {
+    ...base,
+    ...overrides,
+    steps: overrides.steps || base.steps,
+    stage
+  };
+}
+
+function renderStageTransitionOverlay(stage, overrides = {}) {
+  const overlay = byId("stageTransitionOverlay");
+  if (!overlay) return null;
+  const copy = getStageTransitionCopy(stage, overrides);
+  overlay.dataset.transitionStage = stage;
+  overlay.innerHTML = `
+    <section class="stage-transition-panel">
+      <div class="stage-loader-ring" aria-hidden="true"><span></span><i></i></div>
+      <div class="stage-transition-copy">
+        <span>${copy.kicker}</span>
+        <h2>${copy.title}</h2>
+        <p>${copy.detail}</p>
+      </div>
+      <div class="stage-loader-steps" aria-label="처리 단계">
+        ${copy.steps
+          .map(
+            (step, index) => `
+              <article class="stage-loader-step ${index === 1 ? "is-running" : ""}" data-transition-step="${index + 1}">
+                <b>${String(index + 1).padStart(2, "0")}</b>
+                <span>${step}</span>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+  return overlay;
+}
+
+function beginStageTransition(stage, overrides = {}) {
+  clearTimer("transitionTimer");
+  const overlay = renderStageTransitionOverlay(stage, overrides);
+  if (!overlay) return;
+  overlay.hidden = false;
+  overlay.classList.add("stage-transition-overlay");
+  overlay.classList.remove("is-leaving");
+  overlay.classList.add("is-active");
+  document.body.classList.add("is-stage-transitioning");
+  const duration = overrides.duration || 780;
+  state.transitionTimer = window.setTimeout(() => completeStageTransition(stage), duration);
+}
+
+function completeStageTransition(stage = state.currentStage) {
+  clearTimer("transitionTimer");
+  const overlay = byId("stageTransitionOverlay");
+  if (!overlay) return;
+  overlay.dataset.transitionStage = stage;
+  overlay.classList.remove("is-active");
+  overlay.classList.add("is-leaving");
+  window.setTimeout(() => {
+    if (!overlay.classList.contains("is-active")) {
+      overlay.hidden = true;
+      overlay.classList.remove("is-leaving");
+      document.body.classList.remove("is-stage-transitioning");
+    }
+  }, 220);
 }
 
 function getAgentPersonIcon(profile) {
@@ -883,6 +1003,715 @@ function renderActionList(className, items, { title = "", ariaLabel = "", ordere
       <${listTag}>${items.map((item) => `<li>${item}</li>`).join("")}</${listTag}>
     </div>
   `;
+}
+
+function getGraphModeLabel(mode) {
+  const labels = {
+    all: "전체",
+    evidence: "근거",
+    debate: "토론",
+    failure: "실패경로",
+    decision: "결심"
+  };
+  return labels[mode] || mode;
+}
+
+function getPageBriefingItems(page) {
+  const plan = demoData.operationPlan;
+  const selectedNode = graph.nodeMap.get(state.selectedNodeId);
+  const selectedAgent = getAgentById(state.selectedAgentId) || demoData.agents[0];
+  const selectedAgentProfile = selectedAgent ? getAgentProfile(selectedAgent) : null;
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const selectedFailureProfile = getFailureProfile(selectedFailure);
+  const decisionSummary = getDecisionFailureSummary();
+  const generatedPercent = demoData.agents.length ? Math.round((state.generatedAgentCount / demoData.agents.length) * 100) : 0;
+
+  const pageItems = {
+    data: [
+      { label: "입력 패키지", value: state.scenarioLoaded ? `${plan.documents.length}종` : "0종", detail: state.scenarioLoaded ? "작전 자료 접수 완료" : "접수된 자료 없음", tone: state.scenarioLoaded ? "support" : "" },
+      { label: "추출 상태", value: state.scenarioLoaded ? plan.operation_name : "대기", detail: state.scenarioLoaded ? `${plan.start_time}-${plan.deadline}` : "임무, 시간, 제한사항 자동 채움" },
+      { label: "방책 후보", value: state.scenarioLoaded ? `${demoData.coas.length}개안` : "잠김", detail: state.scenarioLoaded ? "A/B/C 시간·통신·군수 비교" : "자료 접수 후 생성" },
+      { label: "다음 조치", value: state.scenarioLoaded ? "가상부대 생성" : "작전계획 접수", detail: state.scenarioLoaded ? "역할별 검토 셀을 생성합니다." : "상단 실행 버튼으로 시작합니다.", tone: state.scenarioLoaded ? "primary" : "evidence" }
+    ],
+    ontology: [
+      { label: "그래프 규모", value: `${graph.nodes.length}/${graph.edges.length}`, detail: "노드 / 관계" },
+      { label: "현재 필터", value: getGraphModeLabel(state.graphMode), detail: "관계선을 목적별로 압축" },
+      { label: "선택 노드", value: selectedNode?.label || "결심카드", detail: selectedNode?.meta || "DECISION", tone: "evidence" },
+      { label: "연결 근거", value: `${(selectedNode?.evidence_ids || demoData.decision.evidence_ids).length}건`, detail: "오른쪽 인스펙터에서 확인" }
+    ],
+    agents: [
+      { label: "생성률", value: `${generatedPercent}%`, detail: `${state.generatedAgentCount}/${demoData.agents.length} 역할 준비`, tone: state.agentsGenerated ? "support" : "" },
+      { label: "선택 유닛", value: selectedAgentProfile?.callsign || "RED", detail: selectedAgent?.name || "레드팀 에이전트" },
+      { label: "검토 초점", value: selectedAgent?.risk_focus?.[0] || "위험", detail: selectedAgent?.review_output || "역할별 산출물" },
+      { label: "다음 조치", value: state.agentsGenerated ? "리허설 실행" : "가상부대 생성", detail: state.agentsGenerated ? "시간순 마찰을 재생합니다." : "23개 역할을 준비합니다.", tone: state.agentsGenerated ? "primary" : "evidence" }
+    ],
+    rehearsal: [
+      { label: "현재 이벤트", value: activeEvent ? activeEvent.time : "대기", detail: activeEvent?.event || "수행 리허설 실행 필요" },
+      { label: "위험 수준", value: activeEvent ? riskLabel(activeEvent.severity) : "대기", detail: activeEvent?.impact || "이벤트별 영향 표시", tone: activeEvent?.severity === "high" ? "danger" : "" },
+      { label: "활성 에이전트", value: `${activeEvent?.agents?.length || 0}명`, detail: activeEvent?.agents?.slice(0, 2).join(", ") || "관련 역할 점등" },
+      { label: "다음 조치", value: state.rehearsalStarted ? "실패경로 확인" : "리허설 시작", detail: state.rehearsalStarted ? "위험 체인으로 전환합니다." : "3D 지형에서 실행합니다.", tone: state.rehearsalStarted ? "primary" : "evidence" }
+    ],
+    risk: [
+      { label: "우선 흐름", value: `${selectedFailure.title} ${selectedFailure.score}`, detail: selectedFailureProfile.severity, tone: "danger" },
+      { label: "막을 지점", value: selectedFailureProfile.decisionPoint, detail: selectedFailureProfile.timeWindow },
+      { label: "직접 근거", value: `${selectedFailure.evidence.length}건`, detail: `${selectedFailureProfile.evidenceItems.length}개 출처 연결` },
+      { label: "즉시 조치", value: selectedFailureProfile.mitigationActions[0], detail: "결심카드 반영 대상", tone: "primary" }
+    ],
+    decision: [
+      { label: "추천 방책", value: demoData.decision.recommended_coa, detail: demoData.decision.conditional_coa, tone: "primary" },
+      { label: "시행 조건", value: `${getDecisionConditions().length}개`, detail: "통신·군수·재판단·후송" },
+      { label: "근거 잠금", value: `${demoData.decision.evidence_ids.length}/${decisionSummary.evidenceTotal}`, detail: "직접 근거 / 전체 근거", tone: "evidence" },
+      { label: "승인 상태", value: "지휘관 검토", detail: demoData.decision.command_authority_notice, tone: "support" }
+    ]
+  };
+
+  return pageItems[page] || [];
+}
+
+function getPageInsightItems(page) {
+  const plan = demoData.operationPlan;
+  const selectedNode = graph.nodeMap.get(state.selectedNodeId);
+  const selectedAgent = getAgentById(state.selectedAgentId) || demoData.agents[0];
+  const selectedAgentProfile = selectedAgent ? getAgentProfile(selectedAgent) : null;
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const selectedFailureProfile = getFailureProfile(selectedFailure);
+  const selectedFailureStory = getFailureStory(selectedFailure);
+  const decisionSummary = getDecisionFailureSummary();
+  const generatedPercent = demoData.agents.length ? Math.round((state.generatedAgentCount / demoData.agents.length) * 100) : 0;
+  const selectedNodeEvidenceCount = (selectedNode?.evidence_ids || demoData.decision.evidence_ids).length;
+  const activeSeverityScore = activeEvent?.severity === "high" ? 92 : activeEvent?.severity === "medium" ? 72 : activeEvent ? 48 : 18;
+  const topFailure = decisionSummary.topRisk;
+
+  const pageItems = {
+    data: [
+      {
+        label: "자동 추출",
+        title: state.scenarioLoaded ? `${plan.operation_name} 구조화 완료` : "자료 접수 즉시 필드 잠금",
+        body: state.scenarioLoaded ? `${plan.documents.length}종 자료에서 임무, 시간, 제한사항, 방책을 같은 작전 키로 연결했습니다.` : "작전계획, 방책표, 군수, 통신, 기상을 동일 기준으로 정규화하도록 대기 중입니다.",
+        evidence: state.scenarioLoaded ? `${plan.documents.length}종 자료` : "로컬 자료 대기",
+        score: state.scenarioLoaded ? 94 : 24,
+        tone: state.scenarioLoaded ? "support" : "evidence"
+      },
+      state.scenarioLoaded
+        ? {
+          label: "방책 랭킹",
+          title: "B안 안정 후보 유지",
+          body: "통신 음영과 보급 접근성 부담이 낮아 결심카드 추천안으로 계속 승격됩니다.",
+          evidence: "COA B 비교표",
+          score: 88,
+          tone: "primary"
+        }
+        : {
+          label: "방책 랭킹",
+          title: "자료 접수 후 산출",
+          body: "방책표가 들어오기 전까지 후보 랭킹과 결심 추천은 표시하지 않습니다.",
+          evidence: "입력 없음",
+          score: 0,
+          tone: "neutral"
+        },
+      {
+        label: "다음 큐",
+        title: state.scenarioLoaded ? "가상부대 검토로 이관" : "계획서 접수 필요",
+        body: state.scenarioLoaded ? "역할별 에이전트가 통신, 군수, 재판단 기준을 나눠 검토할 수 있습니다." : "접수 전에는 후보 필드만 표시하고 결심 근거는 잠가 둡니다.",
+        evidence: state.scenarioLoaded ? "역할 매핑 준비" : "승인 전 대기",
+        score: state.scenarioLoaded ? 78 : 16,
+        tone: state.scenarioLoaded ? "primary" : "neutral"
+      }
+    ],
+    ontology: [
+      {
+        label: "중심 노드",
+        title: selectedNode?.label || "결심카드",
+        body: selectedNode?.detail || "문서 근거, 실패경로, 방책 후보를 결심카드에 연결합니다.",
+        evidence: `${selectedNodeEvidenceCount}건 근거`,
+        score: clamp(64 + selectedNodeEvidenceCount * 8, 58, 96),
+        tone: "evidence"
+      },
+      {
+        label: "관계 압축",
+        title: `${getGraphModeLabel(state.graphMode)} 뷰`,
+        body: "현재 필터 기준으로 문서, 토론, 실패경로, 결심 연결선만 남겨 판단 경로를 줄입니다.",
+        evidence: `${graph.nodes.length}노드 / ${graph.edges.length}관계`,
+        score: state.graphMode === "all" ? 70 : 86,
+        tone: "support"
+      },
+      {
+        label: "결심 연결",
+        title: `${demoData.decision.recommended_coa} 근거 잠금`,
+        body: `${topFailure.title}를 우선 차단하도록 근거와 즉시 수정안을 결심카드에 묶습니다.`,
+        evidence: `${demoData.decision.evidence_ids.length}건 직접 근거`,
+        score: 91,
+        tone: "primary"
+      }
+    ],
+    agents: [
+      {
+        label: "편성 병목",
+        title: state.agentsGenerated ? "23개 역할 준비 완료" : `${generatedPercent}% 생성 중`,
+        body: state.agentsGenerated ? "아군, 대항군, 전장 변수, 통제 역할이 같은 실패경로를 놓고 토론할 수 있습니다." : "생성 전에는 레드팀과 참모 검토가 잠겨 있어 리허설 판단을 보류합니다.",
+        evidence: `${state.generatedAgentCount}/${demoData.agents.length} 역할`,
+        score: state.agentsGenerated ? 96 : clamp(generatedPercent, 12, 74),
+        tone: state.agentsGenerated ? "support" : "evidence"
+      },
+      {
+        label: "선택 유닛",
+        title: selectedAgentProfile?.callsign || "RED",
+        body: selectedAgent?.review_output || "선택한 역할의 검토 산출물을 표시합니다.",
+        evidence: selectedAgent?.risk_focus?.slice(0, 2).join(" / ") || "위험 초점",
+        score: Math.round((selectedAgent?.confidence || 0.78) * 100),
+        tone: selectedAgentProfile?.faction === "opfor" ? "danger" : "primary"
+      },
+      {
+        label: "합의 방향",
+        title: "B안 우선, A안 조건부",
+        body: "통신 중계, 보급 대기점, 재판단 기준이 정리되기 전까지 A안 승격은 제한합니다.",
+        evidence: "참모 토론 로그",
+        score: state.agentsGenerated ? 89 : 52,
+        tone: "primary"
+      }
+    ],
+    rehearsal: [
+      {
+        label: "마찰 예측",
+        title: activeEvent ? activeEvent.event : "리허설 대기",
+        body: activeEvent ? activeEvent.impact : "시간순 이벤트가 시작되면 지형, 통신, 군수 마찰을 같은 카드에서 추적합니다.",
+        evidence: activeEvent ? `${activeEvent.time} / ${riskLabel(activeEvent.severity)}` : "이벤트 없음",
+        score: activeSeverityScore,
+        tone: activeEvent?.severity === "high" ? "danger" : activeEvent ? "evidence" : "neutral"
+      },
+      {
+        label: "교신 신호",
+        title: state.radioLog.length ? `${state.radioLog[0].callsign} 최신 보고` : "무전 로그 대기",
+        body: state.radioLog.length ? state.radioLog[0].message : "관련 에이전트 교신이 들어오면 실패경로 근거와 바로 연결됩니다.",
+        evidence: state.radioLog.length ? state.radioLog[0].finding : "리허설 시작 필요",
+        score: state.radioLog.length ? 84 : 18,
+        tone: state.radioLog[0]?.tone === "red" ? "danger" : state.radioLog.length ? "support" : "neutral"
+      },
+      {
+        label: "다음 전환",
+        title: state.rehearsalStarted ? "실패경로 페이지로 압축" : "리허설 실행 필요",
+        body: state.rehearsalStarted ? "재생된 마찰을 원인, 차단점, 조치 카드로 재정렬합니다." : "가상부대 생성 후 리허설을 실행하면 판단 큐가 갱신됩니다.",
+        evidence: state.rehearsalStarted ? `${demoData.failures.length}개 실패경로` : "대기",
+        score: state.rehearsalStarted ? 82 : 20,
+        tone: state.rehearsalStarted ? "primary" : "evidence"
+      }
+    ],
+    risk: [
+      {
+        label: "차단점",
+        title: selectedFailureProfile.decisionPoint,
+        body: selectedFailureStory.why,
+        evidence: selectedFailureProfile.timeWindow,
+        score: selectedFailure.score,
+        tone: "danger"
+      },
+      {
+        label: "경고 신호",
+        title: selectedFailureProfile.earlyWarning,
+        body: `${selectedFailureProfile.agents.slice(0, 2).join(", ") || "사전 검증"}가 먼저 확인해야 하는 흐름입니다.`,
+        evidence: `${selectedFailureProfile.evidenceItems.length}건 직접 근거`,
+        score: clamp(selectedFailure.score - 6, 52, 96),
+        tone: "evidence"
+      },
+      {
+        label: "조치 후보",
+        title: selectedFailureProfile.mitigationActions[0],
+        body: selectedFailureProfile.mitigationActions[1] || selectedFailure.mitigation,
+        evidence: selectedFailureProfile.evidenceItems[0]?.source || "결심카드",
+        score: 86,
+        tone: "primary"
+      }
+    ],
+    decision: [
+      {
+        label: "승인 패키지",
+        title: demoData.decision.recommended_coa,
+        body: demoData.decision.decision_statement || demoData.decision.conditional_coa,
+        evidence: demoData.decision.command_authority_notice,
+        score: 92,
+        tone: "primary"
+      },
+      {
+        label: "조건 잠금",
+        title: `${getDecisionConditions().length}개 시행 조건`,
+        body: getDecisionConditions().map((condition) => (typeof condition === "string" ? condition : condition.detail)).slice(0, 2).join(" / "),
+        evidence: "통신·군수·재판단",
+        score: 88,
+        tone: "support"
+      },
+      {
+        label: "잔여 위험",
+        title: `${decisionSummary.topRisk.title} ${decisionSummary.topRisk.score}`,
+        body: "최종 명령 전 가장 큰 실패경로를 조건부 승인 문구와 감시 항목에 남깁니다.",
+        evidence: `${decisionSummary.evidenceTotal}건 위험 근거`,
+        score: decisionSummary.averageRisk,
+        tone: "danger"
+      }
+    ]
+  };
+
+  return pageItems[page] || [];
+}
+
+function getMissionActionItems(page = state.currentStage) {
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const selectedAgent = getAgentById(state.selectedAgentId) || demoData.agents[0];
+  const primary = (() => {
+    if (!state.scenarioLoaded) {
+      return {
+        label: "작전계획 접수",
+        detail: "자료를 구조화하고 방책 비교를 시작합니다.",
+        action: "load-scenario",
+        icon: "file-input",
+        stage: "data",
+        primary: true
+      };
+    }
+    if (!state.agentsGenerated) {
+      return {
+        label: "가상부대 생성",
+        detail: "23개 역할을 활성화해 참모·현장·대항군 검토를 시작합니다.",
+        action: "generate-agents",
+        icon: "users-round",
+        stage: "agents",
+        primary: true
+      };
+    }
+    if (!state.rehearsalStarted) {
+      return {
+        label: "수행 리허설 실행",
+        detail: "3D 지형에서 시간순 마찰과 교신을 재생합니다.",
+        action: "run-rehearsal",
+        icon: "play",
+        stage: "rehearsal",
+        primary: true
+      };
+    }
+    if (page !== "risk") {
+      return {
+        label: "실패경로 확인",
+        detail: `${selectedFailure.title} ${selectedFailure.score}점 흐름을 먼저 차단합니다.`,
+        action: "open-risk",
+        icon: "triangle-alert",
+        stage: "risk",
+        primary: true
+      };
+    }
+    return {
+      label: "결심카드 검토",
+      detail: `${demoData.decision.recommended_coa} 추천안과 조건부 시행 기준을 확인합니다.`,
+      action: "open-decision",
+      icon: "clipboard-check",
+      stage: "decision",
+      primary: true
+    };
+  })();
+
+  return [
+    primary,
+    {
+      label: "근거 검색",
+      detail: "문서, 에이전트, 실패경로, 이벤트를 바로 찾습니다.",
+      action: "open-search",
+      icon: "search",
+      stage: state.currentStage
+    },
+    {
+      label: page === "agents" ? selectedAgent.name : "그래프 보기",
+      detail: page === "agents" ? selectedAgent.review_output || selectedAgent.role : "선택 근거와 결심 노드를 한 화면에서 확인합니다.",
+      action: page === "agents" ? "focus-agent" : "focus-graph",
+      icon: page === "agents" ? "user-round-check" : "network",
+      stage: page === "agents" ? "agents" : "ontology"
+    }
+  ];
+}
+
+function runMissionAction(action) {
+  const actions = {
+    "load-scenario": loadScenario,
+    "generate-agents": generateAgents,
+    "run-rehearsal": runRehearsal,
+    "open-risk": () => {
+      updateFlow("failure");
+      setStage("risk");
+      selectFailurePath(state.selectedFailureId);
+    },
+    "open-decision": () => {
+      updateFlow("decision");
+      setStage("decision");
+      setDecisionTab("card");
+    },
+    "open-search": () => openMissionSearch(),
+    "focus-graph": () => {
+      setStage("ontology");
+      setGraphMode("decision");
+      selectNode("decision");
+    },
+    "focus-agent": () => {
+      setStage("agents");
+      selectAgentProfile(state.selectedAgentId);
+    }
+  };
+  actions[action]?.();
+}
+
+function renderMissionActionPanel(rail, page) {
+  rail.querySelector(":scope > .mission-action-panel")?.remove();
+}
+
+function renderPageInsights(page, anchor) {
+  const items = getPageInsightItems(page.dataset.page);
+  const container = anchor?.parentElement?.classList.contains("page-side-rail") ? anchor.parentElement : page;
+  let deck = container.querySelector(":scope > .ai-insight-deck") || page.querySelector(":scope > .ai-insight-deck");
+  if (!items.length) {
+    deck?.remove();
+    return;
+  }
+  if (!deck) {
+    deck = document.createElement("section");
+    deck.className = "ai-insight-deck";
+    deck.setAttribute("aria-label", "AI 판단 큐");
+    anchor.insertAdjacentElement("afterend", deck);
+  } else if (deck.parentElement !== container) {
+    anchor.insertAdjacentElement("afterend", deck);
+  }
+  deck.innerHTML = items
+    .map((item) => {
+      const score = clamp(Math.round(item.score), 0, 100);
+      return `
+        <article class="ai-insight-card is-${item.tone || "neutral"}">
+          <header>
+            <span>${item.label}</span>
+            <b>${score}%</b>
+          </header>
+          <strong>${item.title}</strong>
+          <p>${item.body}</p>
+          <footer>
+            <em>${item.evidence}</em>
+            <i class="insight-meter" role="meter" aria-label="판단 신뢰도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${score}"><span style="width: ${score}%"></span></i>
+          </footer>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function ensurePageSideRail(page, heading) {
+  let rail = page.querySelector(":scope > .page-side-rail");
+  if (!rail) {
+    rail = document.createElement("aside");
+    rail.className = "page-side-rail";
+    rail.setAttribute("aria-label", "보조 판단 정보");
+    heading.insertAdjacentElement("afterend", rail);
+  }
+  return rail;
+}
+
+function keepFailureStoryInReportBody(page) {
+  const failureStory = page.querySelector(".selected-failure-story");
+  const workspace = page.querySelector(":scope > .risk-workspace");
+  if (!failureStory || !workspace || failureStory.parentElement === page) return;
+  page.insertBefore(failureStory, workspace);
+}
+
+function formatKoreanObjectParticle(text) {
+  const value = String(text || "").trim();
+  const lastCode = value.charCodeAt(value.length - 1);
+  const hasFinalConsonant = lastCode >= 0xac00 && lastCode <= 0xd7a3 && (lastCode - 0xac00) % 28 !== 0;
+  return `${value}${hasFinalConsonant ? "을" : "를"}`;
+}
+
+function getDemoJudgeCue() {
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const selectedFailureProfile = getFailureProfile(selectedFailure);
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
+  const generatedPercent = demoData.agents.length ? Math.round((state.generatedAgentCount / demoData.agents.length) * 100) : 0;
+  const evidenceTotal = new Set(demoData.failures.flatMap((failure) => failure.evidence)).size;
+  const activeConditions = getActiveDecisionConditionIds().size;
+  const stageIndex = ["data", "ontology", "agents", "rehearsal", "risk", "decision"].indexOf(state.currentStage) + 1;
+  const base = {
+    data: {
+      title: state.scenarioLoaded ? "자료가 작전 시드로 잠겼습니다" : "문서 접수 전 상태를 먼저 보여줍니다",
+      pitch: state.scenarioLoaded
+        ? "문서 파일을 단순 업로드한 것이 아니라 임무, 제한사항, 방책 비교가 같은 작전 키로 연결됐다고 설명합니다."
+        : "시작 전에는 모든 결심 근거가 잠겨 있고, 작전계획 접수 버튼 하나로 구조화가 시작된다고 말합니다.",
+      judge: "심사위원은 입력 자료가 실제 판단 필드로 바뀌는지 봅니다.",
+      proof: state.scenarioLoaded ? `${demoData.operationPlan.documents.length}종 자료 / ${demoData.coas.length}개 방책` : "파일 패키지, 파이프라인, 준비 상태가 대기값으로 구분됨",
+      next: state.scenarioLoaded ? "그래프에서 관계 보기" : "작전계획 접수",
+      action: state.scenarioLoaded ? "open-graph" : "load-scenario",
+      score: state.scenarioLoaded ? 92 : 34
+    },
+    ontology: {
+      title: "문서가 아니라 판단 경로를 보여줍니다",
+      pitch: "그래프는 장식이 아니라 문서, 에이전트 발언, 실패경로, 결심카드를 한 경로로 묶는 근거 지도라고 설명합니다.",
+      judge: "심사위원은 왜 B안이 나왔는지 역추적 가능한지 확인합니다.",
+      proof: `${graph.nodes.length}개 노드 / ${graph.edges.length}개 관계 / 선택 노드 ${graph.nodeMap.get(state.selectedNodeId)?.label || "결심카드"}`,
+      next: state.agentsGenerated ? "리허설로 이동" : "가상부대 생성",
+      action: state.agentsGenerated ? "run-rehearsal" : "generate-agents",
+      score: 88
+    },
+    agents: {
+      title: state.agentsGenerated ? "23개 역할이 같은 상황을 나눠 봅니다" : "가상부대 생성 전후 차이를 보여줍니다",
+      pitch: "참모, 현장 제대, 대항군, 환경 에이전트가 각각 다른 허점을 잡아내고 합의 결론으로 모인다고 설명합니다.",
+      judge: "심사위원은 다중 에이전트가 단순 채팅이 아니라 역할별 산출물을 내는지 봅니다.",
+      proof: `${state.generatedAgentCount}/${demoData.agents.length} 역할 준비 · ${generatedPercent}%`,
+      next: state.agentsGenerated ? "수행 리허설 실행" : "가상부대 생성",
+      action: state.agentsGenerated ? "run-rehearsal" : "generate-agents",
+      score: state.agentsGenerated ? 94 : clamp(generatedPercent, 24, 76)
+    },
+    rehearsal: {
+      title: activeEvent ? `${activeEvent.time} ${activeEvent.event}` : "3D 리허설에서 마찰을 발생시킵니다",
+      pitch: activeEvent
+        ? "지형 위 이벤트와 무전 로그가 동시에 바뀌고, 이 마찰이 실패경로와 근거 추적으로 이어진다고 말합니다."
+        : "수행 리허설은 애니메이션 시연이 아니라 시간순 위험 증거를 생성하는 단계라고 설명합니다.",
+      judge: "심사위원은 3D 장면이 결심 근거로 이어지는지 확인합니다.",
+      proof: activeEvent ? `${riskLabel(activeEvent.severity)} · ${activeEvent.impact}` : "승진훈련장 지형, 이벤트 타임라인, 무전 로그 대기",
+      next: state.rehearsalStarted ? "실패경로로 압축" : "수행 리허설 실행",
+      action: state.rehearsalStarted ? "open-risk" : "run-rehearsal",
+      score: activeEvent?.severity === "high" ? 95 : state.rehearsalStarted ? 82 : 42
+    },
+    risk: {
+      title: `${formatKoreanObjectParticle(selectedFailure.title)} 먼저 막아야 합니다`,
+      pitch: "리허설에서 나온 마찰을 원인, 차단 지점, 즉시 조치로 압축했고 결심카드에 바로 반영된다고 설명합니다.",
+      judge: "심사위원은 위험 목록이 경고가 아니라 조치 우선순위인지 봅니다.",
+      proof: `${selectedFailure.score}점 · ${selectedFailureProfile.decisionPoint} · 직접 근거 ${selectedFailure.evidence.length}건`,
+      next: "결심카드 확인",
+      action: "open-decision",
+      score: selectedFailure.score
+    },
+    decision: {
+      title: `${demoData.decision.recommended_coa} 결심안을 제시합니다`,
+      pitch: "마지막 화면에서는 추천 방책, 조건별 위험 감쇄, 실행 조치, 지휘관 확인 항목이 한 화면에서 닫힌다고 설명합니다.",
+      judge: "심사위원은 AI 결과가 명령이 아니라 근거가 잠긴 검토안인지 확인합니다.",
+      proof: `${activeConditions}/${getDecisionConditions().length} 조건 반영 · 직접 근거 ${demoData.decision.evidence_ids.length}/${evidenceTotal}`,
+      next: "지휘관 브리핑 열기",
+      action: "open-briefing",
+      score: 96
+    }
+  };
+  return {
+    step: stageIndex > 0 ? `${String(stageIndex).padStart(2, "0")}/06` : "시연",
+    ...(base[state.currentStage] || base.data)
+  };
+}
+
+function getDemoJudgeDefenseItems() {
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
+  const stageDefense = {
+    data: {
+      question: state.scenarioLoaded ? "이게 단순 목업 입력이 아니라 판단 데이터라는 근거는?" : "자료가 없을 때 AI가 임의 결심을 내리지는 않나?",
+      answer: state.scenarioLoaded ? "자료 종류, 추출 필드, 방책 비교, 준비 상태가 같은 작전 키로 동시에 갱신됩니다." : "접수 전에는 결심 근거와 방책 산출을 잠그고 대기값만 보여줍니다.",
+      location: state.scenarioLoaded ? "작전계획 추출 필드와 A/B/C 방책 비교" : "자료 투입 빈 상태와 운용 준비 상태"
+    },
+    ontology: {
+      question: "왜 B안인지 설명 가능한가?",
+      answer: "결심 노드에서 문서 근거, 참모 발언, 실패경로가 한 경로로 역추적됩니다.",
+      location: "그래프 인스펙터와 근거 추적 버튼"
+    },
+    agents: {
+      question: "다중 에이전트가 이름만 다른 챗봇 아닌가?",
+      answer: "23개 역할이 참모, 현장, 대항군, 전장 변수로 나뉘고 산출물과 인계 대상이 다릅니다.",
+      location: "가상부대 프로필과 합의 로그"
+    },
+    rehearsal: {
+      question: "3D 장면이 의사결정에 어떤 값을 주나?",
+      answer: activeEvent ? `${activeEvent.time} 이벤트가 실패경로, 차단점, 결심 조건으로 바로 연결됩니다.` : "시간순 마찰이 발생하면 3D 브리핑, 무전 로그, 실패경로가 같은 이벤트 ID로 갱신됩니다.",
+      location: activeEvent ? "3D 판단 브리핑과 현재 이벤트 카드" : "수행 리허설 실행 후 이벤트 스크러버"
+    },
+    risk: {
+      question: "위험 점수가 실제 조치 우선순위로 이어지나?",
+      answer: `${selectedFailure.title}의 차단 지점, 조기 경고, 완화 조치가 결심카드 실행 항목으로 이어집니다.`,
+      location: "현재 선택한 흐름과 바로 막는 조치"
+    },
+    decision: {
+      question: "AI가 명령을 대신 내리는 것처럼 보이지 않나?",
+      answer: "최종 화면은 검토안이며 승인 게이트, 지휘관 확인, human-in-the-loop 문구를 유지합니다.",
+      location: "승인 게이트와 최종 승인 흐름"
+    }
+  };
+  const item = stageDefense[state.currentStage] || stageDefense.data;
+  return [
+    { label: "예상 질문", value: item.question, detail: "심사 Q&A" },
+    { label: "답변 프레임", value: item.answer, detail: "30초 답변" },
+    { label: "보여줄 위치", value: item.location, detail: "화면 포인터" }
+  ];
+}
+
+function getDemoRunSheetItems() {
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const activeConditions = getActiveDecisionConditionIds().size;
+  return [
+    {
+      stage: "data",
+      time: "00:00",
+      label: "작전계획 접수",
+      talk: "문서가 임무, 제한사항, 방책 비교로 구조화됩니다.",
+      proof: state.scenarioLoaded ? `${demoData.operationPlan.documents.length}종 자료` : "입력 잠금"
+    },
+    {
+      stage: "ontology",
+      time: "00:45",
+      label: "근거 지도",
+      talk: "왜 B안인지 문서와 판단 경로로 역추적합니다.",
+      proof: `${graph.nodes.length}개 노드`
+    },
+    {
+      stage: "agents",
+      time: "01:25",
+      label: "가상부대 검토",
+      talk: "역할별 에이전트가 서로 다른 허점을 찾아냅니다.",
+      proof: `${state.generatedAgentCount}/${demoData.agents.length} 역할`
+    },
+    {
+      stage: "rehearsal",
+      time: "02:05",
+      label: "3D 리허설",
+      talk: "지형 위 마찰이 실패경로와 결심 조건으로 이어집니다.",
+      proof: activeEvent ? `${activeEvent.time} 이벤트` : "이벤트 대기"
+    },
+    {
+      stage: "risk",
+      time: "03:10",
+      label: "실패경로 압축",
+      talk: "점수가 높은 흐름을 차단 지점과 즉시 조치로 바꿉니다.",
+      proof: `${selectedFailure.title} ${selectedFailure.score}`
+    },
+    {
+      stage: "decision",
+      time: "04:05",
+      label: "결심카드 승인",
+      talk: "AI 검토안은 승인 게이트와 지휘관 확인 뒤에만 닫힙니다.",
+      proof: `${activeConditions}/${getDecisionConditions().length} 게이트`
+    }
+  ];
+}
+
+function renderDemoRunSheet() {
+  const target = byId("demoRunSheet");
+  if (!target) return;
+  const items = getDemoRunSheetItems();
+  const activeIndex = Math.max(0, items.findIndex((item) => item.stage === state.currentStage));
+  const activeItem = items[activeIndex] || items[0];
+  target.innerHTML = `
+    <header>
+      <span>5분 러닝오더</span>
+      <b>${activeItem.time} · ${activeItem.label}</b>
+    </header>
+    <ol>
+      ${items.map((item, index) => {
+        const statusClass = index < activeIndex ? "is-complete" : index === activeIndex ? "is-active" : "";
+        return `
+          <li class="${statusClass}" data-demo-run-stage="${item.stage}">
+            <span>${item.time}</span>
+            <b>${item.label}</b>
+            <em>${item.talk}</em>
+            <strong>${item.proof}</strong>
+          </li>
+        `;
+      }).join("")}
+    </ol>
+  `;
+}
+
+function renderDemoJudgeCue() {
+  const target = byId("demoJudgeCue");
+  if (!target) return;
+  const cue = getDemoJudgeCue();
+  const defenseItems = getDemoJudgeDefenseItems();
+  target.innerHTML = `
+    <div class="demo-cue-head">
+      <span>심사 시연 큐</span>
+      <b>${cue.title}</b>
+      <em>${cue.step} · ${cue.score}%</em>
+    </div>
+    <p>${cue.pitch}</p>
+    <div class="demo-cue-grid">
+      <article><span>심사위원 체크</span><b>${cue.judge}</b></article>
+      <article><span>증명 포인트</span><b>${cue.proof}</b></article>
+      <article><span>다음 클릭</span><b>${cue.next}</b></article>
+    </div>
+    <div class="demo-cue-defense-grid" aria-label="심사 예상 질문 대응">
+      ${defenseItems.map((item) => `
+        <article>
+          <span>${item.label}</span>
+          <b>${item.value}</b>
+          <em>${item.detail}</em>
+        </article>
+      `).join("")}
+    </div>
+    <button class="demo-cue-action" type="button" data-demo-cue-action="${cue.action}">
+      <i data-lucide="arrow-right" aria-hidden="true"></i><span>${cue.next}</span>
+    </button>
+  `;
+  refreshIcons();
+}
+
+function runDemoCueAction(action) {
+  if (action === "load-scenario") {
+    loadScenario();
+    return;
+  }
+  if (action === "open-graph") {
+    setStage("ontology");
+    setGraphMode("all");
+    selectNode("decision");
+    return;
+  }
+  if (action === "generate-agents") {
+    if (!state.scenarioLoaded) loadScenario();
+    else generateAgents();
+    return;
+  }
+  if (action === "run-rehearsal") {
+    if (!state.agentsGenerated) generateAgents();
+    else runRehearsal();
+    return;
+  }
+  if (action === "open-risk") {
+    setStage("risk");
+    selectFailurePath(state.selectedFailureId);
+    return;
+  }
+  if (action === "open-decision") {
+    setStage("decision");
+    setDecisionTab("card");
+    return;
+  }
+  if (action === "open-briefing") {
+    openBriefingSheet();
+  }
+}
+
+function renderPageBriefings() {
+  document.querySelectorAll(".page-view[data-page]").forEach((page) => {
+    const heading = page.querySelector(":scope > .page-heading");
+    if (!heading) return;
+    const rail = ensurePageSideRail(page, heading);
+    renderMissionActionPanel(rail, page);
+    let briefing = rail.querySelector(":scope > .page-briefing-strip") || page.querySelector(":scope > .page-briefing-strip");
+    if (!briefing) {
+      briefing = document.createElement("section");
+      briefing.className = "page-briefing-strip";
+      briefing.setAttribute("aria-label", "페이지 브리핑");
+      rail.appendChild(briefing);
+    } else if (briefing.parentElement !== rail) {
+      rail.appendChild(briefing);
+    }
+    briefing.innerHTML = renderInfoTileItems(getPageBriefingItems(page.dataset.page));
+    renderPageInsights(page, briefing);
+    if (page.dataset.page === "risk") {
+      keepFailureStoryInReportBody(page);
+    } else {
+      const failureStory = page.querySelector(".selected-failure-story");
+      if (failureStory && failureStory.parentElement !== rail) rail.appendChild(failureStory);
+    }
+  });
+  renderDemoRunSheet();
+  renderDemoJudgeCue();
 }
 
 function getAgentById(agentId) {
@@ -1195,6 +2024,319 @@ function buildGraph() {
 
 const graph = buildGraph();
 
+function getOntologyNodeStyle(node) {
+  const styleMap = {
+    document: { className: "is-ontology-document", label: "문서", confidence: 94, layer: "source" },
+    evidence: { className: "is-ontology-evidence", label: "근거", confidence: 82, layer: "source" },
+    coa: { className: "is-ontology-coa", label: "방책", confidence: 88, layer: "course" },
+    factor: { className: "is-ontology-factor", label: "제약", confidence: 86, layer: "course" },
+    agent: { className: "is-ontology-agent", label: "에이전트", confidence: 79, layer: "review" },
+    debate: { className: "is-ontology-debate", label: "토론", confidence: 76, layer: "review" },
+    risk: { className: "is-ontology-risk", label: "위험", confidence: 91, layer: "risk" },
+    decision: { className: "is-ontology-decision", label: "결심", confidence: 96, layer: "decision" }
+  };
+  const base = styleMap[node.kind] || styleMap.factor;
+  const evidenceBoost = Math.min((node.evidence_ids?.length || 0) * 2, 6);
+  const tierBoost = node.tier === "key" ? 3 : -8;
+  return {
+    ...base,
+    confidence: clamp(base.confidence + evidenceBoost + tierBoost, 54, 99)
+  };
+}
+
+function getOntologyLayerSummary() {
+  const layers = [
+    { key: "source", label: "문서·근거", kinds: ["document", "evidence"], detail: "원천 자료" },
+    { key: "course", label: "방책·제약", kinds: ["coa", "factor"], detail: "전술 의미" },
+    { key: "review", label: "에이전트·토론", kinds: ["agent", "debate"], detail: "검토 발화" },
+    { key: "risk", label: "실패경로", kinds: ["risk"], detail: "위험 인과" },
+    { key: "decision", label: "결심", kinds: ["decision"], detail: "승인 후보" }
+  ];
+  return layers.map((layer) => {
+    const nodes = graph.nodes.filter((node) => layer.kinds.includes(node.kind));
+    const linkedEdges = graph.edges.filter((edge) => {
+      const from = graph.nodeMap.get(edge.from);
+      const to = graph.nodeMap.get(edge.to);
+      return layer.kinds.includes(from?.kind) || layer.kinds.includes(to?.kind);
+    });
+    return {
+      ...layer,
+      count: nodes.length,
+      relationCount: linkedEdges.length
+    };
+  });
+}
+
+function renderOntologyDepthMap() {
+  const target = byId("ontologyDepthMap");
+  if (!target) return;
+  target.innerHTML = getOntologyLayerSummary()
+    .map(
+      (layer, index) => `
+        <article class="ontology-layer-card is-${layer.key}">
+          <span>${String(index + 1).padStart(2, "0")} ${layer.label}</span>
+          <b>${layer.count}</b>
+          <em>${layer.detail} / ${layer.relationCount} 관계</em>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function renderOntologyRelationPulse() {
+  const target = byId("ontologyRelationPulse");
+  const node = graph.nodeMap.get(state.selectedNodeId);
+  if (!target || !node) return;
+  const directEdges = graph.edges.filter((edge) => edge.from === node.id || edge.to === node.id);
+  const topModes = [...new Set(directEdges.map((edge) => edge.mode))].slice(0, 3).join(" · ");
+  target.innerHTML = `
+    <span>SELECTED SEMANTIC ROUTE</span>
+    <b>${node.label}</b>
+    <em>${directEdges.length} relations${topModes ? ` / ${topModes}` : ""}</em>
+  `;
+}
+
+function renderOntologyLayerRings() {
+  const grid = qs(".grid-lines");
+  if (!grid) return;
+  [
+    { key: "source", cx: 270, cy: 335, rx: 240, ry: 252, label: "SOURCE" },
+    { key: "course", cx: 510, cy: 345, rx: 310, ry: 235, label: "COURSE / FACTOR" },
+    { key: "risk", cx: 585, cy: 545, rx: 260, ry: 145, label: "FAILURE PATH" },
+    { key: "decision", cx: 635, cy: 550, rx: 92, ry: 72, label: "COMMAND" }
+  ].forEach((ring) => {
+    grid.appendChild(makeSvg("ellipse", {
+      cx: ring.cx,
+      cy: ring.cy,
+      rx: ring.rx,
+      ry: ring.ry,
+      class: `ontology-layer-ring is-${ring.key}`
+    }));
+    const label = makeSvg("text", {
+      x: ring.cx - ring.rx + 18,
+      y: ring.cy - ring.ry + 26,
+      class: "ontology-layer-label"
+    });
+    label.textContent = ring.label;
+    grid.appendChild(label);
+  });
+}
+
+function normalizeSearchText(value) {
+  return String(value || "").toLocaleLowerCase("ko-KR");
+}
+
+function buildMissionSearchIndex() {
+  const items = [];
+  demoData.operationPlan.documents.forEach((doc) => {
+    items.push({
+      id: `doc-${doc.id}`,
+      type: "자료",
+      title: doc.name,
+      meta: doc.type,
+      body: `${doc.type} 자료. 작전계획 접수 후 구조화 파이프라인에서 확인합니다.`,
+      stage: "data",
+      kind: "document",
+      priority: 42
+    });
+  });
+  demoData.coas.forEach((coa) => {
+    items.push({
+      id: `coa-${coa.id}`,
+      type: "방책",
+      title: `${coa.id}안 ${coa.name}`,
+      meta: `${coa.travel_time}분 / 통신 ${riskLabel(coa.comm_risk)}`,
+      body: `${coa.strength} ${coa.weakness} ${coa.condition}`,
+      stage: "data",
+      kind: "coa",
+      priority: coa.id === "B" ? 92 : 58
+    });
+  });
+  demoData.evidence.forEach((item) => {
+    items.push({
+      id: `evidence-${item.id}`,
+      type: "근거",
+      title: item.title,
+      meta: `${item.source} / ${item.status}`,
+      body: item.preview,
+      stage: "ontology",
+      kind: "evidence",
+      ref: item.id,
+      priority: item.status === "근거 있음" ? 80 : 64
+    });
+  });
+  demoData.agents.forEach((agent) => {
+    const profile = getAgentProfile(agent);
+    items.push({
+      id: `agent-${agent.id}`,
+      type: "에이전트",
+      title: agent.name,
+      meta: `${profile.callsign} / ${profile.factionLabel}`,
+      body: `${agent.role} ${agent.risk_focus.join(" ")} ${agent.review_output}`,
+      stage: "agents",
+      kind: "agent",
+      ref: agent.id,
+      priority: profile.faction === "opfor" ? 88 : 62
+    });
+  });
+  demoData.events.forEach((event, index) => {
+    items.push({
+      id: `event-${event.id}`,
+      type: "리허설",
+      title: `${event.time} ${event.event}`,
+      meta: riskLabel(event.severity),
+      body: `${event.detail} ${event.impact} ${event.agents.join(" ")}`,
+      stage: "rehearsal",
+      kind: "event",
+      ref: index,
+      priority: event.severity === "high" ? 86 : 56
+    });
+  });
+  demoData.failures.forEach((failure) => {
+    const story = getFailureStory(failure);
+    items.push({
+      id: `failure-${failure.id}`,
+      type: "실패경로",
+      title: `${failure.title} ${failure.score}`,
+      meta: story.stopPoint,
+      body: `${story.headline} ${story.why} ${failure.mitigation}`,
+      stage: "risk",
+      kind: "failure",
+      ref: failure.id,
+      priority: failure.score
+    });
+  });
+  graph.nodes
+    .filter((node) => node.tier === "key")
+    .forEach((node) => {
+      items.push({
+        id: `node-${node.id}`,
+        type: "그래프",
+        title: node.label,
+        meta: node.meta,
+        body: node.detail,
+        stage: "ontology",
+        kind: "node",
+        ref: node.id,
+        priority: node.kind === "decision" ? 96 : 58
+      });
+    });
+  items.push({
+    id: "decision-card",
+    type: "결심",
+    title: `결심카드 ${demoData.decision.recommended_coa}`,
+    meta: demoData.decision.conditional_coa,
+    body: `${demoData.decision.decision_statement} ${demoData.decision.rationale.join(" ")}`,
+    stage: "decision",
+    kind: "decision",
+    priority: 100
+  });
+
+  return items.map((item) => ({
+    ...item,
+    haystack: normalizeSearchText(`${item.id} ${item.ref || ""} ${item.type} ${item.title} ${item.meta} ${item.body}`)
+  }));
+}
+
+const missionSearchIndex = buildMissionSearchIndex();
+
+function getMissionSearchResults(query = "") {
+  const normalized = normalizeSearchText(query).trim();
+  if (!normalized) {
+    return [...missionSearchIndex]
+      .sort((a, b) => b.priority - a.priority)
+      .slice(0, 8);
+  }
+  const terms = normalized.split(/\s+/).filter(Boolean);
+  return missionSearchIndex
+    .map((item) => {
+      const title = normalizeSearchText(item.title);
+      const meta = normalizeSearchText(item.meta);
+      const score = terms.reduce((sum, term) => {
+        if (title.includes(term)) return sum + 72;
+        if (meta.includes(term)) return sum + 42;
+        if (item.haystack.includes(term)) return sum + 18;
+        return sum - 8;
+      }, item.priority / 10);
+      return { ...item, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+
+function renderMissionSearchResults(query = "") {
+  const target = byId("missionSearchResults");
+  if (!target) return;
+  const results = getMissionSearchResults(query);
+  target.innerHTML = results.length
+    ? results
+      .map(
+        (result) => `
+          <button class="mission-search-result" type="button" role="option" data-search-result-id="${result.id}">
+            <span>${result.type}</span>
+            <b>${result.title}</b>
+            <em>${result.meta}</em>
+            <p>${result.body}</p>
+          </button>
+        `
+      )
+      .join("")
+    : `<div class="mission-search-empty">검색 결과 없음</div>`;
+}
+
+function closeMissionSearch() {
+  const modal = byId("missionSearchModal");
+  if (modal) modal.hidden = true;
+}
+
+function openMissionSearch(query = "") {
+  const modal = byId("missionSearchModal");
+  const input = byId("missionSearchInput");
+  if (!modal || !input) return;
+  modal.hidden = false;
+  input.value = query;
+  renderMissionSearchResults(query);
+  window.requestAnimationFrame(() => {
+    input.focus();
+    input.select();
+  });
+  refreshIcons();
+}
+
+function applyMissionSearchResult(resultId) {
+  const result = missionSearchIndex.find((item) => item.id === resultId);
+  if (!result) return;
+  setStage(result.stage);
+  if (result.kind === "agent") {
+    const agent = getAgentById(result.ref);
+    if (agent) {
+      const profile = getAgentProfile(agent);
+      if (state.agentFilter !== "all" && !matchesAgentFilter(profile)) state.agentFilter = profile.faction;
+      selectAgentProfile(agent.id);
+    }
+  } else if (result.kind === "failure") {
+    selectFailurePath(result.ref);
+  } else if (result.kind === "event") {
+    clearTimer("rehearsalTimer");
+    state.rehearsalStarted = true;
+    state.rehearsalPaused = true;
+    setText("rehearsalPauseButton", "계속");
+    showEvent(result.ref);
+    updateFlow("rehearsal");
+  } else if (result.kind === "evidence") {
+    selectEvidence(result.ref, { openTrace: false });
+  } else if (result.kind === "node") {
+    selectNode(result.ref);
+  } else if (result.kind === "decision") {
+    setDecisionTab("card");
+    updateFlow("decision");
+  }
+  closeMissionSearch();
+  if (result.kind === "evidence") openEvidenceTrace(result.ref);
+  renderPageBriefings();
+}
+
 function activeEdge(edge) {
   return state.graphMode === "all" || edge.mode === state.graphMode || (state.graphMode === "evidence" && edge.mode === "debate");
 }
@@ -1219,6 +2361,7 @@ function renderGrid() {
   for (let y = 0; y <= 700; y += 50) {
     grid.appendChild(makeSvg("line", { x1: 0, y1: y, x2: 1000, y2: y, class: "graph-grid-line" }));
   }
+  renderOntologyLayerRings();
 }
 
 function renderEdges() {
@@ -1234,8 +2377,10 @@ function renderEdges() {
     const curve = ((index % 5) - 2) * 9;
     const path = makeSvg("path", {
       d: `M ${source.x} ${source.y} C ${source.x + dx * 0.42} ${source.y + dy * 0.22 - curve}, ${source.x + dx * 0.58} ${source.y + dy * 0.78 + curve}, ${target.x} ${target.y}`,
-      class: `edge ${edge.mode}${activeEdge(edge) ? "" : " muted"}`
+      class: `edge ${edge.mode} is-${edge.mode}${activeEdge(edge) ? "" : " muted"}`,
+      "data-relation-mode": edge.mode
     });
+    path.style.setProperty("--edge-order", String(index % 9));
     edgeLayer.appendChild(path);
   });
 }
@@ -1247,13 +2392,23 @@ function renderNodes() {
   nodeLayer.innerHTML = "";
   graph.nodes.forEach((node) => {
     const isSelected = node.id === state.selectedNodeId;
+    const ontologyStyle = getOntologyNodeStyle(node);
     const group = makeSvg("g", {
-      class: `node ${node.kind}${isSelected ? " is-selected" : ""}${activeIds.has(node.id) ? "" : " is-dimmed"}`,
+      class: `node ${node.kind} ${ontologyStyle.className}${isSelected ? " is-selected" : ""}${activeIds.has(node.id) ? "" : " is-dimmed"}`,
       tabindex: "0",
       role: "button",
       "aria-label": node.label,
-      "data-node-id": node.id
+      "data-node-id": node.id,
+      "data-ontology-kind": node.kind,
+      "data-ontology-tier": node.tier,
+      "data-ontology-layer": ontologyStyle.layer
     });
+    group.appendChild(makeSvg("circle", {
+      cx: node.x,
+      cy: node.y,
+      r: node.size + (node.tier === "key" ? 12 : 7),
+      class: "node-halo"
+    }));
     group.appendChild(makeSvg("circle", {
       cx: node.x,
       cy: node.y,
@@ -1266,8 +2421,11 @@ function renderNodes() {
       label.textContent = node.label;
       const meta = makeSvg("text", { x: node.x + node.size + 8, y: node.y + 10, class: "node-meta" });
       meta.textContent = node.meta;
+      const confidence = makeSvg("text", { x: node.x + node.size + 8, y: node.y + 24, class: "semantic-confidence" });
+      confidence.textContent = `${ontologyStyle.label} ${ontologyStyle.confidence}%`;
       group.appendChild(label);
       group.appendChild(meta);
+      group.appendChild(confidence);
     }
 
     group.addEventListener("click", () => selectNode(node.id));
@@ -1282,6 +2440,8 @@ function renderNodes() {
 }
 
 function renderGraph() {
+  renderOntologyDepthMap();
+  renderOntologyRelationPulse();
   renderGrid();
   renderEdges();
   renderNodes();
@@ -1292,7 +2452,67 @@ function selectNode(nodeId) {
   state.selectedNodeId = nodeId;
   renderEdges();
   renderNodes();
+  renderOntologyRelationPulse();
   updateSelectedNode();
+  syncRouteState();
+}
+
+function getGraphDecisionPath(startNodeId = state.selectedNodeId, targetNodeId = "decision") {
+  if (!graph.nodeMap.has(startNodeId) || !graph.nodeMap.has(targetNodeId)) return [];
+  if (startNodeId === targetNodeId) return [graph.nodeMap.get(targetNodeId)];
+  const nextByNode = new Map();
+  graph.edges.forEach((edge) => {
+    if (!nextByNode.has(edge.from)) nextByNode.set(edge.from, []);
+    nextByNode.get(edge.from).push(edge.to);
+  });
+  const queue = [[startNodeId]];
+  const visited = new Set([startNodeId]);
+  while (queue.length) {
+    const path = queue.shift();
+    const current = path[path.length - 1];
+    for (const next of nextByNode.get(current) || []) {
+      if (visited.has(next)) continue;
+      const nextPath = [...path, next];
+      if (next === targetNodeId) {
+        return nextPath.map((id) => graph.nodeMap.get(id)).filter(Boolean);
+      }
+      visited.add(next);
+      queue.push(nextPath);
+    }
+  }
+  return [graph.nodeMap.get(startNodeId)];
+}
+
+function renderGraphPathPanel() {
+  const target = byId("graphPathPanel");
+  if (!target) return;
+  const path = getGraphDecisionPath();
+  const current = graph.nodeMap.get(state.selectedNodeId);
+  const decision = graph.nodeMap.get("decision");
+  const steps = Math.max(path.length - 1, 0);
+  target.innerHTML = `
+    <header>
+      <span>판단 경로</span>
+      <b>${steps ? `${steps}단계` : "현재 결심"}</b>
+    </header>
+    <div class="graph-path-chain">
+      ${path
+        .map(
+          (node, index) => `
+            <button class="graph-path-node ${node.id === state.selectedNodeId ? "is-current" : ""}" type="button" data-path-node-id="${node.id}" aria-pressed="${node.id === state.selectedNodeId ? "true" : "false"}">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <b>${node.label}</b>
+              <em>${node.meta}</em>
+            </button>
+          `
+        )
+        .join("")}
+    </div>
+    <footer>
+      <span>결심카드까지</span>
+      <b>${current?.label || "선택 노드"} → ${decision?.label || "결심카드"}</b>
+    </footer>
+  `;
 }
 
 function updateSelectedNode() {
@@ -1309,6 +2529,8 @@ function updateSelectedNode() {
     .join(" / ");
   target.innerHTML = `<b>${node.label} <small>${node.meta}</small></b><span>${node.detail}${links ? ` 연결: ${links}` : ""}</span>`;
   renderEvidencePreview(node.evidence_ids || []);
+  renderGraphPathPanel();
+  renderPageBriefings();
 }
 
 function setGraphMode(mode) {
@@ -1316,26 +2538,94 @@ function setGraphMode(mode) {
   document.querySelectorAll(".mode-button[data-graph-mode]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.graphMode === mode);
   });
+  renderOntologyDepthMap();
   renderEdges();
   renderNodes();
+  renderPageBriefings();
 }
 
 function setStage(stage) {
   const meta = stageMeta[stage];
   if (!meta) return;
+  const previousStage = state.currentStage;
+  if (previousStage !== stage) beginStageTransition(stage);
   state.currentStage = stage;
+  document.body.dataset.stage = stage;
   document.querySelectorAll(".workspace-tab").forEach((button) => {
     const active = button.dataset.stage === stage;
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-selected", String(active));
+    button.setAttribute("aria-current", active ? "page" : "false");
+    button.tabIndex = active ? 0 : -1;
   });
   document.querySelectorAll(".page-view").forEach((page) => {
-    page.classList.toggle("is-active", page.dataset.page === stage);
+    const active = page.dataset.page === stage;
+    page.hidden = !active;
+    page.classList.toggle("is-active", active);
+    if (active) {
+      page.classList.remove("is-stage-entering");
+      window.requestAnimationFrame(() => page.classList.add("is-stage-entering"));
+    }
   });
   setText("phaseLabel", meta.phase);
   setText("alertLabel", meta.alert);
   if (stage === "risk") setGraphMode("failure");
   if (stage === "decision") setGraphMode("decision");
+  renderPageBriefings();
+  syncRouteState();
+}
+
+function handleWorkspaceTabKeydown(event) {
+  const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
+  if (!keys.includes(event.key)) return;
+  const tabs = [...document.querySelectorAll(".workspace-tab")];
+  const currentIndex = tabs.indexOf(event.currentTarget);
+  if (currentIndex < 0) return;
+  event.preventDefault();
+  let nextIndex = currentIndex;
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") nextIndex = (currentIndex + 1) % tabs.length;
+  if (event.key === "ArrowLeft" || event.key === "ArrowUp") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = tabs.length - 1;
+  const nextTab = tabs[nextIndex];
+  nextTab.focus();
+  setStage(nextTab.dataset.stage);
+}
+
+function setFocusMode(enabled) {
+  state.focusMode = Boolean(enabled);
+  document.body.classList.toggle("is-focus-mode", state.focusMode);
+  const button = byId("toggleFocusModeButton");
+  if (button) {
+    button.setAttribute("aria-pressed", String(state.focusMode));
+    button.title = state.focusMode ? "보조 레일 표시" : "집중 보기";
+    button.setAttribute("aria-label", button.title);
+    button.innerHTML = `<i data-lucide="${state.focusMode ? "panel-right-open" : "panel-right-close"}" aria-hidden="true"></i>`;
+    refreshIcons();
+  }
+}
+
+function toggleFocusMode() {
+  setFocusMode(!state.focusMode);
+}
+
+function setPresenterMode(enabled) {
+  state.presenterMode = Boolean(enabled);
+  document.documentElement.classList.toggle("is-presenter-mode-root", state.presenterMode);
+  document.body.classList.toggle("is-presenter-mode", state.presenterMode);
+  const button = byId("togglePresenterModeButton");
+  if (button) {
+    button.setAttribute("aria-pressed", String(state.presenterMode));
+    button.title = state.presenterMode ? "발표 모드 해제" : "발표 모드";
+    button.setAttribute("aria-label", button.title);
+    button.innerHTML = `<i data-lucide="${state.presenterMode ? "screen-share-off" : "screen-share"}" aria-hidden="true"></i>`;
+    refreshIcons();
+  }
+  syncRouteState();
+}
+
+function togglePresenterMode() {
+  setPresenterMode(!state.presenterMode);
 }
 
 function renderEvidencePreview(evidenceIds = []) {
@@ -1351,12 +2641,14 @@ function renderEvidencePreview(evidenceIds = []) {
       ${ids.map((id) => evidenceBadge(evidenceById.get(id))).join("")}
     </div>
   `;
+  if (!byId("evidenceTraceDrawer")?.hidden) renderEvidenceTraceDrawer(state.selectedEvidenceId);
 }
 
 function evidenceBadge(item) {
   if (!item) return "";
+  const selected = state.selectedEvidenceId === item.id;
   return `
-    <article class="evidence-item ${item.status === "추정" ? "is-estimate" : ""} ${item.status === "추가 확인 필요" ? "is-check" : ""}" data-evidence-id="${item.id}">
+    <article class="evidence-item ${item.status === "추정" ? "is-estimate" : ""} ${item.status === "추가 확인 필요" ? "is-check" : ""} ${selected ? "is-selected" : ""}" role="button" tabindex="0" data-evidence-id="${item.id}">
       <div>
         <b>${item.title}</b>
         <span>${item.type} / ${item.source}</span>
@@ -1367,10 +2659,553 @@ function evidenceBadge(item) {
   `;
 }
 
+function getEvidenceTrace(evidenceId = state.selectedEvidenceId) {
+  const evidence = evidenceById.get(evidenceId) || evidenceById.get("ev_comm_gap") || demoData.evidence[0];
+  const failures = demoData.failures.filter((failure) => failure.evidence.includes(evidence.id));
+  const events = demoData.events.filter((event) => event.evidence_ids?.includes(evidence.id));
+  const nodes = graph.nodes.filter((node) => node.evidence_ids?.includes(evidence.id));
+  const decisionIndex = demoData.decision.evidence_ids.indexOf(evidence.id);
+  const debates = debateEntries.filter((entry) => entry.evidence === evidence.id);
+  const radioItems = Object.values(rehearsalRadioScripts)
+    .flat()
+    .filter((item) => item.evidence === evidence.id);
+  const primaryFailure = failures[0];
+  const decisionAction = decisionIndex >= 0
+    ? demoData.decision.immediate_actions[decisionIndex] || demoData.decision.rationale[decisionIndex]
+    : primaryFailure?.mitigation_steps?.[0] || demoData.decision.redecision_criteria[0];
+  return {
+    evidence,
+    failures,
+    events,
+    nodes,
+    debates,
+    radioItems,
+    decisionIndex,
+    decisionAction,
+    decisionLocked: decisionIndex >= 0,
+    primaryFailure
+  };
+}
+
+function renderEvidenceTraceDrawer(evidenceId = state.selectedEvidenceId) {
+  const body = byId("evidenceTraceBody");
+  const title = byId("evidenceTraceTitle");
+  if (!body) return;
+  const traceLabel = "근거 추적";
+  const trace = getEvidenceTrace(evidenceId);
+  state.selectedEvidenceId = trace.evidence.id;
+  setText("evidenceTraceTitle", trace.evidence.title);
+  if (title) title.title = trace.evidence.id;
+  const chainItems = [
+    { label: "원천", value: trace.evidence.source, detail: trace.evidence.type },
+    { label: "검증", value: trace.evidence.status, detail: `${trace.debates.length + trace.radioItems.length}건 발언` },
+    { label: "위험", value: trace.primaryFailure?.title || "직접 위험 없음", detail: trace.primaryFailure ? `${trace.primaryFailure.score}점` : "보조 근거" },
+    { label: "결심", value: trace.decisionLocked ? "직접 잠금" : "간접 보강", detail: trace.decisionLocked ? demoData.decision.recommended_coa : "상황 판단" }
+  ];
+  const relatedFailures = trace.failures.length
+    ? trace.failures.map((failure) => `<button type="button" data-trace-action="risk" data-trace-ref="${failure.id}"><b>${failure.title}</b><span>${failure.score}점 / ${failure.decision_point}</span></button>`).join("")
+    : `<p>이 근거는 실패경로를 직접 만들기보다 결심 조건을 보강합니다.</p>`;
+  const relatedEvents = trace.events.length
+    ? trace.events.map((event) => `<article><span>${event.time}</span><b>${event.event}</b><em>${event.impact}</em></article>`).join("")
+    : `<p>현재 리허설 이벤트에는 직접 연결되지 않았습니다.</p>`;
+  const relatedVoices = [...trace.debates.map((entry) => ({
+    actor: entry.agent,
+    label: entry.stance,
+    text: entry.text
+  })), ...trace.radioItems.slice(0, 4).map((item) => ({
+    actor: item.callsign,
+    label: item.channel,
+    text: item.message
+  }))].slice(0, 5);
+  body.innerHTML = `
+    <section class="evidence-trace-summary ${trace.evidence.status === "추정" ? "is-estimate" : ""} ${trace.evidence.status === "추가 확인 필요" ? "is-check" : ""}">
+      <div>
+        <span>${traceLabel} / ${trace.evidence.type}</span>
+        <h3>${trace.evidence.title}</h3>
+        <p>${trace.evidence.preview}</p>
+      </div>
+      <b>${trace.evidence.status}</b>
+    </section>
+    <div class="evidence-trace-metrics" aria-label="근거 연결 요약">
+      <article><span>실패경로</span><b>${trace.failures.length}</b></article>
+      <article><span>리허설</span><b>${trace.events.length}</b></article>
+      <article><span>그래프</span><b>${trace.nodes.length}</b></article>
+      <article><span>결심</span><b>${trace.decisionLocked ? "LOCK" : "AUX"}</b></article>
+    </div>
+    <section class="evidence-trace-chain" aria-label="근거 흐름">
+      ${chainItems.map((item, index) => `
+        <article>
+          <span>${String(index + 1).padStart(2, "0")} ${item.label}</span>
+          <b>${item.value}</b>
+          <em>${item.detail}</em>
+        </article>
+      `).join("")}
+    </section>
+    <section class="evidence-trace-section">
+      <header><span>연결 위험</span><b>${trace.failures.length}건</b></header>
+      <div class="evidence-trace-links">${relatedFailures}</div>
+    </section>
+    <section class="evidence-trace-section">
+      <header><span>리허설 근거</span><b>${trace.events.length}건</b></header>
+      <div class="evidence-trace-events">${relatedEvents}</div>
+    </section>
+    <section class="evidence-trace-section">
+      <header><span>판단 발언</span><b>${relatedVoices.length}건</b></header>
+      <div class="evidence-trace-voices">
+        ${relatedVoices.length ? relatedVoices.map((item) => `<article><span>${item.actor} / ${item.label}</span><p>${item.text}</p></article>`).join("") : "<p>직접 연결된 발언이 아직 없습니다.</p>"}
+      </div>
+    </section>
+    <section class="evidence-trace-section">
+      <header><span>권고 조치</span><b>${trace.decisionLocked ? "결심카드" : "보완"}</b></header>
+      <p>${trace.decisionAction}</p>
+    </section>
+    <footer class="evidence-trace-actions">
+      <button class="evidence-trace-action" type="button" data-trace-action="graph"><i data-lucide="network" aria-hidden="true"></i><span>그래프에서 보기</span></button>
+      <button class="evidence-trace-action" type="button" data-trace-action="risk"><i data-lucide="triangle-alert" aria-hidden="true"></i><span>실패경로 보기</span></button>
+      <button class="evidence-trace-action" type="button" data-trace-action="decision"><i data-lucide="clipboard-check" aria-hidden="true"></i><span>결심카드 보기</span></button>
+    </footer>
+  `;
+  refreshIcons();
+}
+
+function openEvidenceTrace(evidenceId = state.selectedEvidenceId) {
+  const drawer = byId("evidenceTraceDrawer");
+  if (!drawer) return;
+  const evidence = evidenceById.get(evidenceId) || evidenceById.get(state.selectedEvidenceId);
+  if (evidence) state.selectedEvidenceId = evidence.id;
+  renderEvidenceTraceDrawer(state.selectedEvidenceId);
+  drawer.hidden = false;
+  drawer.classList.add("is-open");
+  refreshIcons();
+}
+
+function closeEvidenceTrace() {
+  const drawer = byId("evidenceTraceDrawer");
+  if (!drawer) return;
+  drawer.classList.remove("is-open");
+  drawer.hidden = true;
+}
+
+function selectEvidence(evidenceId, options = {}) {
+  const evidence = evidenceById.get(evidenceId);
+  if (!evidence) return;
+  state.selectedEvidenceId = evidence.id;
+  renderEvidencePreview([evidence.id]);
+  if (state.currentStage === "risk") renderRiskEvidence();
+  if (state.currentStage === "decision") {
+    renderDecisionTracePanel();
+    renderDecisionEvidence();
+  }
+  if (options.openTrace !== false) openEvidenceTrace(evidence.id);
+  syncRouteState();
+}
+
+function runEvidenceTraceAction(action, ref) {
+  const trace = getEvidenceTrace(state.selectedEvidenceId);
+  if (action === "graph") {
+    const node = trace.nodes.find((item) => item.tier === "key") || graph.nodes.find((item) => item.evidence_ids?.includes(trace.evidence.id));
+    setStage("ontology");
+    setGraphMode("evidence");
+    if (node) selectNode(node.id);
+    renderEvidencePreview([trace.evidence.id]);
+  } else if (action === "risk") {
+    const failureId = ref || trace.primaryFailure?.id;
+    setStage("risk");
+    if (failureId) selectFailurePath(failureId);
+  } else if (action === "decision") {
+    setStage("decision");
+    setDecisionTab("card");
+    renderDecisionTracePanel();
+  }
+  closeEvidenceTrace();
+}
+
+function getBriefingSnapshot() {
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const failureStory = getFailureStory(selectedFailure);
+  const selectedEvidence = evidenceById.get(state.selectedEvidenceId);
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
+  const activeConditions = getDecisionImpactModel().conditions.filter((condition) => state.decisionConditionState[condition.id]);
+  const projectedRows = demoData.failures.map((failure) => getProjectedFailureScore(failure));
+  const residualRisk = Math.round(projectedRows.reduce((sum, row) => sum + row.projected, 0) / projectedRows.length);
+  syncRouteState();
+  const shareUrl = new URL(window.location.href);
+  return {
+    title: demoData.operationPlan.operation_name,
+    stage: stageMeta[state.currentStage]?.phase || "작전",
+    decision: demoData.decision.recommended_coa,
+    condition: demoData.decision.conditional_coa,
+    failure: selectedFailure,
+    failureStory,
+    evidence: selectedEvidence,
+    event: activeEvent,
+    rehearsalBriefing: getRehearsalBriefing(activeEvent),
+    activeConditions,
+    approvalGates: getDecisionApprovalGates(),
+    defenseItems: getDemoJudgeDefenseItems(),
+    executionRows: getDecisionExecutionRows(),
+    residualRisk,
+    shareUrl: shareUrl.href
+  };
+}
+
+function getBriefingText(snapshot = getBriefingSnapshot()) {
+  const lines = [
+    `[WAR GROUND] ${snapshot.title}`,
+    `현재 화면: ${snapshot.stage}`,
+    `추천 결심: ${snapshot.decision} (${snapshot.condition})`,
+    `핵심 위험: ${snapshot.failure.title} ${snapshot.failure.score}점 - ${snapshot.failureStory.stopPoint}`,
+    `예상 잔여 위험: ${snapshot.residualRisk}`,
+    `상위 조치: ${snapshot.executionRows.slice(0, 3).map((row) => `${row.owner} ${row.action}`).join(" / ")}`,
+    `직접 근거: ${snapshot.evidence?.title || "선택 없음"} / ${snapshot.evidence?.source || "-"}`,
+    `활성 조건: ${snapshot.activeConditions.map((condition) => condition.label).join(", ") || "없음"}`,
+    `현재 이벤트: ${snapshot.event ? `${snapshot.event.time} ${snapshot.event.event}` : "리허설 대기"}`,
+    `3D 판단: ${snapshot.rehearsalBriefing.terrainCue} / ${snapshot.rehearsalBriefing.decisionCue}`,
+    `승인 게이트: ${snapshot.approvalGates.map((gate) => `${gate.label} ${gate.status}`).join(", ")}`,
+    `심사 대응: ${snapshot.defenseItems.map((item) => `${item.label}=${item.value}`).join(" / ")}`,
+    `링크: ${window.location.href}`
+  ];
+  return lines.join("\n");
+}
+
+function renderBriefingSheet() {
+  const body = byId("briefingSheetBody");
+  if (!body) return;
+  const briefingLabel = "지휘관 브리핑";
+  const snapshot = getBriefingSnapshot();
+  body.innerHTML = `
+    <section class="briefing-snapshot-hero">
+      <span>${briefingLabel} / ${snapshot.stage}</span>
+      <h3>${snapshot.decision}</h3>
+      <p>${snapshot.condition}</p>
+      <b>예상 잔여 위험 ${snapshot.residualRisk}</b>
+    </section>
+    <div class="briefing-fact-grid" aria-label="브리핑 핵심 수치">
+      <article><span>핵심 위험</span><b>${snapshot.failure.title}</b><em>${snapshot.failure.score}점</em></article>
+      <article><span>막을 지점</span><b>${snapshot.failureStory.stopPoint}</b><em>${snapshot.failureStory.timeWindow}</em></article>
+      <article><span>직접 근거</span><b>${snapshot.evidence?.title || "선택 없음"}</b><em>${snapshot.evidence?.source || "-"}</em></article>
+      <article><span>리허설</span><b>${snapshot.event ? snapshot.event.time : "대기"}</b><em>${snapshot.event?.event || "이벤트 없음"}</em></article>
+    </div>
+    <section class="briefing-section">
+      <header><span>3D 판단</span><b>${snapshot.rehearsalBriefing.time}</b></header>
+      <div class="briefing-event-card">
+        <b>${snapshot.rehearsalBriefing.title}</b>
+        <p>${snapshot.rehearsalBriefing.terrainCue}</p>
+        <em>${snapshot.rehearsalBriefing.failureTitle} · ${snapshot.rehearsalBriefing.decisionCue}</em>
+      </div>
+    </section>
+    <section class="briefing-section">
+      <header><span>지휘관 질문</span><b>승인 전 확인</b></header>
+      <p>${snapshot.failureStory.question}</p>
+    </section>
+    <section class="briefing-section">
+      <header><span>활성 조건</span><b>${snapshot.activeConditions.length}건</b></header>
+      <div class="briefing-condition-list">
+        ${snapshot.activeConditions.map((condition) => `<article><b>${condition.label}</b><span>${condition.detail}</span><em>${condition.owner}</em></article>`).join("")}
+      </div>
+    </section>
+    <section class="briefing-section">
+      <header><span>승인 게이트</span><b>${snapshot.approvalGates.filter((gate) => gate.active).length}/${snapshot.approvalGates.length}</b></header>
+      <div class="briefing-approval-grid">
+        ${snapshot.approvalGates.map((gate) => `<article class="is-${gate.tone}"><b>${gate.label}</b><span>${gate.status}</span><em>${gate.owner} · 잔여위험 ${gate.residualRisk}</em></article>`).join("")}
+      </div>
+    </section>
+    <section class="briefing-section">
+      <header><span>심사 대응</span><b>Q&A</b></header>
+      <div class="briefing-defense-grid">
+        ${snapshot.defenseItems.map((item) => `<article><span>${item.label}</span><b>${item.value}</b><em>${item.detail}</em></article>`).join("")}
+      </div>
+    </section>
+    <section class="briefing-section">
+      <header><span>상위 조치</span><b>${snapshot.executionRows.length}건</b></header>
+      <div class="briefing-condition-list">
+        ${snapshot.executionRows.slice(0, 3).map((row) => `<article><b>${row.owner}</b><span>${row.action}</span><em>잔여위험 ${row.score.projected}</em></article>`).join("")}
+      </div>
+    </section>
+    <section class="briefing-section">
+      <header><span>공유 링크</span><b>현재 상태 포함</b></header>
+      <code>${window.location.href}</code>
+    </section>
+  `;
+  refreshIcons();
+}
+
+function openBriefingSheet() {
+  const drawer = byId("briefingSheetDrawer");
+  if (!drawer) return;
+  drawer.classList.add("briefing-sheet-drawer");
+  renderBriefingSheet();
+  drawer.hidden = false;
+  refreshIcons();
+}
+
+function closeBriefingSheet() {
+  const drawer = byId("briefingSheetDrawer");
+  if (drawer) drawer.hidden = true;
+}
+
+async function copyTextToClipboard(text) {
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error("Clipboard API unavailable");
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const copied = document.execCommand("copy");
+    area.remove();
+    return copied;
+  }
+}
+
+async function copyBriefingLink() {
+  syncRouteState();
+  await copyTextToClipboard(window.location.href);
+  byId("copyBriefingLink").innerHTML = `<i data-lucide="check" aria-hidden="true"></i>링크 복사됨`;
+  window.setTimeout(() => {
+    byId("copyBriefingLink").innerHTML = `<i data-lucide="link" aria-hidden="true"></i>현재 링크 복사`;
+    refreshIcons();
+  }, 1200);
+  refreshIcons();
+}
+
+async function copyBriefingText() {
+  await copyTextToClipboard(getBriefingText());
+  byId("copyBriefingText").innerHTML = `<i data-lucide="check" aria-hidden="true"></i>본문 복사됨`;
+  window.setTimeout(() => {
+    byId("copyBriefingText").innerHTML = `<i data-lucide="copy" aria-hidden="true"></i>브리핑 본문 복사`;
+    refreshIcons();
+  }, 1200);
+  refreshIcons();
+}
+
+function getIntakeQualityReport() {
+  const plan = demoData.operationPlan;
+  const fieldGaps = plan.extracted_fields.filter((field) => /부족|누락|미명시/.test(field.value));
+  const weakEvidence = demoData.evidence.filter((item) => item.status !== "근거 있음");
+  const score = state.scenarioLoaded
+    ? clamp(100 - fieldGaps.length * 11 - weakEvidence.length * 4, 42, 96)
+    : 38;
+  const status = state.scenarioLoaded
+    ? fieldGaps.length || weakEvidence.length ? "보완 필요" : "결심 가능"
+    : "접수 대기";
+  const items = [
+    {
+      id: "document-package",
+      icon: "files",
+      tone: state.scenarioLoaded ? "ready" : "wait",
+      label: "자료 패키지",
+      value: state.scenarioLoaded ? `${plan.documents.length}/6` : "대기",
+      detail: state.scenarioLoaded ? "작전계획, 방책, 군수, 통신, 기상, SOP 연결" : "작전계획 접수 후 품질 점수를 계산합니다."
+    },
+    {
+      id: "criteria-gap",
+      icon: "circle-alert",
+      tone: "gap",
+      label: "재판단 기준",
+      value: fieldGaps.length ? "보완 필요" : "확인",
+      detail: "SOP 기준은 있으나 현재 시간표와 승인권자 연결이 약합니다.",
+      evidenceId: "ev_sop_criteria"
+    },
+    {
+      id: "estimated-evidence",
+      icon: "scan-search",
+      tone: weakEvidence.length ? "check" : "ready",
+      label: "추정 근거",
+      value: `${weakEvidence.length}건`,
+      detail: "레드팀 지연행동, 후송로 검토 등 추정 근거를 결심 전 확인합니다.",
+      evidenceId: "ev_redteam_delay"
+    },
+    {
+      id: "risk-handoff",
+      icon: "triangle-alert",
+      tone: "support",
+      label: "실패경로 인계",
+      value: "지휘공백",
+      detail: "접수 품질 이슈를 우선 실패경로 검토로 넘깁니다.",
+      stage: "risk",
+      failureId: "command_gap"
+    }
+  ];
+  return { score, status, fieldGaps, weakEvidence, items };
+}
+
+function renderIntakeQualityPanel() {
+  const target = byId("intakeQualityPanel");
+  if (!target) return;
+  const report = getIntakeQualityReport();
+  target.innerHTML = `
+    <div class="intake-quality-summary ${report.score >= 80 ? "is-ready" : "is-gap"}">
+      <div>
+        <span>자료 품질</span>
+        <strong>${report.score}</strong>
+        <em>${report.status}</em>
+      </div>
+      <i aria-label="자료 품질 ${report.score}%"><span style="width: ${report.score}%"></span></i>
+    </div>
+    <div class="intake-quality-actions">
+      ${report.items
+        .map(
+          (item) => `
+            <button class="intake-quality-button is-${item.tone}" type="button" data-intake-quality-action="${item.id}">
+              <i data-lucide="${item.icon}" aria-hidden="true"></i>
+              <span>${item.label}</span>
+              <b>${item.value}</b>
+              <em>${item.detail}</em>
+            </button>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function runIntakeQualityAction(actionId) {
+  const item = getIntakeQualityReport().items.find((entry) => entry.id === actionId);
+  if (!item) return;
+  if (item.evidenceId) {
+    selectEvidence(item.evidenceId);
+    return;
+  }
+  if (item.stage === "risk") {
+    setStage("risk");
+    selectFailurePath(item.failureId || state.selectedFailureId);
+  }
+}
+
+function renderIntakeEmptyState() {
+  const target = byId("intakeEmptyState");
+  if (!target) return;
+  target.hidden = state.scenarioLoaded;
+  target.innerHTML = state.scenarioLoaded
+    ? ""
+    : `
+      <div class="intake-empty-copy">
+        <span>NO INPUT PACKAGE</span>
+        <h3>아직 접수된 작전 자료가 없습니다.</h3>
+        <p>자료 화면의 접수 버튼을 실행하면 입력 자료, 작전 성격, 방책 비교, 근거 품질이 생성됩니다.</p>
+      </div>
+      <div class="intake-empty-drop" aria-hidden="true">
+        <i data-lucide="file-plus-2"></i>
+        <b>작전 자료 대기</b>
+        <em>PDF / XLSX / PNG / JSON / TXT</em>
+      </div>
+    `;
+}
+
+function getInputDocumentManifest() {
+  const roleByType = {
+    작전계획: "임무와 제한시간",
+    방책: "A/B/C 후보 비교",
+    군수: "보급·정비 지속성",
+    통신: "음영구간·중계 후보",
+    기상: "시정·속도 보정",
+    SOP: "재판단·전환 기준"
+  };
+  const extensionByName = (name) => name.split(".").pop().toUpperCase();
+  return demoData.operationPlan.documents.map((doc, index) => ({
+    ...doc,
+    extension: extensionByName(doc.name),
+    role: roleByType[doc.type] || "작전 보조 자료",
+    signalCount: index === 0 ? 3 : index < 4 ? 2 : 1,
+    status: state.scenarioLoaded ? "접수 완료" : "미접수"
+  }));
+}
+
+function renderInputDocumentManifest() {
+  const target = byId("inputManifestPanel");
+  if (!target) return;
+  if (!state.scenarioLoaded) {
+    target.innerHTML = "";
+    return;
+  }
+  const manifest = getInputDocumentManifest();
+  target.innerHTML = `
+    <header>
+      <span>입력 자료 확인</span>
+      <b>${manifest.length}종 접수</b>
+    </header>
+    <div class="input-doc-grid">
+      ${manifest
+        .map(
+          (doc) => `
+            <article class="input-doc-card" data-input-doc-id="${doc.id}">
+              <span>${doc.type}</span>
+              <b>${doc.name}</b>
+              <em>${doc.extension} / ${doc.role}</em>
+              <i>${doc.signalCount}개 신호</i>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function getOperationIdentity() {
+  const plan = demoData.operationPlan;
+  return {
+    scale: "대대급",
+    period: "야간",
+    type: "기동훈련",
+    title: plan.operation_name,
+    objective: "제한 시간 내 지정 집결지 도착",
+    posture: "예비대 전개태세 유지",
+    area: "산악 협곡형 훈련장",
+    window: `${plan.start_time}-${plan.deadline}`,
+    primaryFriction: "통신 음영 + 보급 지속성"
+  };
+}
+
+function renderOperationIdentityPanel() {
+  const target = byId("operationIdentityPanel");
+  if (!target) return;
+  if (!state.scenarioLoaded) {
+    target.innerHTML = "";
+    return;
+  }
+  const identity = getOperationIdentity();
+  target.innerHTML = `
+    <section class="operation-identity-map">
+      <div>
+        <span>INPUT OPERATION</span>
+        <h3>${identity.title}</h3>
+        <p>${identity.objective} 후 ${identity.posture}</p>
+      </div>
+      <strong>${identity.window}</strong>
+    </section>
+    <div class="operation-identity-chip-row">
+      <span class="operation-identity-chip">${identity.scale}</span>
+      <span class="operation-identity-chip">${identity.period}</span>
+      <span class="operation-identity-chip">${identity.type}</span>
+      <span class="operation-identity-chip">${identity.area}</span>
+      <span class="operation-identity-chip is-risk">${identity.primaryFriction}</span>
+    </div>
+  `;
+}
+
 function renderScenarioShell() {
-  byId("fileStack").innerHTML = demoData.operationPlan.documents
+  const dataPage = byId("page-data");
+  const dataGrid = byId("dataGrid");
+  if (dataPage) {
+    dataPage.classList.toggle("is-intake-empty", !state.scenarioLoaded);
+    dataPage.classList.toggle("is-intake-loaded", state.scenarioLoaded);
+    dataPage.setAttribute("data-intake-loaded", String(state.scenarioLoaded));
+  }
+  if (dataGrid) byId("dataGrid").hidden = !state.scenarioLoaded;
+  renderIntakeEmptyState();
+  renderInputDocumentManifest();
+  renderOperationIdentityPanel();
+  const fileStack = byId("fileStack");
+  fileStack.hidden = state.scenarioLoaded;
+  fileStack.innerHTML = demoData.operationPlan.documents
     .map((doc) => `
-      <li class="${state.scenarioLoaded ? "is-ready" : ""}">
+      <li class="${state.scenarioLoaded ? "is-ready" : ""}" data-input-doc-id="${doc.id}">
         <span class="file-icon">${doc.type.slice(0, 2)}</span>
         <span><strong>${doc.name}</strong><small>${doc.type} 자료</small></span>
         <b>${state.scenarioLoaded ? "접수" : "대기"}</b>
@@ -1401,6 +3236,26 @@ function renderScenarioShell() {
   ]
     .map(([title, body, ready]) => `<article class="${ready ? "is-ready" : ""}"><b>${ready ? "OK" : "WAIT"}</b><div><strong>${title}</strong><span>${body}</span></div></article>`)
     .join("");
+  if (!state.scenarioLoaded) {
+    byId("constraintGrid").innerHTML = ["통신 음영 후보", "보급 대기점 확인", "새벽 안개 확인", "후송로 확인"]
+      .map((constraint) => `<span class="is-placeholder">${constraint}</span>`)
+      .join("");
+    byId("coaTable").innerHTML = demoData.coas
+      .map(
+        (coa) => `
+          <article class="coa-row is-placeholder">
+            <div><span>${coa.id}안 후보</span><b>${coa.name}</b></div>
+            <div><span>시간</span><b>${coa.travel_time}분</b></div>
+            <div><span>통신</span><b class="risk-pill ${coa.comm_risk}">${riskLabel(coa.comm_risk)}</b></div>
+            <div><span>군수</span><b class="risk-pill ${coa.logistics_risk}">${riskLabel(coa.logistics_risk)}</b></div>
+            <p>작전계획 접수 후 근거 문장과 조건부 시행 기준을 연결합니다.</p>
+          </article>
+        `
+      )
+      .join("");
+  }
+  renderIntakeQualityPanel();
+  renderPageBriefings();
   refreshIcons();
 }
 
@@ -1433,6 +3288,7 @@ function renderScenarioData() {
     )
     .join("");
   renderScenarioShell();
+  renderPageBriefings();
 }
 
 function loadScenario() {
@@ -1719,6 +3575,7 @@ function updateAgentProgress() {
   setText("agentProgressLabel", `${percent}%`);
   const bar = byId("agentProgressBar");
   if (bar) bar.style.width = `${percent}%`;
+  renderPageBriefings();
 }
 
 function generateAgents() {
@@ -1806,6 +3663,55 @@ function renderTimeline() {
       `
     )
     .join("");
+  renderRehearsalScrubber();
+}
+
+function getRehearsalProgress() {
+  const activeIndex = state.rehearsalIndex >= 0 ? state.rehearsalIndex : -1;
+  const activeEvent = activeIndex >= 0 ? demoData.events[activeIndex] : null;
+  const totalSteps = Math.max(demoData.events.length - 1, 1);
+  const progress = activeIndex < 0 ? 0 : Math.round((activeIndex / totalSteps) * 100);
+  const highRiskCount = demoData.events.filter((event) => event.severity === "high").length;
+  return {
+    activeIndex,
+    activeEvent,
+    progress,
+    highRiskCount,
+    label: activeEvent ? `${activeEvent.time} ${activeEvent.event}` : "리허설 대기",
+    detail: activeEvent ? activeEvent.impact : "이벤트를 선택하면 3D 포커스와 무전이 함께 이동합니다."
+  };
+}
+
+function renderRehearsalScrubber() {
+  const target = byId("rehearsalScrubber");
+  if (!target) return;
+  const progress = getRehearsalProgress();
+  target.innerHTML = `
+    <div class="rehearsal-scrubber-readout">
+      <div>
+        <span>리허설 스크러버</span>
+        <b>${progress.label}</b>
+        <em>${progress.detail}</em>
+      </div>
+      <strong>${progress.progress}%</strong>
+    </div>
+    <div class="rehearsal-scrubber-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress.progress}">
+      <span style="width: ${progress.progress}%"></span>
+    </div>
+    <div class="rehearsal-scrubber-track" role="listbox" aria-label="리허설 이벤트 빠른 이동">
+      ${demoData.events.map((event, index) => {
+        const active = index === progress.activeIndex;
+        const complete = index < progress.activeIndex;
+        return `
+          <button class="rehearsal-scrubber-step ${event.severity} ${active ? "is-active" : ""} ${complete ? "is-complete" : ""}" type="button" role="option" aria-selected="${active ? "true" : "false"}" data-scrub-event-index="${index}">
+            <span>${event.time}</span>
+            <b>${event.event}</b>
+            <em>${event.linked_risks.length ? event.linked_risks.length : event.severity === "high" ? "!" : "·"}</em>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
 }
 
 function renderTerrainPanels(activeEvent = null) {
@@ -1831,6 +3737,104 @@ function renderTerrainPanels(activeEvent = null) {
       .map((overlay) => `<span>${overlay}</span>`)
       .join("");
   }
+}
+
+function getRehearsalLinkedFailures(event) {
+  return (event?.linked_risks || [])
+    .map((failureId) => demoData.failures.find((failure) => failure.id === failureId))
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score);
+}
+
+function getRehearsalBriefing(event = null) {
+  const linkedFailures = getRehearsalLinkedFailures(event);
+  const failure = linkedFailures[0] || getFailureById(state.selectedFailureId);
+  const profile = failure ? getFailureProfile(failure) : null;
+  const evidenceId = event?.evidence_ids?.[0] || failure?.evidence?.[0] || "ev_plan_mission";
+  const evidence = evidenceById.get(evidenceId);
+  const terrainCueByEvent = {
+    start: "기준 경로와 제한사항을 같은 시계로 맞춥니다.",
+    fog: "시정 저하가 선두 속도와 후송 여유를 줄입니다.",
+    enemy_delay: "협곡·교차로 지연행동이 A안 시간 여유를 갉아먹습니다.",
+    comm_gap: "중앙 음영 구간에서 보고 갱신이 끊깁니다.",
+    supply_gap: "남측 보급 대기점 처리량이 2단계 이후 병목이 됩니다.",
+    criteria_gap: "현장 제대가 전환 기준 부재로 대기합니다.",
+    reserve_delay: "예비대 투입 시각 지연이 복합 실패로 번집니다.",
+    b_stabilized: "B안 우회축은 통신·군수 접근성이 유지됩니다."
+  };
+  const decisionCueByEvent = {
+    start: demoData.decision.recommended_coa,
+    fog: "속도 보정과 대체 후송로 확인",
+    enemy_delay: "A안 노출 시 B안 전환 준비",
+    comm_gap: "예비망 전환 권한 승인",
+    supply_gap: "보급 대기점 추가 승인",
+    criteria_gap: "04:20 재판단 기준 고정",
+    reserve_delay: "A안 보류와 예비대 투입 기준 확정",
+    b_stabilized: demoData.decision.recommended_coa
+  };
+  return {
+    time: event?.time || "--:--",
+    title: event?.event || "수행 리허설 대기",
+    severity: event?.severity || "low",
+    terrainCue: terrainCueByEvent[event?.id] || "지형, 통신, 군수 제약을 같이 보며 판단합니다.",
+    failureId: failure?.id || state.selectedFailureId,
+    failureTitle: failure?.title || "기준 상황",
+    failureScore: failure?.score || "--",
+    decisionCue: decisionCueByEvent[event?.id] || profile?.mitigationActions?.[0] || demoData.decision.recommended_coa,
+    stopPoint: profile?.decisionPoint || "이벤트 선택 후 표시",
+    evidenceId,
+    evidenceTitle: evidence?.title || evidenceId,
+    action: profile?.mitigationActions?.[0] || event?.impact || "리허설 이벤트를 선택합니다."
+  };
+}
+
+function renderRehearsalBriefingStrip(event = null) {
+  const target = byId("rehearsalBriefingStrip");
+  if (!target) return;
+  const briefing = getRehearsalBriefing(event);
+  target.innerHTML = `
+    <header>
+      <span>3D 판단 브리핑</span>
+      <b>${briefing.time}</b>
+    </header>
+    <div class="rehearsal-briefing-grid">
+      <article>
+        <span>지형 관찰</span>
+        <b>${briefing.terrainCue}</b>
+      </article>
+      <article>
+        <span>실패경로</span>
+        <b>${briefing.failureTitle} · ${briefing.failureScore}</b>
+      </article>
+      <article>
+        <span>결심 연결</span>
+        <b>${briefing.decisionCue}</b>
+      </article>
+    </div>
+    <div class="rehearsal-briefing-actions">
+      <button type="button" data-rehearsal-action="risk" data-rehearsal-ref="${briefing.failureId}">위험 확인</button>
+      <button type="button" data-rehearsal-action="evidence" data-rehearsal-ref="${briefing.evidenceId}">근거 보기</button>
+    </div>
+  `;
+}
+
+function renderRehearsalDecisionBridge(event = null) {
+  const target = byId("rehearsalDecisionBridge");
+  if (!target) return;
+  const briefing = getRehearsalBriefing(event);
+  target.innerHTML = `
+    <div>
+      <span>판단 연결</span>
+      <b>${briefing.title}</b>
+      <em>${briefing.terrainCue}</em>
+    </div>
+    <ol>
+      <li><span>마찰</span><b>${briefing.failureTitle}</b></li>
+      <li><span>차단점</span><b>${briefing.stopPoint}</b></li>
+      <li><span>결심</span><b>${briefing.decisionCue}</b></li>
+      <li><span>근거</span><button type="button" data-evidence-id="${briefing.evidenceId}">${briefing.evidenceTitle}</button></li>
+    </ol>
+  `;
 }
 
 function getRehearsalSimulationReadout(event) {
@@ -1890,6 +3894,61 @@ function getRehearsalSimulationReadout(event) {
     ["기동", "감시", "속도 편차 확인"],
     ["결심", "대기", "근거 누적"]
   ];
+}
+
+function getRehearsalIntervention(event) {
+  const linkedFailures = (event?.linked_risks || []).map((id) => getFailureById(id)).filter(Boolean);
+  const failure = linkedFailures.sort((a, b) => b.score - a.score)[0];
+  const profile = failure ? getFailureProfile(failure) : null;
+  return {
+    event,
+    failure,
+    profile,
+    title: failure ? failure.title : "기준 이벤트 유지",
+    label: failure ? "차단 권고" : "관찰",
+    timeWindow: profile?.decisionPoint || event?.time || "대기",
+    action: profile?.mitigationActions?.[0] || event?.impact || "리허설 이벤트를 계속 관찰합니다.",
+    evidenceId: event?.evidence_ids?.[0] || failure?.evidence?.[0] || "ev_plan_mission",
+    severity: event?.severity || "low"
+  };
+}
+
+function renderRehearsalIntervention(event) {
+  const intervention = getRehearsalIntervention(event);
+  return `
+    <div class="rehearsal-intervention-card is-${intervention.severity}">
+      <header>
+        <span>${intervention.label}</span>
+        <b>${intervention.title}</b>
+      </header>
+      <strong>${intervention.timeWindow}</strong>
+      <p>${intervention.action}</p>
+      <div class="rehearsal-intervention-actions">
+        ${
+          intervention.failure
+            ? `<button type="button" data-rehearsal-action="risk" data-rehearsal-ref="${intervention.failure.id}">실패경로 보기</button>`
+            : ""
+        }
+        <button type="button" data-rehearsal-action="evidence" data-rehearsal-ref="${intervention.evidenceId}">근거 추적</button>
+      </div>
+    </div>
+  `;
+}
+
+function openFailurePathFromRehearsal(ref, eventId) {
+  setStage("risk");
+  selectFailurePath(ref, { sourceEventId: eventId || null });
+}
+
+function runRehearsalInterventionAction(action, ref) {
+  if (action === "risk") {
+    const activeEvent = demoData.events[state.rehearsalIndex] || null;
+    openFailurePathFromRehearsal(ref, activeEvent?.id);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref);
+  }
 }
 
 function getRadioScriptForEvent(event) {
@@ -1996,6 +4055,8 @@ function update3dRehearsal(event) {
 function showEvent(index) {
   state.rehearsalIndex = clamp(index, 0, demoData.events.length - 1);
   const event = demoData.events[state.rehearsalIndex];
+  window.__warGroundCurrentEventId = event.id;
+  document.body.dataset.rehearsalEventId = event.id;
   const simReadout = getRehearsalSimulationReadout(event)
     .map(([label, value, detail]) => `
       <article>
@@ -2009,6 +4070,9 @@ function showEvent(index) {
   setText("timelineState", `${event.time} 재생`);
   setText("rehearsalRiskLabel", event.linked_risks.length ? event.linked_risks.join(", ") : "기준 이벤트");
   setText("activeAgentCount", `${event.agents.length}명`);
+  const interventionMarkup = renderRehearsalIntervention(event);
+  const interventionOverlay = byId("rehearsalInterventionOverlay");
+  if (interventionOverlay) interventionOverlay.innerHTML = interventionMarkup;
   byId("currentEventCard").innerHTML = `
     <span>${event.time}</span>
     <strong>${event.event}</strong>
@@ -2018,6 +4082,7 @@ function showEvent(index) {
       <b>${event.impact}</b>
       <em>${event.linked_risks.length ? event.linked_risks.join(" · ") : "기준 상황"}</em>
     </div>
+    ${interventionMarkup}
     <div class="rehearsal-sim-readout" aria-label="리허설 시뮬레이션 상태">
       ${simReadout}
     </div>
@@ -2029,13 +4094,17 @@ function showEvent(index) {
   byId("activeAgentChips").innerHTML = event.agents
     .map((agent) => `<span>${agent}</span>`)
     .join("");
+  renderRehearsalBriefingStrip(event);
+  renderRehearsalDecisionBridge(event);
   update3dRehearsal(event);
   triggerRadioTrafficForEvent(event);
+  renderPageBriefings();
   const pulse = byId("rehearsalPulse");
   if (pulse) {
     pulse.className = `map-pulse ${event.severity}`;
     pulse.style.left = `${18 + state.rehearsalIndex * 9}%`;
   }
+  syncRouteState();
 }
 
 function scheduleNextEvent() {
@@ -2070,20 +4139,47 @@ function runRehearsal() {
   scheduleNextEvent();
 }
 
+function restartRehearsalFromStart() {
+  if (!state.agentsGenerated) {
+    runRehearsal();
+    return;
+  }
+  clearTimer("rehearsalTimer");
+  state.rehearsalStarted = true;
+  state.rehearsalPaused = false;
+  state.rehearsalIndex = -1;
+  setStage("rehearsal");
+  setText("rehearsalPauseButton", "일시정지");
+  clearRadioTraffic();
+  window.WarGround3D?.focusEvent?.("start");
+  window.WarGround3D?.setPlayback?.(false);
+  window.WarGround3D?.start?.();
+  showEvent(0);
+  updateFlow("rehearsal");
+  scheduleNextEvent();
+}
+
 function resetRehearsal() {
   clearTimer("rehearsalTimer");
   state.rehearsalIndex = -1;
   state.rehearsalPaused = false;
+  window.__warGroundCurrentEventId = "start";
+  document.body.dataset.rehearsalEventId = "start";
   renderTimeline();
   setText("timelineState", "대기");
   setText("rehearsalRiskLabel", "위험 대기");
   setText("activeAgentCount", "0명");
+  const interventionOverlay = byId("rehearsalInterventionOverlay");
+  if (interventionOverlay) interventionOverlay.innerHTML = "";
   byId("currentEventCard").innerHTML = "<span>대기</span><strong>수행 리허설 실행 버튼을 누르세요.</strong><p>시간순 이벤트와 관련 에이전트가 자동 재생됩니다.</p>";
   byId("activeAgentChips").innerHTML = "";
+  renderRehearsalBriefingStrip();
+  renderRehearsalDecisionBridge();
   clearRadioTraffic();
   renderTerrainPanels();
   window.WarGround3D?.focusEvent?.("start");
   window.WarGround3D?.setPlayback?.(false);
+  renderPageBriefings();
 }
 
 function toggleRehearsalPause() {
@@ -2205,16 +4301,24 @@ function getFailureStory(failure) {
   };
 }
 
-function selectFailurePath(failureId) {
+function selectFailurePath(failureId, options = {}) {
   if (!demoData.failures.some((failure) => failure.id === failureId)) return;
   state.selectedFailureId = failureId;
+  if (Object.prototype.hasOwnProperty.call(options, "sourceEventId")) {
+    state.lastRehearsalRiskEventId = options.sourceEventId || null;
+  } else if (state.currentStage === "risk") {
+    state.lastRehearsalRiskEventId = null;
+  }
   renderRiskStack();
   renderSelectedFailureStory();
   renderFailureLens();
   renderRiskMetricMatrix();
+  renderFailureCoverageMatrix();
   renderFailureChains();
   renderMitigationBoard();
   renderRiskEvidence();
+  renderPageBriefings();
+  syncRouteState();
 }
 
 function renderRiskStack() {
@@ -2228,16 +4332,21 @@ function renderRiskStack() {
         const selected = state.selectedFailureId === risk.id;
         return `
         <button class="risk-item ${selected ? "is-selected" : ""} ${state.compareLlm ? "with-comparison" : ""}" type="button" data-failure-id="${risk.id}" aria-pressed="${selected ? "true" : "false"}">
-          <div class="risk-topline">
-            <b>#${index + 1} ${story.plainLabel}</b>
-            <span>${risk.score}</span>
+          <div class="risk-report-row">
+            <span class="risk-rank">R-${String(index + 1).padStart(2, "0")}</span>
+            <div class="risk-report-main">
+              <div class="risk-topline">
+                <b>${risk.title}</b>
+                <span>${risk.score}</span>
+              </div>
+              <strong class="risk-item-plain">${story.plainLabel}</strong>
+            </div>
           </div>
-          <strong class="risk-item-plain">${risk.title}</strong>
-          <div class="risk-item-meta">
-            <span>${story.severity}</span>
-            <span>${story.timeWindow}</span>
-            <span>${profile.evidenceItems.length}건 근거</span>
-          </div>
+          <dl class="risk-item-meta">
+            <div><dt>등급</dt><dd>${story.severity}</dd></div>
+            <div><dt>시간대</dt><dd>${story.timeWindow}</dd></div>
+            <div><dt>근거</dt><dd>${profile.evidenceItems.length}건</dd></div>
+          </dl>
           <p class="failure-summary">${story.why}</p>
           <div class="failure-pivot-strip" aria-label="실패경로 핵심 판단점">
             <span><b>원인</b><em>${profile.driver}</em></span>
@@ -2254,27 +4363,76 @@ function renderRiskStack() {
   setText("highestRiskLabel", `가장 먼저 볼 흐름: ${demoData.failures[0].title} ${demoData.failures[0].score}점`);
 }
 
+function getFailureTransferContext(failure) {
+  if (!state.lastRehearsalRiskEventId || !failure) return null;
+  const event = demoData.events.find((item) => item.id === state.lastRehearsalRiskEventId);
+  if (!event || !event.linked_risks?.includes(failure.id)) return null;
+  const evidence = event.evidence_ids?.map((id) => evidenceById.get(id)).filter(Boolean)[0];
+  return { event, failure, evidence };
+}
+
+function renderFailureTransferBanner(context) {
+  if (!context) return "";
+  const { event, failure, evidence } = context;
+  return `
+    <aside class="failure-transfer-banner" aria-label="리허설 이벤트에서 실패경로로 전이된 맥락">
+      <div class="failure-transfer-event">
+        <span>방금 발생한 이벤트</span>
+        <strong>${event.time} ${event.event}</strong>
+        <em>${event.impact}</em>
+      </div>
+      <i class="failure-transfer-arrow" aria-hidden="true">→</i>
+      <div class="failure-transfer-risk">
+        <span>이 실패경로로 전이됨</span>
+        <strong>${failure.title} ${failure.score}점</strong>
+        <em>${evidence?.title || event.evidence_ids?.[0] || "연결 근거 확인"}</em>
+      </div>
+    </aside>
+  `;
+}
+
 function renderSelectedFailureStory() {
   const target = byId("selectedFailureStory");
   if (!target) return;
   const failure = getFailureById(state.selectedFailureId);
+  const profile = getFailureProfile(failure);
   const story = getFailureStory(failure);
+  const transferContext = getFailureTransferContext(failure);
   target.innerHTML = `
-    <div>
-      <span>선택한 문제 흐름</span>
-      <strong>${story.headline}</strong>
-      <p>${story.why}</p>
-    </div>
-    <article>
-      <span>놓치면</span>
-      <b>${failure.title}</b>
-      <em>${story.warning}</em>
-    </article>
-    <article>
-      <span>바로 할 조치</span>
-      <b>${story.firstAction}</b>
-      <em>${story.question}</em>
-    </article>
+    <section class="failure-cause-brief" aria-label="선택 실패경로 원인 요약">
+      ${renderFailureTransferBanner(transferContext)}
+      <header class="failure-cause-topline">
+        <div>
+          <span>현재 실패경로</span>
+          <strong>${failure.title}</strong>
+        </div>
+        <b>${failure.score}</b>
+      </header>
+      <div class="failure-cause-path" aria-label="문제 원인에서 실패 결과까지">
+        <article class="failure-cause-node is-problem">
+          <span>문제</span>
+          <strong>${story.plainLabel}</strong>
+          <p>${profile.summary}</p>
+        </article>
+        <i aria-hidden="true">→</i>
+        <article class="failure-cause-node is-cause">
+          <span>왜 실패했나</span>
+          <strong>${profile.driver}</strong>
+          <p>${story.why}</p>
+        </article>
+        <i aria-hidden="true">→</i>
+        <article class="failure-cause-node is-failure">
+          <span>실패 결과</span>
+          <strong>${profile.terminal}</strong>
+          <p>${story.warning}</p>
+        </article>
+      </div>
+      <footer class="failure-interrupt-card">
+        <span>끊을 지점</span>
+        <strong>${story.stopPoint}</strong>
+        <em>${story.timeWindow} · ${story.question}</em>
+      </footer>
+    </section>
   `;
 }
 
@@ -2298,23 +4456,83 @@ function renderRiskMetricMatrix() {
   if (!target) return;
   const failure = getFailureById(state.selectedFailureId);
   const metrics = [
-    ["피해 크기", failure.impact, 5],
-    ["발생 가능성", failure.likelihood, 5],
-    ["다른 문제로 번짐", failure.connectivity, 5],
-    ["시간 여유 부족", Math.round(failure.time_pressure * 100), 100]
+    ["피해 크기", failure.impact, 5, "임무 영향"],
+    ["발생 가능성", failure.likelihood, 5, "현장 조건"],
+    ["다른 문제로 번짐", failure.connectivity, 5, "연쇄성"],
+    ["시간 여유 부족", Math.round(failure.time_pressure * 100), 100, "시한 압박"]
   ];
   target.innerHTML = metrics
-    .map(([label, value, max]) => {
+    .map(([label, value, max, note]) => {
       const percent = Math.round((value / max) * 100);
       return `
-        <div>
+        <div class="risk-metric-row">
           <span>${label}</span>
           <b>${value}${max === 100 ? "%" : `/${max}`}</b>
+          <em>${note}</em>
           <i><span style="width: ${percent}%"></span></i>
         </div>
       `;
     })
     .join("");
+}
+
+function getFailureCoverageRows() {
+  return demoData.failures.map((failure) => {
+    const profile = getFailureProfile(failure);
+    const sources = new Set(profile.evidenceItems.map((item) => item.source));
+    const confirmedEvidence = profile.evidenceItems.filter((item) => item.status === "근거 있음").length;
+    const coverageScore = clamp(
+      confirmedEvidence * 18 + sources.size * 10 + profile.events.length * 14 + profile.agents.length * 6 + profile.mitigationActions.length * 8,
+      24,
+      100
+    );
+    return {
+      failure,
+      profile,
+      evidenceCount: profile.evidenceItems.length,
+      sourceCount: sources.size,
+      eventCount: profile.events.length,
+      agentCount: profile.agents.length,
+      actionCount: profile.mitigationActions.length,
+      confirmedEvidence,
+      coverageScore
+    };
+  });
+}
+
+function renderFailureCoverageMatrix() {
+  const target = byId("failureCoverageMatrix");
+  if (!target) return;
+  const rows = getFailureCoverageRows();
+  const sourceTotal = new Set(rows.flatMap((row) => row.profile.evidenceItems.map((item) => item.source))).size;
+  target.innerHTML = `
+    <header>
+      <span>근거 커버리지 / Evidence Coverage Register</span>
+      <b>${sourceTotal}개 출처 / ${rows.length}개 실패경로</b>
+    </header>
+    <div class="failure-coverage-grid">
+      ${rows
+        .map((row) => {
+          const selected = row.failure.id === state.selectedFailureId;
+          return `
+            <button class="failure-coverage-row ${selected ? "is-selected" : ""}" type="button" data-coverage-failure-id="${row.failure.id}" aria-pressed="${selected ? "true" : "false"}">
+              <div>
+                <strong>${row.failure.title}</strong>
+                <span>${row.profile.decisionPoint}</span>
+              </div>
+              <dl>
+                <div><dt title="직접 근거">근거</dt><dd>${row.evidenceCount}</dd></div>
+                <div><dt>이벤트</dt><dd>${row.eventCount}</dd></div>
+                <div><dt title="참여 에이전트">에이전트</dt><dd>${row.agentCount}</dd></div>
+                <div><dt>차단 조치</dt><dd>${row.actionCount}</dd></div>
+              </dl>
+              <i class="failure-coverage-meter" aria-label="커버리지 ${row.coverageScore}%"><span style="width: ${row.coverageScore}%"></span></i>
+            </button>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
 }
 
 function renderFailureChains() {
@@ -2325,9 +4543,11 @@ function renderFailureChains() {
     .map(
       (step, index) => `
         <article class="${index === risk.chain.length - 1 ? "is-terminal" : ""}">
-          <span>${String(index + 1).padStart(2, "0")}</span>
-          <b>${step}</b>
-          <em class="failure-step-type">${index === 0 ? "시작" : index === risk.chain.length - 1 ? "놓치면 발생" : "다음 문제"}</em>
+          <span>STEP ${String(index + 1).padStart(2, "0")}</span>
+          <div>
+            <b>${step}</b>
+            <em class="failure-step-type">${index === 0 ? "시작 조건" : index === risk.chain.length - 1 ? "최종 실패" : "연쇄 요인"}</em>
+          </div>
         </article>
       `
     )
@@ -2343,9 +4563,9 @@ function renderMitigationBoard() {
     .map(
       (action, index) => `
         <article class="failure-action-card">
-          <span>${index === 0 ? "지금" : "다음"}</span>
+          <span>ACTION ${String(index + 1).padStart(2, "0")}</span>
           <b>${action}</b>
-          <em>${profile.evidenceItems[index % Math.max(profile.evidenceItems.length, 1)]?.source || "결심카드"}</em>
+          <em>근거: ${profile.evidenceItems[index % Math.max(profile.evidenceItems.length, 1)]?.source || "결심카드"}</em>
         </article>
       `
     )
@@ -2356,9 +4576,16 @@ function renderRiskEvidence() {
   const target = byId("riskEvidenceList");
   if (!target) return;
   const selected = getFailureById(state.selectedFailureId);
-  const ids = [...new Set([...(selected?.evidence || []), ...demoData.failures.flatMap((risk) => risk.evidence)])];
-  target.innerHTML = ids.map((id) => evidenceBadge(evidenceById.get(id))).join("");
-  setText("riskEvidenceState", `${selected.evidence.length}건 직접 / ${ids.length}건 전체`);
+  const directIds = [...new Set(selected?.evidence || [])];
+  const allIds = [...new Set(demoData.failures.flatMap((risk) => risk.evidence))];
+  target.innerHTML = `
+    ${directIds.map((id) => evidenceBadge(evidenceById.get(id))).join("")}
+    <div class="risk-evidence-overview">
+      <b>${directIds.length}건 직접 근거</b>
+      <span>전체 근거는 커버리지에서 비교 · ${allIds.length}건 전체</span>
+    </div>
+  `;
+  setText("riskEvidenceState", `${directIds.length}건 직접 / ${allIds.length}건 전체`);
 }
 
 function getDecisionFailureSummary() {
@@ -2379,6 +4606,317 @@ function getDecisionConditions() {
     { label: "군수", detail: "보급 대기점 추가", owner: "군수참모" },
     { label: "재판단", detail: "전환 기준 명시", owner: "지휘관" }
   ];
+}
+
+function getDecisionImpactModel() {
+  const conditionSource = getDecisionConditions();
+  const conditionSpecs = [
+    {
+      id: "comms",
+      icon: "radio-tower",
+      evidence: "ev_comm_gap",
+      reduction: { command_gap: 16, rejudge_delay: 6 }
+    },
+    {
+      id: "logistics",
+      icon: "package-check",
+      evidence: "ev_logistics_supply",
+      reduction: { sustainment_drop: 18, command_gap: 4 }
+    },
+    {
+      id: "rejudge",
+      icon: "git-branch-plus",
+      evidence: "ev_sop_criteria",
+      reduction: { rejudge_delay: 20, command_gap: 10 }
+    },
+    {
+      id: "evac",
+      icon: "cross",
+      evidence: "ev_evac_route",
+      reduction: { accident_delay: 18 }
+    }
+  ];
+  const conditions = conditionSpecs.map((spec, index) => {
+    const source = conditionSource[index] || { label: `조건 ${index + 1}`, detail: demoData.decision.immediate_actions[index] || "확인 필요", owner: "지휘관" };
+    return {
+      ...spec,
+      label: typeof source === "string" ? `조건 ${index + 1}` : source.label,
+      detail: typeof source === "string" ? source : source.detail,
+      owner: typeof source === "string" ? "확인 필요" : source.owner
+    };
+  });
+  return { conditions, failures: demoData.failures };
+}
+
+function getDecisionApprovalGates() {
+  const model = getDecisionImpactModel();
+  const activeIds = getActiveDecisionConditionIds();
+  return model.conditions.map((condition) => {
+    const impactedFailures = model.failures
+      .map((failure) => ({
+        failure,
+        reduction: condition.reduction[failure.id] || 0,
+        score: getProjectedFailureScore(failure, activeIds)
+      }))
+      .filter((item) => item.reduction > 0)
+      .sort((a, b) => b.reduction - a.reduction);
+    const primary = impactedFailures[0] || {
+      failure: model.failures[0],
+      reduction: 0,
+      score: getProjectedFailureScore(model.failures[0], activeIds)
+    };
+    const active = activeIds.has(condition.id);
+    const evidence = evidenceById.get(condition.evidence);
+    return {
+      id: condition.id,
+      label: condition.label,
+      owner: condition.owner,
+      detail: condition.detail,
+      evidenceId: condition.evidence,
+      evidenceTitle: evidence?.title || condition.evidence,
+      active,
+      tone: active ? "ready" : "pending",
+      status: active ? "조건 반영" : "승인 전 보완",
+      failure: primary.failure,
+      residualRisk: primary.score.projected,
+      reduction: primary.reduction
+    };
+  });
+}
+
+function renderDecisionApprovalBoard() {
+  const target = byId("decisionApprovalBoard");
+  if (!target) return;
+  const gates = getDecisionApprovalGates();
+  const readyCount = gates.filter((gate) => gate.active).length;
+  const highestResidual = Math.max(...gates.map((gate) => gate.residualRisk));
+  target.innerHTML = `
+    <header>
+      <div>
+        <span>승인 게이트</span>
+        <b>${readyCount}/${gates.length}개 조건 반영</b>
+      </div>
+      <em>최고 잔여위험 ${highestResidual}</em>
+    </header>
+    <div class="decision-approval-grid">
+      ${gates.map((gate) => `
+        <button class="decision-approval-gate is-${gate.tone}" type="button" aria-pressed="${gate.active ? "true" : "false"}" data-decision-approval-gate="${gate.id}" data-decision-condition="${gate.id}" data-evidence-id="${gate.evidenceId}">
+          <span>${gate.status}</span>
+          <b>${gate.label}</b>
+          <p>${gate.detail}</p>
+          <em>${gate.owner} · ${gate.failure.title} ${gate.residualRisk}</em>
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function getDecisionSignatureFlow() {
+  const gates = getDecisionApprovalGates();
+  const readyCount = gates.filter((gate) => gate.active).length;
+  const allReady = readyCount === gates.length;
+  const evidenceLocked = demoData.decision.evidence_ids.length;
+  return [
+    {
+      label: "AI 검토안",
+      owner: "WAR GROUND",
+      status: `${evidenceLocked}개 근거 잠금`,
+      done: true
+    },
+    {
+      label: "참모 보완",
+      owner: "주요 참모",
+      status: `${readyCount}/${gates.length}개 승인 게이트 반영`,
+      done: readyCount >= Math.max(1, gates.length - 1)
+    },
+    {
+      label: "지휘관 승인",
+      owner: "지휘관",
+      status: allReady ? "조건부 승인 가능" : "보완 조건 확인",
+      done: allReady
+    },
+    {
+      label: "단편명령 전파",
+      owner: "작전참모",
+      status: allReady ? "작성안 전파 준비" : "승인 후 전파",
+      done: false
+    }
+  ];
+}
+
+function renderDecisionSignatureFlow() {
+  const target = byId("decisionSignatureFlow");
+  if (!target) return;
+  target.innerHTML = `
+    <header><span>최종 승인 흐름</span><b>Human-in-the-loop</b></header>
+    <div>
+      ${getDecisionSignatureFlow().map((step, index) => `
+        <article class="signature-step ${step.done ? "is-done" : ""}">
+          <span>${String(index + 1).padStart(2, "0")}</span>
+          <b>${step.label}</b>
+          <em>${step.owner}</em>
+          <p>${step.status}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function getActiveDecisionConditionIds() {
+  return new Set(
+    Object.entries(state.decisionConditionState)
+      .filter(([, enabled]) => enabled)
+      .map(([id]) => id)
+  );
+}
+
+function getProjectedFailureScore(failure, activeIds = getActiveDecisionConditionIds()) {
+  const { conditions } = getDecisionImpactModel();
+  const reduction = conditions.reduce((sum, condition) => (
+    activeIds.has(condition.id) ? sum + (condition.reduction[failure.id] || 0) : sum
+  ), 0);
+  return {
+    base: failure.score,
+    reduction,
+    projected: clamp(failure.score - reduction, 18, failure.score)
+  };
+}
+
+function toggleDecisionCondition(conditionId) {
+  if (!Object.hasOwn(state.decisionConditionState, conditionId)) return;
+  state.decisionConditionState[conditionId] = !state.decisionConditionState[conditionId];
+  renderDecisionImpactSimulator();
+  renderDecisionApprovalBoard();
+  renderDecisionExecutionMatrix();
+  renderDecisionSignatureFlow();
+  renderPageBriefings();
+}
+
+function renderDecisionImpactSimulator() {
+  const target = byId("decisionImpactSimulator");
+  if (!target) return;
+  target.classList.add("decision-impact-simulator");
+  const model = getDecisionImpactModel();
+  const activeIds = getActiveDecisionConditionIds();
+  const projectedRows = model.failures.map((failure) => ({
+    failure,
+    ...getProjectedFailureScore(failure, activeIds)
+  }));
+  const averageBase = Math.round(projectedRows.reduce((sum, row) => sum + row.base, 0) / projectedRows.length);
+  const averageProjected = Math.round(projectedRows.reduce((sum, row) => sum + row.projected, 0) / projectedRows.length);
+  const averageReduction = averageBase - averageProjected;
+  const activeCount = activeIds.size;
+  target.innerHTML = `
+    <header class="decision-module-heading">
+      <div>
+        <span>조건 검토표</span>
+        <b>승인 조건 충족 시 위험 감쇄</b>
+      </div>
+      <em>${activeCount}/${model.conditions.length}개 반영</em>
+    </header>
+    <div class="decision-impact-summary">
+      <div>
+        <span>평균 잔여 위험</span>
+        <b>예상 잔여 위험 ${averageProjected}</b>
+        <em>${activeCount}/${model.conditions.length}개 조건 반영 · 평균 ${averageReduction}점 감소</em>
+      </div>
+      <strong>${averageBase} → ${averageProjected}</strong>
+    </div>
+    <div class="decision-condition-toggle-grid" aria-label="조건 토글">
+      ${model.conditions.map((condition) => {
+        const active = activeIds.has(condition.id);
+        return `
+          <button class="decision-condition-toggle ${active ? "is-active" : ""}" type="button" aria-pressed="${active ? "true" : "false"}" data-decision-condition="${condition.id}" data-evidence-id="${condition.evidence}">
+            <i data-lucide="${condition.icon}" aria-hidden="true"></i>
+            <span>${condition.label}</span>
+            <b>${condition.detail}</b>
+            <em>${condition.owner}</em>
+          </button>
+        `;
+      }).join("")}
+    </div>
+    <div class="decision-impact-bars" aria-label="예상 잔여 위험">
+      ${projectedRows.map((row) => {
+        const percent = Math.round((row.projected / row.base) * 100);
+        return `
+          <article>
+            <div><span>${row.failure.title}</span><b>${row.base} → ${row.projected}</b></div>
+            <i><span style="width: ${percent}%"></span></i>
+            <em>${row.reduction ? `${row.reduction}점 감쇄` : "조건 보강 필요"}</em>
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+  refreshIcons();
+}
+
+function getDecisionExecutionRows() {
+  const model = getDecisionImpactModel();
+  const activeIds = getActiveDecisionConditionIds();
+  const evidenceIds = demoData.decision.evidence_ids;
+  return demoData.decision.immediate_actions.map((action, index) => {
+    const evidenceId = evidenceIds[index] || evidenceIds[evidenceIds.length - 1] || "ev_plan_mission";
+    const evidence = evidenceById.get(evidenceId);
+    const failure = demoData.failures.find((item) => item.evidence.includes(evidenceId)) || demoData.failures[index % demoData.failures.length];
+    const condition = model.conditions.find((item) => item.evidence === evidenceId || item.reduction[failure.id]) || model.conditions[index % model.conditions.length];
+    const score = getProjectedFailureScore(failure, activeIds);
+    return {
+      id: `decision-action-${index}`,
+      action,
+      owner: condition?.owner || "지휘관",
+      condition: condition?.label || "조건",
+      evidenceId,
+      evidence,
+      failure,
+      score,
+      critical: score.projected >= 75
+    };
+  });
+}
+
+function renderDecisionExecutionMatrix() {
+  const target = byId("decisionExecutionMatrix");
+  if (!target) return;
+  const rows = getDecisionExecutionRows();
+  const openRiskCount = rows.filter((row) => row.critical).length;
+  target.innerHTML = `
+    <header>
+      <div>
+        <span>실행 등록부 / 조치 실행 매트릭스</span>
+        <b>${rows.length}개 즉시 수정안 / 담당 참모 연결</b>
+      </div>
+      <em>${openRiskCount ? `${openRiskCount}개 고위험 잔류` : "조건 반영 후 통제 가능"}</em>
+    </header>
+    <div class="decision-execution-grid">
+      ${rows.map((row, index) => `
+        <article class="decision-execution-row ${row.critical ? "is-critical" : ""}">
+          <span>${String(index + 1).padStart(2, "0")} / ${row.owner}</span>
+          <b>${row.action}</b>
+          <p>${row.condition} 조건으로 ${row.failure.title} 잔여위험 ${row.score.projected}까지 통제</p>
+          <div class="decision-execution-meta">
+            <em>잔여위험 ${row.score.base} → ${row.score.projected}</em>
+            <strong>${row.evidence?.title || row.evidenceId}</strong>
+          </div>
+          <div class="decision-execution-actions">
+            <button type="button" data-decision-execution-action="risk" data-decision-execution-ref="${row.failure.id}">위험 보기</button>
+            <button type="button" data-decision-execution-action="evidence" data-decision-execution-ref="${row.evidenceId}">근거 추적</button>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function runDecisionExecutionAction(action, ref) {
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref);
+    return;
+  }
+  if (action === "evidence") {
+    openEvidenceTrace(ref);
+  }
 }
 
 function getDecisionScorecard() {
@@ -2406,6 +4944,9 @@ function renderDecisionScoreboard() {
   const target = byId("decisionScoreboard");
   if (!target) return;
   target.innerHTML = renderInfoTileItems(getDecisionScorecard());
+  renderDecisionImpactSimulator();
+  renderDecisionApprovalBoard();
+  renderDecisionExecutionMatrix();
 }
 
 function renderCommanderChecklist() {
@@ -2415,9 +4956,11 @@ function renderCommanderChecklist() {
     .map(
       (item, index) => `
         <article>
-          <span>${String(index + 1).padStart(2, "0")}</span>
-          <b>${item}</b>
-          <em>${index < 2 ? "승인 전 확인" : "조건 확인"}</em>
+          <span>CHK ${String(index + 1).padStart(2, "0")}</span>
+          <div>
+            <b>${item}</b>
+            <em>${index < 2 ? "승인 전 확인" : "조건 확인"}</em>
+          </div>
         </article>
       `
     )
@@ -2428,6 +4971,7 @@ function renderCommanderChecklist() {
     ${checkItems}
     ${renderActionList("watch-item-list", watchItems, { title: "리허설 감시 항목", ariaLabel: "감시 항목" })}
   `;
+  renderDecisionSignatureFlow();
 }
 
 function renderDecisionTracePanel() {
@@ -2439,7 +4983,7 @@ function renderDecisionTracePanel() {
       const action = demoData.decision.immediate_actions[index] || demoData.decision.redecision_criteria[index] || "지휘관 확인";
       return `
         <button type="button" data-decision-evidence-id="${id}" data-evidence-id="${id}">
-          <span>${evidence?.status || "근거"}</span>
+          <span>EV ${String(index + 1).padStart(2, "0")} · ${evidence?.status || "근거"}</span>
           <b>${evidence?.title || id}</b>
           <em>${action}</em>
         </button>
@@ -2452,37 +4996,45 @@ function renderDecisionCard() {
   const panel = byId("decisionCardPanel");
   if (!panel) return;
   const decision = demoData.decision;
-  const conditionTiles = getDecisionConditions().map((condition) => ({
-    label: typeof condition === "string" ? "조건" : condition.label,
-    value: typeof condition === "string" ? condition : condition.detail,
-    detail: typeof condition === "string" ? "확인 필요" : condition.owner
-  }));
+  const conditions = getDecisionConditions();
+  const primaryCondition = conditions[0];
+  const primaryAction = decision.immediate_actions[1] || decision.immediate_actions[0];
+  const criteria = decision.redecision_criteria[0];
+  const summary = getDecisionFailureSummary();
+  const topProfile = getFailureProfile(summary.topRisk);
+  const directEvidence = decision.evidence_ids.length;
+  const relatedEvents = topProfile.events.length;
   panel.innerHTML = `
-    <div class="decision-lock">
-      <span>추천 방책</span>
-      <strong>${decision.recommended_coa}</strong>
-      <em>${decision.conditional_coa}</em>
-    </div>
-    <div class="decision-statement">
-      <span>결심 문장</span>
-      <b>${decision.decision_statement || `${decision.recommended_coa}: ${decision.conditional_coa}`}</b>
-    </div>
-    ${renderInfoTiles("decision-condition-list", conditionTiles, "시행 조건")}
-    <div class="decision-columns">
-      <article>
-        <b>판단 근거</b>
-        ${renderActionList("decision-copy-list", decision.rationale)}
-      </article>
-      <article>
-        <b>즉시 수정안</b>
-        ${renderActionList("decision-copy-list", decision.immediate_actions)}
-      </article>
-      <article>
-        <b>재판단 기준</b>
-        ${renderActionList("decision-copy-list", decision.redecision_criteria)}
-      </article>
-    </div>
-    <div class="human-loop-notice">${decision.command_authority_notice}</div>
+    <section class="simple-decision-card final-decision-card" aria-label="지휘관 결심카드">
+      <header class="simple-decision-hero final-decision-verdict">
+        <span>권고 결심</span>
+        <strong>${decision.recommended_coa}</strong>
+        <p>${decision.decision_statement || decision.conditional_coa}</p>
+      </header>
+      <p class="simple-decision-statement">${decision.conditional_coa}</p>
+      <div class="final-decision-grid">
+        <article class="simple-decision-conditions final-decision-condition">
+          <h3>조건</h3>
+          <b>${typeof primaryCondition === "string" ? "승인 조건" : primaryCondition.label}</b>
+          <p>${typeof primaryCondition === "string" ? primaryCondition : primaryCondition.detail}</p>
+          <em>재판단 기준: ${criteria}</em>
+        </article>
+        <article class="simple-decision-actions final-decision-action">
+          <h3>즉시 조치</h3>
+          <b>${primaryAction}</b>
+          <p>${decision.commander_check_items[1] || "현장 지휘자 권한 위임 여부 확인"}</p>
+        </article>
+        <article class="simple-decision-footer final-decision-evidence">
+          <h3>근거</h3>
+          <b>실패경로 ${summary.topRisk.score}점 / 근거 ${directEvidence}건 / 관련 이벤트 ${relatedEvents}건</b>
+          <p>${summary.topRisk.title} · ${topProfile.driver}</p>
+        </article>
+      </div>
+      <footer class="simple-decision-footer">
+        <span>근거 ${decision.evidence_ids.length}건 잠금</span>
+        <strong>지휘관 승인 필요</strong>
+      </footer>
+    </section>
   `;
 }
 
@@ -2509,12 +5061,13 @@ function renderDecisionEvidence() {
   const table = byId("decisionEvidenceTable");
   if (!table) return;
   table.innerHTML = demoData.decision.evidence_ids
-    .map((id) => {
+    .map((id, index) => {
       const item = evidenceById.get(id);
-      return `<div data-decision-evidence-id="${id}"><span>${item.status}</span><b>${item.title}</b><em>${item.source}</em></div>`;
+      return `<div data-decision-evidence-id="${id}"><span>REF ${String(index + 1).padStart(2, "0")} · ${item.status}</span><b>${item.title}</b><em>${item.source}</em></div>`;
     })
     .join("");
   setText("humanLoopNotice", demoData.decision.command_authority_notice);
+  renderPageBriefings();
 }
 
 function setDecisionTab(tab) {
@@ -2536,8 +5089,8 @@ function updateFlow(step) {
 }
 
 function updateStats() {
-  setText("nodeCountLabel", `${graph.nodes.length}개 노드`);
-  setText("edgeCountLabel", `${graph.edges.length}개 관계`);
+  setText("nodeCountLabel", state.scenarioLoaded ? `${graph.nodes.length}개 노드` : "0개 노드");
+  setText("edgeCountLabel", state.scenarioLoaded ? `${graph.edges.length}개 관계` : "0개 관계");
   setText("ontologyCountLabel", `${graph.nodes.length}개 노드`);
 }
 
@@ -2555,6 +5108,7 @@ function tickDemoClock() {
 function resetDemo() {
   clearTimer("autoTimer");
   clearTimer("rehearsalTimer");
+  hideAutoDemoOverlay();
   state.scenarioLoaded = false;
   state.agentsGenerated = false;
   state.rehearsalStarted = false;
@@ -2567,6 +5121,14 @@ function resetDemo() {
   state.selectedAgentId = "red_team_agent";
   state.agentFilter = "all";
   state.selectedFailureId = "command_gap";
+  state.selectedEvidenceId = "ev_comm_gap";
+  setFocusMode(false);
+  state.decisionConditionState = {
+    comms: true,
+    logistics: true,
+    rejudge: true,
+    evac: true
+  };
   demoData.agents.forEach((agent) => {
     agent.status = "대기";
   });
@@ -2598,6 +5160,7 @@ function resetDemo() {
   renderSelectedFailureStory();
   renderFailureLens();
   renderRiskMetricMatrix();
+  renderFailureCoverageMatrix();
   renderFailureChains();
   renderMitigationBoard();
   renderRiskEvidence();
@@ -2613,46 +5176,379 @@ function resetDemo() {
   updateDemoClock();
   setGraphMode("all");
   setStage("data");
+  renderPageBriefings();
   refreshIcons();
+}
+
+const autoDemoSteps = [
+  {
+    id: "scenario",
+    stage: "data",
+    flow: "scenario",
+    label: "작전계획 접수",
+    detail: "문서 패키지, 제한사항, A/B/C 방책을 구조화합니다.",
+    duration: 1100,
+    run: loadScenario
+  },
+  {
+    id: "graph",
+    stage: "ontology",
+    flow: "scenario",
+    label: "온톨로지 연결",
+    detail: "문서 근거와 방책, 위험, 결심 후보를 그래프에 연결합니다.",
+    duration: 1200,
+    run: () => {
+      setGraphMode("all");
+      selectNode("mission");
+    }
+  },
+  {
+    id: "agents",
+    stage: "agents",
+    flow: "agents",
+    label: "가상부대 생성",
+    detail: "참모, 현장 제대, 대항군, 환경 에이전트를 활성화합니다.",
+    duration: 1600,
+    run: generateAgents
+  },
+  {
+    id: "rehearsal",
+    stage: "rehearsal",
+    flow: "rehearsal",
+    label: "수행 리허설 실행",
+    detail: "시간순 이벤트와 3D 지형 위 마찰 지점을 재생합니다.",
+    duration: 5200,
+    run: runRehearsal
+  },
+  {
+    id: "risk",
+    stage: "risk",
+    flow: "failure",
+    label: "실패경로 산출",
+    detail: "지휘공백, 지속성 저하, 사고 대응 지연의 인과 흐름을 압축합니다.",
+    duration: 1600,
+    run: () => {
+      selectFailurePath("command_gap");
+    }
+  },
+  {
+    id: "decision",
+    stage: "decision",
+    flow: "decision",
+    label: "결심카드 작성",
+    detail: "추천 방책, 시행 조건, 근거 테이블을 지휘관 확인 양식으로 묶습니다.",
+    duration: 1700,
+    run: () => {
+      setDecisionTab("card");
+    }
+  }
+];
+
+function ensureAutoDemoOverlay() {
+  let overlay = byId("autoDemoOverlay");
+  if (overlay) return overlay;
+  overlay = document.createElement("aside");
+  overlay.id = "autoDemoOverlay";
+  overlay.className = "auto-demo-overlay";
+  overlay.setAttribute("aria-live", "polite");
+  overlay.innerHTML = `
+    <div class="auto-demo-head">
+      <span>자동 진행</span>
+      <b id="autoDemoStepLabel">대기</b>
+    </div>
+    <p id="autoDemoStepDetail">작전 리허설 시퀀스를 준비합니다.</p>
+    <div class="auto-demo-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span id="autoDemoProgressBar"></span>
+    </div>
+    <div class="auto-demo-step-list" id="autoDemoStepList"></div>
+  `;
+  document.body.append(overlay);
+  return overlay;
+}
+
+function renderAutoDemoSteps(activeIndex = -1) {
+  const list = byId("autoDemoStepList");
+  if (!list) return;
+  list.innerHTML = autoDemoSteps
+    .map((step, index) => {
+      const stateClass = index < activeIndex ? "is-complete" : index === activeIndex ? "is-active" : "";
+      return `<span class="${stateClass}"><i>${String(index + 1).padStart(2, "0")}</i>${step.label}</span>`;
+    })
+    .join("");
+}
+
+function showAutoDemoOverlay() {
+  const overlay = ensureAutoDemoOverlay();
+  overlay.classList.add("is-visible");
+  renderAutoDemoSteps();
+}
+
+function hideAutoDemoOverlay() {
+  const overlay = byId("autoDemoOverlay");
+  if (!overlay) return;
+  overlay.classList.remove("is-visible", "is-complete");
+  document.body.classList.remove("is-auto-demo-running");
+}
+
+function setAutoDemoProgress(index, step, progress) {
+  const percent = Math.round(((index + progress) / autoDemoSteps.length) * 100);
+  setText("autoDemoStepLabel", step.label);
+  setText("autoDemoStepDetail", step.detail);
+  const meter = byId("autoDemoProgressBar");
+  const progressbar = document.querySelector(".auto-demo-meter");
+  if (meter) meter.style.width = `${percent}%`;
+  if (progressbar) progressbar.setAttribute("aria-valuenow", String(percent));
+  renderAutoDemoSteps(index);
+}
+
+function runAutoDemoStep(index) {
+  const step = autoDemoSteps[index];
+  if (!step) {
+    const overlay = byId("autoDemoOverlay");
+    if (overlay) overlay.classList.add("is-complete");
+    setText("autoDemoStepLabel", "결심카드 준비 완료");
+    setText("autoDemoStepDetail", "검토안, 근거, 단편명령 작성안까지 자동 생성되었습니다.");
+    document.body.classList.remove("is-auto-demo-running");
+    updateFlow("decision");
+    setStage("decision");
+    return;
+  }
+
+  setAutoDemoProgress(index, step, 0.25);
+  setStage(step.stage);
+  updateFlow(step.flow);
+
+  state.autoTimer = window.setTimeout(() => {
+    step.run();
+    setAutoDemoProgress(index, step, 0.82);
+    state.autoTimer = window.setTimeout(() => {
+      setAutoDemoProgress(index, step, 1);
+      runAutoDemoStep(index + 1);
+    }, step.duration);
+  }, 420);
 }
 
 function runAutoDemo() {
   clearTimer("autoTimer");
   resetDemo();
-  loadScenario();
-  state.autoTimer = window.setTimeout(() => {
-    generateAgents();
-    state.autoTimer = window.setTimeout(() => {
-      runRehearsal();
-      state.autoTimer = window.setTimeout(() => {
-        setStage("decision");
-        updateFlow("decision");
-      }, 10500);
-    }, 1800);
-  }, 1000);
+  document.body.classList.add("is-auto-demo-running");
+  showAutoDemoOverlay();
+  runAutoDemoStep(0);
 }
 
-function exportDecision() {
-  const payload = JSON.stringify({
-    decision_card: demoData.decision,
-    fragmentary_order: demoData.order,
-    evidence: demoData.decision.evidence_ids.map((id) => evidenceById.get(id))
-  }, null, 2);
-  const blob = new Blob([payload], { type: "application/json;charset=utf-8" });
+function downloadJson(payload, fileName) {
+  const serialized = JSON.stringify(payload, null, 2);
+  const blob = new Blob([serialized], { type: "application/json;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "war-ground-decision-review.json";
+  link.download = fileName;
+  link.style.display = "none";
+  document.body.appendChild(link);
   link.click();
+  link.remove();
   URL.revokeObjectURL(url);
+}
+
+function exportDecision() {
+  downloadJson({
+    decision_card: demoData.decision,
+    fragmentary_order: demoData.order,
+    execution_matrix: getDecisionExecutionRows(),
+    evidence: demoData.decision.evidence_ids.map((id) => evidenceById.get(id))
+  }, "war-ground-decision-review.json");
+}
+
+function getSubmissionPacket(snapshot = getBriefingSnapshot()) {
+  return {
+    package_type: "war-ground-submission-packet",
+    generated_at: new Date().toISOString(),
+    share_url: snapshot.shareUrl,
+    mission: {
+      title: snapshot.title,
+      current_stage: snapshot.stage,
+      recommended_decision: snapshot.decision,
+      decision_condition: snapshot.condition,
+      residual_risk: snapshot.residualRisk
+    },
+    briefing_text: getBriefingText(snapshot),
+    run_sheet: getDemoRunSheetItems(),
+    rehearsal_judgment: snapshot.rehearsalBriefing,
+    approval_gates: snapshot.approvalGates,
+    judge_defense: snapshot.defenseItems,
+    decision_card: demoData.decision,
+    fragmentary_order: demoData.order,
+    execution_matrix: snapshot.executionRows,
+    selected_failure: snapshot.failure,
+    selected_evidence: snapshot.evidence,
+    recommended_screenshots: [
+      "outputs/verify-rehearsal-3d-briefing.png",
+      "outputs/verify-decision-approval-gates.png",
+      "outputs/verify-briefing-packet.png",
+      "outputs/verify-mobile-rehearsal-briefing.png"
+    ]
+  };
+}
+
+function exportBriefingPacket() {
+  const button = byId("exportBriefingPacket");
+  downloadJson(getSubmissionPacket(), "war-ground-submission-packet.json");
+  if (!button) return;
+  button.innerHTML = `<i data-lucide="check" aria-hidden="true"></i>패킷 저장됨`;
+  window.setTimeout(() => {
+    button.innerHTML = `<i data-lucide="download" aria-hidden="true"></i>제출 패킷 저장`;
+    refreshIcons();
+  }, 1200);
+  refreshIcons();
+}
+
+function isEditableTarget(target) {
+  return Boolean(target?.closest?.("input, textarea, select, [contenteditable='true']"));
+}
+
+function activateEvidenceKeyboardTarget(event) {
+  const evidenceTarget = event.target.closest?.("[data-evidence-id]");
+  if (!evidenceTarget || !(event.key === "Enter" || event.key === " ")) return false;
+  event.preventDefault();
+  selectEvidence(evidenceTarget.dataset.evidenceId);
+  return true;
+}
+
+function syncRouteState() {
+  if (!state.routeSyncReady || !window.history?.replaceState) return;
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
+  params.set("stage", state.currentStage);
+  params.set("node", state.selectedNodeId);
+  params.set("failure", state.selectedFailureId);
+  params.set("evidence", state.selectedEvidenceId);
+  if (state.presenterMode) {
+    params.set("presenter", "1");
+  } else {
+    params.delete("presenter");
+  }
+  if (state.rehearsalIndex >= 0 && demoData.events[state.rehearsalIndex]) {
+    params.set("event", demoData.events[state.rehearsalIndex].id);
+  } else {
+    params.delete("event");
+  }
+  url.search = params.toString();
+  window.history.replaceState({
+    stage: state.currentStage,
+    node: state.selectedNodeId,
+    failure: state.selectedFailureId,
+    evidence: state.selectedEvidenceId,
+    event: state.rehearsalIndex,
+    presenter: state.presenterMode
+  }, "", url);
+}
+
+function applyRouteStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const initialFailure = params.get("failure");
+  const initialEvidence = params.get("evidence");
+  const initialStage = params.get("stage");
+  const initialNode = params.get("node");
+  const initialEvent = params.get("event");
+  const initialPresenter = params.get("presenter") === "1";
+
+  if (initialFailure && demoData.failures.some((failure) => failure.id === initialFailure)) {
+    selectFailurePath(initialFailure);
+  }
+  if (initialPresenter) setPresenterMode(true);
+  if (initialEvidence && evidenceById.has(initialEvidence)) {
+    state.selectedEvidenceId = initialEvidence;
+  }
+  if (initialStage && stageMeta[initialStage]) setStage(initialStage);
+  if (initialNode && graph.nodeMap.has(initialNode)) selectNode(initialNode);
+  if (initialEvidence && evidenceById.has(initialEvidence)) {
+    renderEvidencePreview([initialEvidence]);
+    if (state.currentStage === "risk") renderRiskEvidence();
+    if (state.currentStage === "decision") {
+      renderDecisionTracePanel();
+      renderDecisionEvidence();
+    }
+  }
+  if (initialEvent) {
+    const eventIndex = demoData.events.findIndex((event) => event.id === initialEvent);
+    if (eventIndex >= 0) {
+      state.rehearsalStarted = true;
+      state.rehearsalPaused = true;
+      setText("rehearsalPauseButton", "계속");
+      showEvent(eventIndex);
+      const eventFailure = initialFailure && demoData.events[eventIndex].linked_risks.includes(initialFailure);
+      if (initialStage === "risk" && eventFailure) {
+        selectFailurePath(initialFailure, { sourceEventId: initialEvent });
+      }
+    }
+  }
 }
 
 function bindEvents() {
   document.querySelectorAll(".workspace-tab").forEach((button) => {
     button.addEventListener("click", () => setStage(button.dataset.stage));
+    button.addEventListener("keydown", handleWorkspaceTabKeydown);
   });
   document.querySelectorAll(".mode-button[data-graph-mode]").forEach((button) => {
     button.addEventListener("click", () => setGraphMode(button.dataset.graphMode));
+  });
+  byId("openMissionSearch").addEventListener("click", () => openMissionSearch());
+  byId("openEvidenceTrace").addEventListener("click", () => openEvidenceTrace());
+  byId("openBriefingSheet").addEventListener("click", () => openBriefingSheet());
+  byId("togglePresenterModeButton").addEventListener("click", togglePresenterMode);
+  byId("toggleFocusModeButton").addEventListener("click", toggleFocusMode);
+  byId("missionSearchInput").addEventListener("input", (event) => {
+    renderMissionSearchResults(event.target.value);
+  });
+  byId("missionSearchResults").addEventListener("click", (event) => {
+    const resultButton = event.target.closest("[data-search-result-id]");
+    if (resultButton) applyMissionSearchResult(resultButton.dataset.searchResultId);
+  });
+  document.querySelectorAll("[data-close-mission-search]").forEach((trigger) => {
+    trigger.addEventListener("click", closeMissionSearch);
+  });
+  document.querySelectorAll("[data-close-evidence-trace]").forEach((trigger) => {
+    trigger.addEventListener("click", closeEvidenceTrace);
+  });
+  document.querySelectorAll("[data-close-briefing-sheet]").forEach((trigger) => {
+    trigger.addEventListener("click", closeBriefingSheet);
+  });
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      openMissionSearch();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "e") {
+      event.preventDefault();
+      openEvidenceTrace();
+      return;
+    }
+    if (event.key === "/" && !isEditableTarget(event.target)) {
+      event.preventDefault();
+      openMissionSearch();
+      return;
+    }
+    if (activateEvidenceKeyboardTarget(event)) return;
+    if (event.key === "Escape" && !byId("missionSearchModal").hidden) {
+      closeMissionSearch();
+      return;
+    }
+    if (event.key === "Escape" && !byId("evidenceTraceDrawer").hidden) {
+      closeEvidenceTrace();
+      return;
+    }
+    if (event.key === "Escape" && !byId("briefingSheetDrawer").hidden) {
+      closeBriefingSheet();
+      return;
+    }
+    if (event.key === "Escape" && state.presenterMode) {
+      setPresenterMode(false);
+      return;
+    }
+    if (event.key === "Escape" && state.focusMode) {
+      setFocusMode(false);
+    }
   });
   byId("loadScenarioButton").addEventListener("click", loadScenario);
   byId("generateAgentsButton").addEventListener("click", generateAgents);
@@ -2666,7 +5562,7 @@ function bindEvents() {
     selectNode("decision");
   });
   byId("rehearsalPauseButton").addEventListener("click", toggleRehearsalPause);
-  byId("rehearsalReplayButton").addEventListener("click", runRehearsal);
+  byId("rehearsalRestartButton").addEventListener("click", restartRehearsalFromStart);
   byId("rehearsalSpeedButton").addEventListener("click", toggleRehearsalSpeed);
   byId("terrainAnalysisButton").addEventListener("click", () => window.WarGround3D?.showTerrainAnalysis?.());
   byId("commanderViewButton").addEventListener("click", () => window.WarGround3D?.showCommanderResult?.());
@@ -2679,7 +5575,58 @@ function bindEvents() {
   byId("decisionTabCard").addEventListener("click", () => setDecisionTab("card"));
   byId("decisionTabOrder").addEventListener("click", () => setDecisionTab("order"));
   byId("exportDecisionButton").addEventListener("click", exportDecision);
+  byId("copyBriefingLink").addEventListener("click", copyBriefingLink);
+  byId("copyBriefingText").addEventListener("click", copyBriefingText);
+  byId("exportBriefingPacket").addEventListener("click", exportBriefingPacket);
   document.body.addEventListener("click", (event) => {
+    const demoCueAction = event.target.closest("[data-demo-cue-action]");
+    if (demoCueAction) {
+      runDemoCueAction(demoCueAction.dataset.demoCueAction);
+      return;
+    }
+    const missionAction = event.target.closest("[data-mission-action]");
+    if (missionAction) {
+      runMissionAction(missionAction.dataset.missionAction);
+      return;
+    }
+    const traceAction = event.target.closest("[data-trace-action]");
+    if (traceAction) {
+      runEvidenceTraceAction(traceAction.dataset.traceAction, traceAction.dataset.traceRef);
+      return;
+    }
+    const decisionExecutionAction = event.target.closest("[data-decision-execution-action]");
+    if (decisionExecutionAction) {
+      runDecisionExecutionAction(
+        decisionExecutionAction.dataset.decisionExecutionAction,
+        decisionExecutionAction.dataset.decisionExecutionRef
+      );
+      return;
+    }
+    const decisionCondition = event.target.closest("[data-decision-condition]");
+    if (decisionCondition) {
+      toggleDecisionCondition(decisionCondition.dataset.decisionCondition);
+      return;
+    }
+    const intakeAction = event.target.closest("[data-intake-quality-action]");
+    if (intakeAction) {
+      runIntakeQualityAction(intakeAction.dataset.intakeQualityAction);
+      return;
+    }
+    const pathButton = event.target.closest("[data-path-node-id]");
+    if (pathButton) {
+      selectNode(pathButton.dataset.pathNodeId);
+      return;
+    }
+    const rehearsalAction = event.target.closest("[data-rehearsal-action]");
+    if (rehearsalAction) {
+      runRehearsalInterventionAction(rehearsalAction.dataset.rehearsalAction, rehearsalAction.dataset.rehearsalRef);
+      return;
+    }
+    const coverageButton = event.target.closest("[data-coverage-failure-id]");
+    if (coverageButton) {
+      selectFailurePath(coverageButton.dataset.coverageFailureId);
+      return;
+    }
     const failureButton = event.target.closest("[data-failure-id]");
     if (failureButton) {
       selectFailurePath(failureButton.dataset.failureId);
@@ -2709,9 +5656,17 @@ function bindEvents() {
     }
     const button = event.target.closest("[data-evidence-id]");
     if (button) {
-      const evidence = evidenceById.get(button.dataset.evidenceId);
-      if (evidence) renderEvidencePreview([evidence.id]);
-      setStage("ontology");
+      selectEvidence(button.dataset.evidenceId);
+    }
+    const scrubButton = event.target.closest("[data-scrub-event-index]");
+    if (scrubButton) {
+      clearTimer("rehearsalTimer");
+      state.rehearsalStarted = true;
+      state.rehearsalPaused = true;
+      setText("rehearsalPauseButton", "계속");
+      showEvent(Number(scrubButton.dataset.scrubEventIndex));
+      updateFlow("rehearsal");
+      return;
     }
     const timeline = event.target.closest("[data-event-index]");
     if (timeline) {
@@ -2720,6 +5675,113 @@ function bindEvents() {
       showEvent(Number(timeline.dataset.eventIndex));
     }
   });
+}
+
+const workspacePageFiles = [
+  "pages/01-data.html",
+  "pages/02-ontology.html",
+  "pages/03-agents.html",
+  "pages/04-rehearsal.html",
+  "pages/05-risk.html",
+  "pages/06-decision.html"
+];
+
+async function loadWorkspacePages() {
+  const host = byId("workspacePages");
+  if (!host || host.dataset.pagesLoaded === "true") return;
+  if (host.querySelector("[data-page]")) {
+    host.dataset.pagesLoaded = "true";
+    return;
+  }
+  throw new Error(`페이지 모듈이 index.html에 포함되지 않았습니다: ${workspacePageFiles.join(", ")}`);
+}
+
+function setupGuideToggles() {
+  document.querySelectorAll(".page-guide-strip, .risk-guide-strip").forEach((strip) => {
+    if (strip.dataset.toggleReady === "true") return;
+    strip.dataset.toggleReady = "true";
+    strip.classList.add("is-collapsed");
+    const label = strip.getAttribute("aria-label") || "가이드";
+    const button = document.createElement("button");
+    button.className = "guide-toggle-button";
+    button.type = "button";
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-label", `${label} 펼치기`);
+    const setGuideButtonState = (collapsed) => {
+      button.innerHTML = `<i data-lucide="${collapsed ? "chevron-down" : "chevron-up"}" aria-hidden="true"></i><span>${collapsed ? "읽는 법" : "접기"}</span>`;
+    };
+    setGuideButtonState(true);
+    button.addEventListener("click", () => {
+      const collapsed = strip.classList.toggle("is-collapsed");
+      button.setAttribute("aria-expanded", String(!collapsed));
+      button.setAttribute("aria-label", `${label} ${collapsed ? "펼치기" : "접기"}`);
+      setGuideButtonState(collapsed);
+      refreshIcons();
+    });
+    strip.prepend(button);
+  });
+  refreshIcons();
+}
+
+function setupPanelModal() {
+  const modal = byId("panelModal");
+  const modalTitle = byId("panelModalTitle");
+  const modalBody = byId("panelModalBody");
+  if (!modal || !modalTitle || !modalBody) return;
+  let lastPanelModalTrigger = null;
+
+  const closeModal = () => {
+    modal.hidden = true;
+    modalBody.innerHTML = "";
+    lastPanelModalTrigger?.focus();
+    lastPanelModalTrigger = null;
+  };
+
+  modal.querySelectorAll("[data-close-panel-modal]").forEach((trigger) => {
+    trigger.addEventListener("click", closeModal);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) closeModal();
+  });
+
+  const addPanelButtons = () => {
+    let appended = false;
+    document.querySelectorAll(".hard-panel").forEach((panel, index) => {
+      const heading = panel.querySelector(":scope > .panel-heading");
+      if (!heading || heading.querySelector(".panel-popout-button")) return;
+      const title = heading.querySelector("span")?.textContent?.trim() || `상세 정보 ${index + 1}`;
+      const button = document.createElement("button");
+      button.className = "panel-popout-button";
+      button.type = "button";
+      button.title = "팝업으로 보기";
+      button.innerHTML = `<i data-lucide="maximize-2" aria-hidden="true"></i><span class="sr-only">팝업으로 보기</span>`;
+      button.setAttribute("aria-label", `${title} 팝업으로 보기`);
+      button.addEventListener("click", () => {
+        lastPanelModalTrigger = button;
+        const clone = panel.cloneNode(true);
+        clone.querySelectorAll(".panel-popout-button").forEach((item) => item.remove());
+        modalTitle.textContent = title;
+        modalBody.innerHTML = "";
+        modalBody.append(clone);
+        modal.hidden = false;
+        window.requestAnimationFrame(() => modal.querySelector("button[data-close-panel-modal]")?.focus());
+      });
+      heading.append(button);
+      appended = true;
+    });
+    if (appended) refreshIcons();
+  };
+
+  addPanelButtons();
+  if (modal.dataset.observePanels !== "true") {
+    modal.dataset.observePanels = "true";
+    new MutationObserver(addPanelButtons).observe(byId("workspacePages"), { childList: true, subtree: true });
+  }
+}
+
+function setupCompactPageControls() {
+  setupGuideToggles();
+  setupPanelModal();
 }
 
 function boot() {
@@ -2732,6 +5794,7 @@ function boot() {
   renderSelectedFailureStory();
   renderFailureLens();
   renderRiskMetricMatrix();
+  renderFailureCoverageMatrix();
   renderFailureChains();
   renderMitigationBoard();
   renderRiskEvidence();
@@ -2745,16 +5808,37 @@ function boot() {
   bindEvents();
   updateStats();
   updateDemoClock();
+  setStage(state.currentStage);
   window.setInterval(tickDemoClock, 1000);
+  applyRouteStateFromUrl();
+  state.routeSyncReady = true;
   const params = new URLSearchParams(window.location.search);
-  const initialStage = params.get("stage");
-  const initialNode = params.get("node");
-  if (initialStage && stageMeta[initialStage]) setStage(initialStage);
-  if (initialNode && graph.nodeMap.has(initialNode)) selectNode(initialNode);
   if (params.get("auto") === "1") {
     window.setTimeout(runAutoDemo, 100);
   }
+  renderPageBriefings();
   refreshIcons();
 }
 
-boot();
+async function bootApp() {
+  try {
+    await loadWorkspacePages();
+    boot();
+    setupCompactPageControls();
+  } catch (error) {
+    console.error(error);
+    const host = byId("workspacePages");
+    if (host) {
+      host.innerHTML = `
+        <section class="page-view is-active">
+          <div class="hard-panel">
+            <div class="panel-heading"><span>화면 모듈</span><b>로드 실패</b></div>
+            <p>분리된 페이지 파일을 불러오지 못했습니다. 로컬 서버에서 실행 중인지 확인하세요.</p>
+          </div>
+        </section>
+      `;
+    }
+  }
+}
+
+bootApp();

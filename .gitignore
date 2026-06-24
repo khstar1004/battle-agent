@@ -1,0 +1,23 @@
+node_modules/
+
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+.DS_Store
+Thumbs.db
+
+.git2/
+.tmp/
+.tmp*/
+.mirofish-ref/
+
+# Large local references are not deployable as a whole.
+# Copy required runtime assets into assets/ before committing.
+ref/**
+
+# Local QA/browser output. Existing tracked screenshots remain tracked.
+outputs/
+screenshots/

@@ -96,7 +96,7 @@ const terrainData = {
   eventBindings: {
     start: { focus: "blue_command", camera: "overview", visual: "route_compare", label: "작전 개시" },
     fog: { focus: "blue_apc_1", camera: "ground_move", visual: "fog_band", label: "새벽 안개" },
-    enemy_delay: { focus: "enemy_delay_cell", camera: "target_observe", visual: "enemy_contact", label: "적 지연행동" },
+    enemy_delay: { focus: "enemy_delay_cell", camera: "enemy_delay_action", visual: "enemy_contact", label: "적 지연행동" },
     comm_gap: { focus: "relay_c1", camera: "comm_gap", visual: "comm_shadow", label: "통신 음영" },
     supply_gap: { focus: "supply_point", camera: "logistics", visual: "supply_warning", label: "보급 병목" },
     criteria_gap: { focus: "blue_command", camera: "command", visual: "decision_delay", label: "재판단 지연" },
@@ -114,58 +114,58 @@ const modelPaths = {
 
 const vistaModelCatalog = {
   "artillery-k9": {
-    path: "./ref/VISTA/client/public/3d-bundles/artillery/models/k9_thunder_artillery.glb",
+    path: "./assets/vista-bundles/artillery/models/k9_thunder_artillery.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 1.65
   },
   "artillery-paladin": {
-    path: "./ref/VISTA/client/public/3d-bundles/artillery/models/m109a6_paladin_self-propelled_howitzer.glb",
+    path: "./assets/vista-bundles/artillery/models/m109a6_paladin_self-propelled_howitzer.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 1.6
   },
   "tank-k2": {
-    path: "./ref/VISTA/client/public/3d-bundles/tank/models/k2_black_panther_tank.glb",
+    path: "./assets/vista-bundles/tank/models/k2_black_panther_tank.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 1.42,
     materialCorrection: "remove-uniform-white-emissive"
   },
   "tank-k21": {
-    path: "./ref/VISTA/client/public/3d-bundles/tank/models/k21_armored_warfare.glb",
+    path: "./assets/vista-bundles/tank/models/k21_armored_warfare.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 1.35
   },
   "tank-t80u": {
-    path: "./ref/VISTA/client/public/3d-bundles/tank/models/t-80u_tank.glb",
+    path: "./assets/vista-bundles/tank/models/t-80u_tank.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 1.46
   },
   "tank-m577": {
-    path: "./ref/VISTA/client/public/3d-bundles/tank/models/m577_command_vehicle.glb",
+    path: "./assets/vista-bundles/tank/models/m577_command_vehicle.glb",
     axis: "gltf-y-up-x-forward",
     targetSize: 1.22
   },
   "infrastructure-tent": {
-    path: "./ref/VISTA/client/public/3d-bundles/infrastructure/models/military_tent_hangar.glb",
+    path: "./assets/vista-bundles/infrastructure/models/military_tent_hangar.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 1.9
   },
   "target-mannequin-cluster": {
-    path: "./ref/VISTA/client/public/3d-bundles/infrastructure/models/target_mannequin_cluster.glb",
+    path: "./assets/vista-bundles/infrastructure/models/target_mannequin_cluster.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 0.72
   },
   "drone-quad": {
-    path: "./ref/VISTA/client/public/3d-bundles/drone/models/drone.glb",
+    path: "./assets/vista-bundles/drone/models/drone.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 0.62
   },
   "aircraft-apache": {
-    path: "./ref/VISTA/client/public/3d-bundles/aircraft/models/boeing_ah-64d_apache_combat_helicopter.glb",
+    path: "./assets/vista-bundles/aircraft/models/boeing_ah-64d_apache_combat_helicopter.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 1.05
   },
   "robotics-quadruped": {
-    path: "./ref/VISTA/client/public/3d-bundles/robotics/models/quadruped_ground_robot.glb",
+    path: "./assets/vista-bundles/robotics/models/quadruped_ground_robot.glb",
     axis: "gltf-y-up-y-forward",
     targetSize: 0.6
   }
@@ -175,13 +175,13 @@ const vistaModelIds = Object.keys(vistaModelCatalog);
 const vistaModelLoadCache = new Map();
 
 const focusFireEffectTextures = {
-  launchMuzzle: "./ref/VISTA/client/public/3d-bundles/effects/textures/focus-fire/launch_muzzle.png",
-  trailTrace: "./ref/VISTA/client/public/3d-bundles/effects/textures/focus-fire/trail_trace.png",
-  trailSmoke: "./ref/VISTA/client/public/3d-bundles/effects/textures/focus-fire/trail_smoke.png",
-  headGlow: "./ref/VISTA/client/public/3d-bundles/effects/textures/focus-fire/head_glow.png",
-  impactFlash: "./ref/VISTA/client/public/3d-bundles/effects/textures/focus-fire/impact_flash.png",
-  impactDust: "./ref/VISTA/client/public/3d-bundles/effects/textures/focus-fire/impact_dust.png",
-  impactSmoke: "./ref/VISTA/client/public/3d-bundles/effects/textures/focus-fire/impact_smoke.png"
+  launchMuzzle: "./assets/vista-bundles/effects/textures/focus-fire/launch_muzzle.png",
+  trailTrace: "./assets/vista-bundles/effects/textures/focus-fire/trail_trace.png",
+  trailSmoke: "./assets/vista-bundles/effects/textures/focus-fire/trail_smoke.png",
+  headGlow: "./assets/vista-bundles/effects/textures/focus-fire/head_glow.png",
+  impactFlash: "./assets/vista-bundles/effects/textures/focus-fire/impact_flash.png",
+  impactDust: "./assets/vista-bundles/effects/textures/focus-fire/impact_dust.png",
+  impactSmoke: "./assets/vista-bundles/effects/textures/focus-fire/impact_smoke.png"
 };
 
 const STRIKE_REPLAY_DURATION_SECONDS = 36;
@@ -291,6 +291,121 @@ const combatReplayMotionPlan = {
     phaseStart: 0,
     phaseEnd: 1,
     altitude: 0.58
+  }
+};
+
+const rehearsalActionPlans = {
+  start: {
+    label: "기동 출발",
+    visibleAction: "기동 진행",
+    duration: 4.4,
+    tacticalActions: ["기동 진행", "경로 점령"],
+    movementTrails: true,
+    artilleryArcs: false,
+    movement: [
+      { assetId: "blue_command", routeId: "coa_b", from: 0.01, to: 0.09, offset: -1.4, startAt: 0.05, endAt: 0.82 },
+      { assetId: "blue_apc_1", routeId: "coa_b", from: 0.04, to: 0.2, offset: 0, startAt: 0.04, endAt: 0.88 },
+      { assetId: "blue_apc_2", routeId: "coa_b", from: 0.01, to: 0.16, offset: -2.1, startAt: 0.1, endAt: 0.94 }
+    ],
+    fires: []
+  },
+  fog: {
+    label: "저속 이동",
+    visibleAction: "기동 진행",
+    duration: 4.2,
+    tacticalActions: ["기동 진행", "시계 제한"],
+    movementTrails: true,
+    artilleryArcs: false,
+    movement: [
+      { assetId: "blue_apc_1", routeId: "coa_b", from: 0.2, to: 0.31, offset: 0, startAt: 0.04, endAt: 0.92 },
+      { assetId: "air_patrol", start: [-12, 13], end: [-4, 8], altitude: 11, startAt: 0.08, endAt: 0.84 }
+    ],
+    fires: []
+  },
+  enemy_delay: {
+    label: "대항군 지연 제압",
+    visibleAction: "포격 진행",
+    duration: 4.8,
+    tacticalActions: ["포격 진행", "충격파", "기동 엄호"],
+    movementTrails: true,
+    artilleryArcs: true,
+    movement: [
+      { assetId: "blue_tank_platoon", start: [-15, -10], end: [-8, -4], startAt: 0.08, endAt: 0.78 },
+      { assetId: "blue_k21_support", start: [12, 6], end: [16, 8], startAt: 0.14, endAt: 0.8 },
+      { assetId: "red_tank_block", start: [8, 4], end: [9.4, 4.8], startAt: 0.12, endAt: 0.58 }
+    ],
+    fires: [
+      { id: "k9-suppress-delay-cell", shooter: "blue_fire_battery", target: "enemy_delay_cell", fireAt: 0.16, impactAt: 0.56, color: 0xffbd4a },
+      { id: "tank-direct-red-block", shooter: "blue_tank_platoon", target: "red_tank_block", fireAt: 0.36, impactAt: 0.68, color: 0x8fd9ff }
+    ]
+  },
+  comm_gap: {
+    label: "중계 재배치",
+    visibleAction: "기동 진행",
+    duration: 4.2,
+    tacticalActions: ["기동 진행", "통신 복구"],
+    movementTrails: true,
+    artilleryArcs: false,
+    movement: [
+      { assetId: "relay_c1", start: [-9, -8], end: [-4, -2], startAt: 0.06, endAt: 0.88 },
+      { assetId: "blue_command", routeId: "coa_b", from: 0.34, to: 0.4, offset: -1.2, startAt: 0.18, endAt: 0.78 }
+    ],
+    fires: []
+  },
+  supply_gap: {
+    label: "보급축 전개",
+    visibleAction: "기동 진행",
+    duration: 4.2,
+    tacticalActions: ["기동 진행", "보급 병목 우회"],
+    movementTrails: true,
+    artilleryArcs: false,
+    movement: [
+      { assetId: "supply_point", start: [3, -15], end: [7.8, -10.6], startAt: 0.08, endAt: 0.82 },
+      { assetId: "blue_apc_2", routeId: "coa_b", from: 0.48, to: 0.58, offset: -2.1, startAt: 0.18, endAt: 0.92 }
+    ],
+    fires: []
+  },
+  criteria_gap: {
+    label: "지휘소 판단 전환",
+    visibleAction: "기동 진행",
+    duration: 4.1,
+    tacticalActions: ["기동 진행", "결심 기준 송신"],
+    movementTrails: true,
+    artilleryArcs: false,
+    movement: [
+      { assetId: "blue_command", routeId: "coa_b", from: 0.56, to: 0.63, offset: -1.2, startAt: 0.08, endAt: 0.74 },
+      { assetId: "air_patrol", start: [-4, 8], end: [4, 10], altitude: 12, startAt: 0.12, endAt: 0.8 }
+    ],
+    fires: []
+  },
+  reserve_delay: {
+    label: "예비대 엄호 포격",
+    visibleAction: "포격 진행",
+    duration: 4.4,
+    tacticalActions: ["포격 진행", "충격파", "예비대 투입"],
+    movementTrails: true,
+    artilleryArcs: true,
+    movement: [
+      { assetId: "blue_apc_2", routeId: "coa_b", from: 0.6, to: 0.74, offset: -2.1, startAt: 0.1, endAt: 0.92 },
+      { assetId: "blue_tank_platoon", start: [-8, -4], end: [1.5, 1.5], startAt: 0.16, endAt: 0.84 }
+    ],
+    fires: [
+      { id: "reserve-cover-red-block", shooter: "blue_fire_battery", target: "red_tank_block", fireAt: 0.2, impactAt: 0.6, color: 0xffbd4a }
+    ]
+  },
+  b_stabilized: {
+    label: "목표 안정화",
+    visibleAction: "기동 진행",
+    duration: 4.6,
+    tacticalActions: ["기동 진행", "목표 점령"],
+    movementTrails: true,
+    artilleryArcs: false,
+    movement: [
+      { assetId: "blue_apc_1", routeId: "coa_b", from: 0.78, to: 1, offset: 0, startAt: 0.06, endAt: 0.88 },
+      { assetId: "blue_apc_2", routeId: "coa_b", from: 0.74, to: 0.96, offset: -2.1, startAt: 0.12, endAt: 0.94 },
+      { assetId: "blue_command", routeId: "coa_b", from: 0.68, to: 0.9, offset: -1.2, startAt: 0.18, endAt: 0.9 }
+    ],
+    fires: []
   }
 };
 
@@ -447,6 +562,7 @@ const cameraPresets = {
   oblique: { position: [31, 25, 35], target: [3, 2, 6] },
   low_route: { position: [-20, 10, -27], target: [-2, 1.7, -8] },
   target_observe: { position: [12, 13, 31], target: [3.2, 2, 18.5] },
+  enemy_delay_action: { position: [20, 13, 18], target: [7.2, 2.2, 4.8] },
   strike_replay: { position: [14, 9.5, 24], target: [4.2, 2.2, 12.5] },
   drone_follow: { position: [12, 18, 25], target: [4.4, 8, 14] },
   objective_focus: { position: [20, 17, 22], target: [2.5, 2.2, 7.75] },
@@ -465,6 +581,7 @@ const cameraModeLabels = {
   oblique: "사선",
   low_route: "저각",
   target_observe: "표적관측",
+  enemy_delay_action: "지연제압",
   strike_replay: "타격재생",
   drone_follow: "드론추적",
   objective_focus: "목표중심",
@@ -558,6 +675,12 @@ const runtime = {
   placementCandidates: [],
   cameraMode: "overview",
   cameraZoomLevel: 1,
+  cameraDragMode: "orbit",
+  mapFocusMode: true,
+  modifierKeys: {
+    ctrl: false,
+    shift: false
+  },
   strikeReplayStartedAt: 0,
   strikeTelemetryState: "대기",
   strikeTimelineActiveStep: "standby",
@@ -566,6 +689,14 @@ const runtime = {
   combatReplayPhase: "대기",
   combatReplayMarkers: new Map(),
   combatReplayRouteCues: new Map(),
+  rehearsalActionState: "대기",
+  rehearsalActionStartedAt: 0,
+  rehearsalActionActiveEventId: "start",
+  rehearsalActionLayer: null,
+  rehearsalActionProjectiles: new Map(),
+  rehearsalActionTrails: new Map(),
+  rehearsalActionParticipants: new Set(),
+  rehearsalActionLastRender: 0,
   layerVisibility: {
     routes: true,
     labels: true,
@@ -624,6 +755,78 @@ function shouldShowUnitByDefault(unit) {
 
 function setCombatReplayShellActive(active) {
   document.querySelector(".war-ground-3d-shell")?.classList.toggle("is-combat-replay", Boolean(active));
+}
+
+function setTacticalActionShellActive(active) {
+  document.querySelector(".war-ground-3d-shell")?.classList.toggle("is-tactical-action", Boolean(active));
+}
+
+function getMapShell() {
+  return document.getElementById("rehearsalMap") || document.querySelector(".war-ground-3d-shell");
+}
+
+const cameraDragModeLabels = {
+  orbit: "궤도 관측",
+  pan: "중심 이동",
+  tilt: "고도 전환",
+  precision: "정밀 관측"
+};
+
+function getCameraDragIntent(event = {}) {
+  const hasCtrl = Boolean(event.ctrlKey || event.metaKey);
+  const hasShift = Boolean(event.shiftKey);
+  if (hasCtrl && hasShift) return "precision";
+  if (hasCtrl) return "pan";
+  if (hasShift) return "tilt";
+  return "orbit";
+}
+
+function setCameraInteractionMode(mode = "orbit", active = false) {
+  const intent = cameraDragModeLabels[mode] ? mode : "orbit";
+  runtime.cameraDragMode = intent;
+  const shell = getMapShell();
+  if (shell) {
+    shell.dataset.cameraDragMode = intent;
+    shell.classList.toggle("is-camera-dragging", Boolean(active));
+  }
+  const label = document.getElementById("mapInteractionModeLabel");
+  if (label) label.textContent = cameraDragModeLabels[intent];
+}
+
+function setMapFocusMode(active) {
+  runtime.mapFocusMode = Boolean(active);
+  getMapShell()?.classList.toggle("is-map-focus", runtime.mapFocusMode);
+  document.querySelectorAll("[data-map-focus-toggle]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(runtime.mapFocusMode));
+    button.textContent = runtime.mapFocusMode ? "통제판" : "관측 집중";
+  });
+  return runtime.mapFocusMode;
+}
+
+function toggleMapFocusMode() {
+  return setMapFocusMode(!runtime.mapFocusMode);
+}
+
+function setCameraModifierState(event) {
+  runtime.modifierKeys.ctrl = Boolean(event.ctrlKey || event.metaKey);
+  runtime.modifierKeys.shift = Boolean(event.shiftKey);
+  setCameraInteractionMode(
+    getCameraDragIntent({
+      ctrlKey: runtime.modifierKeys.ctrl,
+      shiftKey: runtime.modifierKeys.shift
+    }),
+    Boolean(runtime.pointerDown)
+  );
+}
+
+function handleCameraModifierKeydown(event) {
+  if (!["Control", "Meta", "Shift"].includes(event.key)) return;
+  setCameraModifierState(event);
+}
+
+function handleCameraModifierKeyup(event) {
+  if (!["Control", "Meta", "Shift"].includes(event.key)) return;
+  setCameraModifierState(event);
 }
 
 function setCombatReplayActive(active) {
@@ -1174,6 +1377,10 @@ function refreshTerrainAnchoredObjects() {
   });
   runtime.effects = [];
   createStrikeEffect();
+  if (runtime.rehearsalActionLayer) {
+    clearRehearsalActionLayer();
+    startRehearsalAction(runtime.currentEventId || "start");
+  }
   setOverlayMode(terrainData.eventBindings[runtime.currentEventId]?.visual || "route_compare");
   refreshSelectionMarker();
   refreshAssetInfluenceOverlay(true);
@@ -1632,6 +1839,305 @@ function createStrikeEffect() {
   createFocusFireStrikeEffect();
 }
 
+function disposeRehearsalActionObject(object) {
+  object.traverse?.((child) => {
+    child.geometry?.dispose?.();
+    if (Array.isArray(child.material)) {
+      child.material.forEach((material) => material.dispose?.());
+    } else {
+      child.material?.dispose?.();
+    }
+  });
+}
+
+function createRehearsalActionLayer() {
+  if (runtime.rehearsalActionLayer) return runtime.rehearsalActionLayer;
+  const group = new THREE.Group();
+  group.name = "rehearsalActionLayer";
+  group.visible = false;
+  runtime.scene.add(group);
+  runtime.rehearsalActionLayer = group;
+  return group;
+}
+
+function clearRehearsalActionLayer() {
+  const layer = createRehearsalActionLayer();
+  runtime.rehearsalActionProjectiles.forEach((mission) => disposeRehearsalActionObject(mission.group));
+  runtime.rehearsalActionTrails.forEach((trail) => disposeRehearsalActionObject(trail.line));
+  while (layer.children.length) layer.remove(layer.children[0]);
+  runtime.rehearsalActionProjectiles.clear();
+  runtime.rehearsalActionTrails.clear();
+}
+
+function getRehearsalActionPlan(eventId) {
+  return rehearsalActionPlans[eventId] || rehearsalActionPlans.start;
+}
+
+function getRehearsalActionParticipants(plan) {
+  const ids = new Set();
+  (plan.movement || []).forEach((move) => ids.add(move.assetId));
+  (plan.fires || []).forEach((mission) => {
+    if (typeof mission.shooter === "string") ids.add(mission.shooter);
+    if (typeof mission.target === "string") ids.add(mission.target);
+  });
+  return ids;
+}
+
+function resetRehearsalActionParticipantVisibility(nextParticipants = new Set()) {
+  runtime.rehearsalActionParticipants.forEach((assetId) => {
+    if (nextParticipants.has(assetId)) return;
+    const entry = runtime.units.get(assetId);
+    if (!entry || shouldShowUnitByDefault(entry.unit) || runtime.combatReplayActive) return;
+    entry.anchor.visible = false;
+    if (entry.label) entry.label.visible = false;
+  });
+  runtime.rehearsalActionParticipants = nextParticipants;
+}
+
+function showRehearsalActionParticipants(participants) {
+  participants.forEach((assetId) => {
+    const entry = runtime.units.get(assetId);
+    if (!entry) return;
+    entry.anchor.visible = true;
+    entry.anchor.scale.setScalar(isVistaStage27Unit(entry.unit) ? VISTA_MODEL_VISIBILITY_SCALE : 1);
+    if (entry.label) entry.label.visible = runtime.layerVisibility.labels;
+  });
+}
+
+function getRehearsalActionVector(ref, lift = 0.5) {
+  if (typeof ref === "string") {
+    const entry = runtime.units.get(ref);
+    if (entry) {
+      return new THREE.Vector3(
+        entry.anchor.position.x,
+        terrainHeight(entry.anchor.position.x, entry.anchor.position.z) + lift,
+        entry.anchor.position.z
+      );
+    }
+  }
+  if (Array.isArray(ref)) return pointToVector(ref, lift);
+  if (ref?.isVector3) return ref.clone();
+  if (ref && Number.isFinite(ref.x) && Number.isFinite(ref.z)) return new THREE.Vector3(ref.x, terrainHeight(ref.x, ref.z) + lift, ref.z);
+  return pointToVector([0, 0], lift);
+}
+
+function getRehearsalMovementVector(move, progress, lift = 0) {
+  const startAt = move.startAt ?? 0;
+  const endAt = move.endAt ?? 1;
+  const local = smoothCombatStep((progress - startAt) / Math.max(0.01, endAt - startAt));
+  if (move.routeId) {
+    const from = move.from ?? 0;
+    const to = move.to ?? 1;
+    const routeT = THREE.MathUtils.lerp(from, to, local);
+    return sampleRoute(move.routeId, routeT, move.offset || 0, move.altitude || lift);
+  }
+  const start = move.start || runtime.units.get(move.assetId)?.unit?.position || [0, 0];
+  const end = move.end || start;
+  const altitude = move.altitude ?? lift;
+  return pointToVector([
+    THREE.MathUtils.lerp(start[0], end[0], local),
+    THREE.MathUtils.lerp(start[1], end[1], local)
+  ], altitude);
+}
+
+function createRehearsalMovementTrail(move) {
+  const layer = createRehearsalActionLayer();
+  const entry = runtime.units.get(move.assetId);
+  const color = entry?.unit?.side === "red" ? 0xff725e : entry?.unit?.kind === "fire" ? 0xffbd4a : 0x5ff4df;
+  const line = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([getRehearsalMovementVector(move, 0), getRehearsalMovementVector(move, 0)]),
+    new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.42 })
+  );
+  line.name = `movementTrails:${move.assetId}`;
+  layer.add(line);
+  runtime.rehearsalActionTrails.set(move.assetId, { line, move, color });
+}
+
+function createRehearsalArtilleryMission(mission) {
+  const layer = createRehearsalActionLayer();
+  const launch = getRehearsalActionVector(mission.shooter, 1.35);
+  const impact = getRehearsalActionVector(mission.target, 0.58);
+  const control = new THREE.Vector3(
+    (launch.x + impact.x) / 2,
+    Math.max(launch.y, impact.y) + (mission.arcHeight || 10),
+    (launch.z + impact.z) / 2
+  );
+  const curve = new THREE.QuadraticBezierCurve3(launch, control, impact);
+  const curvePoints = curve.getPoints(72);
+  const color = mission.color || 0xffbd4a;
+  const group = new THREE.Group();
+  group.name = `artilleryArcs:${mission.id}`;
+
+  const arc = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(curvePoints),
+    new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0 })
+  );
+  const arcTube = new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 72, 0.045, 8, false),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
+  );
+  const trail = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([launch, launch]),
+    new THREE.LineBasicMaterial({ color: 0xfff0b8, transparent: true, opacity: 0 })
+  );
+  const projectile = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 18, 12),
+    new THREE.MeshBasicMaterial({ color: 0xfff0b8, transparent: true, opacity: 0.96, depthWrite: false })
+  );
+  const muzzle = createFocusFireSprite("launchMuzzle", 2.1, 0);
+  const impactFlash = createFocusFireSprite("impactFlash", 3.8, 0);
+  const impactDust = createFocusFireSprite("impactDust", 4.6, 0, false);
+  const shockwave = new THREE.Mesh(
+    new THREE.TorusGeometry(1.6, 0.045, 8, 64),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
+  );
+  const targetMark = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.7, 1.7, 0.035, 48),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.16, depthWrite: false })
+  );
+
+  muzzle.position.copy(launch);
+  impactFlash.position.copy(impact);
+  impactDust.position.copy(impact).add(new THREE.Vector3(0, 0.42, 0));
+  shockwave.rotation.x = Math.PI / 2;
+  shockwave.position.copy(impact);
+  targetMark.position.copy(getRehearsalActionVector(mission.target, 0.16));
+  group.add(arc, arcTube, trail, projectile, muzzle, impactFlash, impactDust, shockwave, targetMark);
+  layer.add(group);
+  runtime.rehearsalActionProjectiles.set(mission.id, {
+    mission,
+    group,
+    curve,
+    curvePoints,
+    arc,
+    arcTube,
+    trail,
+    projectile,
+    muzzle,
+    impactFlash,
+    impactDust,
+    shockwave,
+    targetMark
+  });
+}
+
+function startRehearsalAction(eventId) {
+  const plan = getRehearsalActionPlan(eventId);
+  const participants = getRehearsalActionParticipants(plan);
+  resetRehearsalActionParticipantVisibility(participants);
+  clearRehearsalActionLayer();
+  showRehearsalActionParticipants(participants);
+  (plan.movement || []).forEach(createRehearsalMovementTrail);
+  (plan.fires || []).forEach(createRehearsalArtilleryMission);
+  runtime.rehearsalActionActiveEventId = eventId;
+  runtime.rehearsalActionStartedAt = runtime.clock.elapsedTime;
+  runtime.rehearsalActionState = plan.visibleAction || "기동 진행";
+  runtime.rehearsalActionLayer.visible = runtime.layerVisibility.effects;
+  setTacticalActionShellActive(true);
+  renderRehearsalActionReadout(plan, 0, true);
+}
+
+function getRehearsalActionProgress(plan) {
+  const duration = Math.max(0.6, plan.duration || 4.2);
+  return THREE.MathUtils.clamp((runtime.clock.elapsedTime - runtime.rehearsalActionStartedAt) / duration, 0, 1);
+}
+
+function animateRehearsalMovement(plan, progress) {
+  (plan.movement || []).forEach((move) => {
+    const entry = runtime.units.get(move.assetId);
+    if (!entry) return;
+    const lift = getUnitTerrainLift(entry.unit);
+    const position = getRehearsalMovementVector(move, progress, lift);
+    const next = getRehearsalMovementVector(move, Math.min(1, progress + 0.018), lift);
+    const heading = Math.atan2(next.x - position.x, next.z - position.z);
+    const local = THREE.MathUtils.clamp((progress - (move.startAt ?? 0)) / Math.max(0.01, (move.endAt ?? 1) - (move.startAt ?? 0)), 0, 1);
+    const pulse = Math.sin(local * Math.PI) * 0.06;
+
+    entry.anchor.visible = true;
+    entry.anchor.position.copy(position);
+    entry.anchor.rotation.y = heading;
+    entry.anchor.scale.setScalar((isVistaStage27Unit(entry.unit) ? VISTA_MODEL_VISIBILITY_SCALE : 1) + pulse);
+    entry.unit.position = [Number(position.x.toFixed(2)), Number(position.z.toFixed(2))];
+    entry.unit.heading = THREE.MathUtils.radToDeg(heading);
+    if (entry.unit.kind === "air") entry.unit.altitude = Math.max(8, position.y - terrainHeight(position.x, position.z));
+    if (entry.label) entry.label.visible = runtime.layerVisibility.labels;
+    updateLabelPosition(entry);
+
+    const trail = runtime.rehearsalActionTrails.get(move.assetId);
+    if (!trail) return;
+    const points = [];
+    const first = move.startAt ?? 0;
+    const last = Math.max(first, progress);
+    for (let index = 0; index < 14; index += 1) {
+      const t = index / 13;
+      points.push(getRehearsalMovementVector(move, THREE.MathUtils.lerp(first, last, t), lift));
+    }
+    trail.line.geometry.dispose();
+    trail.line.geometry = new THREE.BufferGeometry().setFromPoints(points);
+    trail.line.material.opacity = plan.movementTrails ? 0.16 + local * 0.44 : 0;
+  });
+}
+
+function animateRehearsalArtillery(plan, progress) {
+  runtime.rehearsalActionProjectiles.forEach((effect) => {
+    const { mission } = effect;
+    const fireAt = mission.fireAt ?? 0.18;
+    const impactAt = mission.impactAt ?? 0.62;
+    const flightT = THREE.MathUtils.clamp((progress - fireAt) / Math.max(0.01, impactAt - fireAt), 0, 1);
+    const projectileVisible = progress >= fireAt && progress <= impactAt;
+    const impactT = THREE.MathUtils.clamp((progress - impactAt) / 0.22, 0, 1);
+    const muzzleT = THREE.MathUtils.clamp((progress - fireAt) / 0.12, 0, 1);
+    const arcVisible = progress >= fireAt - 0.08 && progress <= 1;
+    const point = effect.curve.getPoint(flightT);
+
+    effect.arc.material.opacity = arcVisible && plan.artilleryArcs ? 0.2 : 0;
+    effect.arcTube.material.opacity = arcVisible && plan.artilleryArcs ? 0.54 : 0;
+    effect.projectile.visible = projectileVisible;
+    effect.projectile.position.copy(point);
+    effect.projectile.material.opacity = projectileVisible ? 0.96 : 0;
+    effect.projectile.scale.setScalar(1.2 + Math.sin(runtime.clock.elapsedTime * 24) * 0.22);
+
+    const trailStart = Math.max(0, Math.floor(flightT * effect.curvePoints.length) - 14);
+    const trailEnd = Math.max(trailStart + 2, Math.floor(flightT * effect.curvePoints.length));
+    const trailPoints = effect.curvePoints.slice(trailStart, trailEnd);
+    effect.trail.geometry.dispose();
+    effect.trail.geometry = new THREE.BufferGeometry().setFromPoints(trailPoints.length ? trailPoints : [point, point]);
+    effect.trail.material.opacity = projectileVisible ? 0.72 : 0;
+
+    setSpriteOpacity(effect.muzzle, muzzleT > 0 && muzzleT < 1 ? Math.max(0, 0.82 - muzzleT * 1.2) : 0);
+    effect.muzzle.scale.setScalar(1.5 + muzzleT * 2.8);
+    setSpriteOpacity(effect.impactFlash, impactT > 0 ? Math.max(0, 0.92 - impactT * 1.7) : 0);
+    effect.impactFlash.scale.setScalar(2.2 + impactT * 5.8);
+    setSpriteOpacity(effect.impactDust, impactT > 0 ? Math.max(0, 0.58 - impactT * 0.3) : 0);
+    effect.impactDust.scale.setScalar(2.4 + impactT * 6);
+    effect.shockwave.visible = impactT > 0;
+    effect.shockwave.material.opacity = impactT > 0 ? Math.max(0, 0.72 - impactT * 0.85) : 0;
+    effect.shockwave.scale.setScalar(0.45 + impactT * 4.2);
+    effect.targetMark.material.opacity = arcVisible ? 0.2 + Math.sin(runtime.clock.elapsedTime * 6) * 0.08 : 0;
+  });
+}
+
+function renderRehearsalActionReadout(plan, progress, force = false) {
+  const now = performance.now();
+  if (!force && now - runtime.rehearsalActionLastRender < 180) return;
+  runtime.rehearsalActionLastRender = now;
+  const percent = Math.round(progress * 100);
+  const hasImpact = plan.tacticalActions?.includes("충격파") && progress >= 0.54;
+  const actionLabel = hasImpact ? `${plan.visibleAction} · 충격파` : plan.visibleAction;
+  runtime.rehearsalActionState = progress >= 0.98 ? `${plan.label} 완료` : actionLabel;
+  setStatus(`${plan.label} · ${runtime.rehearsalActionState} ${percent}%`);
+}
+
+function animateRehearsalAction(delta) {
+  if (!runtime.rehearsalActionLayer) return;
+  const plan = getRehearsalActionPlan(runtime.rehearsalActionActiveEventId);
+  const progress = getRehearsalActionProgress(plan);
+  runtime.rehearsalActionLayer.visible = runtime.layerVisibility.effects;
+  animateRehearsalMovement(plan, progress, delta);
+  animateRehearsalArtillery(plan, progress, delta);
+  renderRehearsalActionReadout(plan, progress);
+}
+
 function createSelectionMarker() {
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(1.65, 0.045, 8, 72),
@@ -1858,6 +2364,9 @@ function applyLayerVisibility() {
       effect.group.visible = false;
     });
   }
+  if (runtime.rehearsalActionLayer) {
+    runtime.rehearsalActionLayer.visible = runtime.layerVisibility.effects;
+  }
   setCombatReplayCuesVisible(runtime.combatReplayActive);
   refreshAssetInfluenceOverlay(true);
 }
@@ -1933,6 +2442,52 @@ function orbitCameraByDelta(deltaX, deltaY) {
   runtime.cameraPosition.copy(new THREE.Vector3().setFromSpherical(spherical).add(runtime.cameraTarget));
   runtime.cameraMode = "free";
   renderAssetCommandRail();
+}
+
+function panCameraByDelta(deltaX, deltaY) {
+  if (!runtime.camera) return;
+  const offset = runtime.cameraPosition.clone().sub(runtime.cameraTarget);
+  const distance = THREE.MathUtils.clamp(offset.length(), 8, 90);
+  const viewForward = runtime.cameraTarget.clone().sub(runtime.cameraPosition);
+  viewForward.y = 0;
+  if (viewForward.lengthSq() < 0.0001) viewForward.set(0, 0, -1);
+  viewForward.normalize();
+  const viewRight = new THREE.Vector3().crossVectors(viewForward, new THREE.Vector3(0, 1, 0)).normalize();
+  const panScale = THREE.MathUtils.clamp(distance * 0.0026, 0.026, 0.16);
+  const move = viewRight
+    .multiplyScalar(-deltaX * panScale)
+    .add(viewForward.multiplyScalar(deltaY * panScale));
+  runtime.cameraPosition.add(move);
+  runtime.cameraTarget.add(move);
+  runtime.cameraMode = "free";
+  renderAssetCommandRail();
+}
+
+function tiltCameraByDelta(deltaX, deltaY) {
+  if (!runtime.camera) return;
+  const offset = runtime.cameraPosition.clone().sub(runtime.cameraTarget);
+  const spherical = new THREE.Spherical().setFromVector3(offset);
+  spherical.theta -= deltaX * 0.0028;
+  spherical.phi = THREE.MathUtils.clamp(spherical.phi - deltaY * 0.0072, 0.24, 1.5);
+  runtime.cameraPosition.copy(new THREE.Vector3().setFromSpherical(spherical).add(runtime.cameraTarget));
+  runtime.cameraMode = "free";
+  renderAssetCommandRail();
+}
+
+function applyCameraDrag(intent, deltaX, deltaY) {
+  if (intent === "pan") {
+    panCameraByDelta(deltaX, deltaY);
+    return;
+  }
+  if (intent === "tilt") {
+    tiltCameraByDelta(deltaX, deltaY);
+    return;
+  }
+  if (intent === "precision") {
+    orbitCameraByDelta(deltaX * 0.45, deltaY * 0.45);
+    return;
+  }
+  orbitCameraByDelta(deltaX, deltaY);
 }
 
 function handleCanvasWheel(event) {
@@ -2281,21 +2836,27 @@ function handleCanvasPointerDown(event) {
     y: event.clientY,
     lastX: event.clientX,
     lastY: event.clientY,
-    moved: false
+    moved: false,
+    intent: getCameraDragIntent(event)
   };
+  setCameraInteractionMode(runtime.pointerDown.intent, true);
   runtime.canvas?.setPointerCapture?.(event.pointerId);
 }
 
 function handleCanvasPointerMove(event) {
   if (!runtime.pointerDown || event.pointerId !== runtime.pointerDown.id) return;
+  const intent = getCameraDragIntent(event);
   const deltaX = event.clientX - runtime.pointerDown.lastX;
   const deltaY = event.clientY - runtime.pointerDown.lastY;
   const total = Math.hypot(event.clientX - runtime.pointerDown.x, event.clientY - runtime.pointerDown.y);
   runtime.pointerDown.lastX = event.clientX;
   runtime.pointerDown.lastY = event.clientY;
-  if (runtime.placementMode === "select" && total > 4) {
+  runtime.pointerDown.intent = intent;
+  setCameraInteractionMode(intent, true);
+  const canDragCamera = runtime.placementMode === "select" || intent !== "orbit";
+  if (canDragCamera && total > 4) {
     runtime.pointerDown.moved = true;
-    orbitCameraByDelta(deltaX, deltaY);
+    applyCameraDrag(intent, deltaX, deltaY);
   }
 }
 
@@ -2304,8 +2865,9 @@ function handleCanvasPointerUp(event) {
   if (!pointerDown || event.pointerId !== pointerDown.id) return;
   runtime.pointerDown = null;
   runtime.canvas?.releasePointerCapture?.(event.pointerId);
+  setCameraInteractionMode(getCameraDragIntent(event), false);
   const total = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
-  if (!pointerDown.moved && total < 6) handleCanvasPick(event);
+  if (!pointerDown.moved && total < 6 && pointerDown.intent === "orbit") handleCanvasPick(event);
 }
 
 function handleAssetInspectorChange(event) {
@@ -2437,6 +2999,8 @@ function bindAssetWorkspaceControls() {
     if (button) toggleLayer(button.dataset.layerToggle);
   });
 
+  document.querySelector("[data-map-focus-toggle]")?.addEventListener("click", toggleMapFocusMode);
+
   const inspector = document.getElementById("selectedAssetInspector");
   inspector?.addEventListener("click", handleAssetInspectorClick);
   inspector?.addEventListener("change", handleAssetInspectorChange);
@@ -2450,6 +3014,10 @@ function bindAssetWorkspaceControls() {
   runtime.canvas?.addEventListener("pointermove", handleCanvasPointerMove);
   runtime.canvas?.addEventListener("pointerup", handleCanvasPointerUp);
   runtime.canvas?.addEventListener("wheel", handleCanvasWheel, { passive: false });
+  document.addEventListener("keydown", handleCameraModifierKeydown);
+  document.addEventListener("keyup", handleCameraModifierKeyup);
+  setMapFocusMode(runtime.mapFocusMode);
+  setCameraInteractionMode("orbit");
   runtime.controlsBound = true;
 }
 
@@ -2702,6 +3270,7 @@ function animate() {
     runtime.routeProgress = THREE.MathUtils.clamp(runtime.routeProgress + delta * 0.028 * runtime.speed, 0, 1);
   }
   updateRoutedUnits();
+  animateRehearsalAction(delta);
   animateCombatReplay(delta);
   animateEffects(delta);
   refreshSelectionMarker();
@@ -2741,7 +3310,7 @@ function initWarGround3dScene() {
   if (!runtime.canvas || runtime.initialized) return;
 
   try {
-    runtime.renderer = new THREE.WebGLRenderer({ canvas: runtime.canvas, antialias: true, alpha: false });
+    runtime.renderer = new THREE.WebGLRenderer({ canvas: runtime.canvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
     runtime.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     runtime.renderer.outputColorSpace = THREE.SRGBColorSpace;
     runtime.renderer.setClearColor(0x8ea293, 1);
@@ -2768,7 +3337,7 @@ function initWarGround3dScene() {
     bindAssetWorkspaceControls();
     renderAssetCommandRail();
     renderStrikeTelemetry(true);
-    focusEvent("start");
+    focusEvent(window.__warGroundCurrentEventId || document.body?.dataset?.rehearsalEventId || "start");
     resizeRenderer();
     window.addEventListener("resize", resizeRenderer);
     new ResizeObserver(resizeRenderer).observe(runtime.canvas.parentElement);
@@ -2790,6 +3359,7 @@ function updateWarGround3dEvent(eventId) {
   setCameraPreset(binding.camera);
   setOverlayMode(binding.visual);
   setStatus(`${binding.label} / ${binding.visual}`);
+  startRehearsalAction(eventId);
   renderAssetCommandRail();
 }
 
@@ -2889,6 +3459,10 @@ window.WarGround3D = {
   setCameraOrbitMode,
   setCameraZoom,
   zoomCameraByFactor,
+  getCameraDragIntent,
+  setCameraInteractionMode,
+  setMapFocusMode,
+  toggleMapFocusMode,
   toggleLayer,
   analyzeAssetPlacement,
   recommendPlacementForSelectedAsset,
@@ -2906,6 +3480,8 @@ window.WarGround3D = {
       placementTemplateId: runtime.placementTemplateId,
       cameraMode: runtime.cameraMode,
       cameraZoomLevel: runtime.cameraZoomLevel,
+      cameraDragMode: runtime.cameraDragMode,
+      mapFocusMode: runtime.mapFocusMode,
       strikeReplayStartedAt: runtime.strikeReplayStartedAt,
       strikeTelemetryState: strikePhase.stateLabel,
       strikeTimelineActiveStep: strikePhase.isLive ? strikePhase.activeStep.id : "standby",
@@ -2914,6 +3490,14 @@ window.WarGround3D = {
       strikeBdaEstimate: strikeBda.label,
       combatReplayActive: runtime.combatReplayActive,
       combatReplayPhase: runtime.combatReplayPhase,
+      rehearsalActionState: runtime.rehearsalActionState,
+      rehearsalActionEventId: runtime.rehearsalActionActiveEventId,
+      rehearsalActionStartedAt: Number(runtime.rehearsalActionStartedAt.toFixed(3)),
+      visibleAction: getRehearsalActionPlan(runtime.rehearsalActionActiveEventId).visibleAction,
+      tacticalActions: getRehearsalActionPlan(runtime.rehearsalActionActiveEventId).tacticalActions || [],
+      artilleryArcs: runtime.rehearsalActionProjectiles.size,
+      movementTrails: runtime.rehearsalActionTrails.size,
+      rehearsalActionParticipants: Array.from(runtime.rehearsalActionParticipants),
       vistaScenarioReplay: {
         sequenceId: VISTA_SEUNGJIN_STAGE_27_REPLAY.sequenceId,
         stageId: VISTA_SEUNGJIN_STAGE_27_REPLAY.stageId,

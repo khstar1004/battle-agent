@@ -1,0 +1,55 @@
+﻿<section class="page-view data-page is-active" data-page="data">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">계획서가 작전 시드로 변환됩니다.</p>
+      <h2>자료 투입</h2>
+    </div>
+    <div class="page-status">
+      <span id="mockStatusLabel">작전 자료 대기</span>
+      <span id="nodeCountLabel">0개 노드</span>
+      <span id="edgeCountLabel">0개 관계</span>
+    </div>
+  </div>
+
+  <div class="page-guide-strip" id="dataGuideStrip" aria-label="자료 투입 읽는 법">
+    <article><span>1</span><b>무엇이 들어왔나</b><em>왼쪽에서 입력 문서와 자료 종류를 확인합니다.</em></article>
+    <article><span>2</span><b>무엇을 뽑았나</b><em>임무, 시간, 제한사항이 제대로 추출됐는지 봅니다.</em></article>
+    <article><span>3</span><b>어떤 방책을 비교하나</b><em>A/B/C 방책의 시간, 통신, 군수 위험을 비교합니다.</em></article>
+  </div>
+
+  <section class="intake-empty-state" id="intakeEmptyState" aria-live="polite"></section>
+
+  <div class="data-grid" id="dataGrid" hidden>
+    <section class="hard-panel">
+      <div class="panel-heading"><span>작전 자료 패키지</span><b id="scenarioLoadState">대기</b></div>
+      <div class="input-manifest-panel" id="inputManifestPanel" aria-label="입력 자료 확인"></div>
+      <ul class="file-stack" id="fileStack" aria-label="작전 자료 파일"></ul>
+    </section>
+
+    <section class="hard-panel wide-panel scenario-card">
+      <div class="panel-heading"><span>작전계획 추출 필드</span><b id="scenarioSourceLabel">자료 접수 전</b></div>
+      <div class="operation-identity-panel" id="operationIdentityPanel" aria-label="작전 성격 요약"></div>
+      <div class="scenario-summary">
+        <article><span>작전명</span><strong id="operationName">접수 전</strong></article>
+        <article><span>임무</span><strong id="missionText">작전계획을 접수하면 임무가 표시됩니다.</strong></article>
+        <article><span>시간</span><strong id="operationTime">--:-- / --:--</strong></article>
+      </div>
+      <div class="constraint-grid" id="constraintGrid" aria-label="제한사항"></div>
+    </section>
+
+    <section class="hard-panel">
+      <div class="panel-heading"><span>구조화 파이프라인</span><b id="pipelineState">준비</b></div>
+      <div class="pipeline-list" id="pipelineList"></div>
+    </section>
+
+    <section class="hard-panel wide-panel">
+      <div class="panel-heading"><span>A/B/C 방책 비교</span><b id="coaState">접수 필요</b></div>
+      <div class="coa-table" id="coaTable" aria-label="방책 비교표"></div>
+    </section>
+
+    <section class="hard-panel">
+      <div class="panel-heading"><span>운용 준비 상태</span><b id="demoReadinessLabel">부분 가능</b></div>
+      <div class="readiness-list" id="readinessList"></div>
+    </section>
+  </div>
+</section>
