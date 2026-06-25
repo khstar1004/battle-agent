@@ -1,0 +1,20 @@
+<section class="page-view receipt-page" id="page-receipt" data-page="receipt" role="tabpanel" aria-labelledby="tab-receipt" hidden>
+  <div class="page-heading receipt-heading">
+    <div>
+      <p class="eyebrow">전파 이후 수신 확인, 미확인 대상, 재전파 조치와 완료 게이트를 추적합니다.</p>
+      <h2>수신 확인</h2>
+    </div>
+    <div class="receipt-actions" aria-label="수신 확인 실행">
+      <button class="mode-button" type="button" data-receipt-action="stage" data-receipt-ref="broadcast">전파</button>
+      <button class="mode-button" type="button" data-receipt-action="stage" data-receipt-ref="log">일지</button>
+      <button class="combat-button inverse" type="button" data-receipt-action="download"><i data-lucide="download" aria-hidden="true"></i>확인</button>
+    </div>
+  </div>
+
+  <div class="receipt-workspace">
+    <section class="hard-panel receipt-overview-panel" id="receiptOverviewPanel" aria-label="수신 확인 요약"></section>
+    <section class="hard-panel receipt-track-panel" id="receiptTrackPanel" aria-label="수신 추적"></section>
+    <section class="hard-panel receipt-escalation-panel" id="receiptEscalationPanel" aria-label="재전파 조치"></section>
+    <section class="hard-panel receipt-gate-panel" id="receiptGatePanel" aria-label="수신 완료 게이트"></section>
+  </div>
+</section>

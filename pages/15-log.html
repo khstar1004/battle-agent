@@ -1,0 +1,20 @@
+<section class="page-view log-page" data-page="log">
+  <div class="page-heading log-heading">
+    <div>
+      <p class="eyebrow">감시 보고를 교대 가능한 운용 기록으로 남깁니다.</p>
+      <h2>상황 일지</h2>
+    </div>
+    <div class="log-actions" aria-label="상황 일지 실행">
+      <button class="mode-button" type="button" data-log-action="stage" data-log-ref="watch">감시</button>
+      <button class="mode-button" type="button" data-log-action="stage" data-log-ref="handoff">인계</button>
+      <button class="combat-button inverse" type="button" data-log-action="download"><i data-lucide="download" aria-hidden="true"></i>일지</button>
+    </div>
+  </div>
+
+  <div class="log-workspace">
+    <section class="hard-panel log-overview-panel" id="logOverviewPanel" aria-label="상황 일지 요약"></section>
+    <section class="hard-panel log-timeline-panel" id="logTimelinePanel" aria-label="보고 타임라인"></section>
+    <section class="hard-panel log-report-panel" id="logReportPanel" aria-label="보고 상세"></section>
+    <section class="hard-panel log-acknowledge-panel" id="logAcknowledgePanel" aria-label="확인 기록"></section>
+  </div>
+</section>

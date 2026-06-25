@@ -1,0 +1,20 @@
+<section class="page-view metrics-page" data-page="metrics">
+  <div class="page-heading metrics-heading">
+    <div>
+      <p class="eyebrow">인수인계 이후 운용 상태를 추적합니다.</p>
+      <h2>운영 지표</h2>
+    </div>
+    <div class="metrics-actions" aria-label="운영 지표 실행">
+      <button class="mode-button" type="button" data-metrics-action="stage" data-metrics-ref="handoff">인계</button>
+      <button class="mode-button" type="button" data-metrics-action="stage" data-metrics-ref="retrain">훈련</button>
+      <button class="combat-button inverse" type="button" data-metrics-action="download"><i data-lucide="download" aria-hidden="true"></i>지표</button>
+    </div>
+  </div>
+
+  <div class="metrics-workspace">
+    <section class="hard-panel metrics-overview-panel" id="metricsOverviewPanel" aria-label="운영 지표 요약"></section>
+    <section class="hard-panel metrics-risk-panel" id="metricsRiskPanel" aria-label="위험 추세"></section>
+    <section class="hard-panel metrics-evidence-panel" id="metricsEvidencePanel" aria-label="근거 부채"></section>
+    <section class="hard-panel metrics-cadence-panel" id="metricsCadencePanel" aria-label="운영 리듬"></section>
+  </div>
+</section>

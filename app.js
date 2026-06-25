@@ -750,7 +750,25 @@ const stageMeta = {
   agents: { phase: "가상부대 생성", alert: "23개 역할" },
   rehearsal: { phase: "수행 리허설", alert: "시간순 이벤트" },
   risk: { phase: "실패경로", alert: "TOP 4" },
-  decision: { phase: "결심카드", alert: "B안 우선" }
+  decision: { phase: "결심카드", alert: "B안 우선" },
+  briefing: { phase: "브리핑 모드", alert: "심사 대응" },
+  aar: { phase: "AAR 개선안", alert: "후속조치" },
+  audit: { phase: "감사 로그", alert: "검증 완료" },
+  submit: { phase: "제출 패키지", alert: "최종 묶음" },
+  retrain: { phase: "재훈련 계획", alert: "72시간 계획" },
+  handoff: { phase: "인수인계 센터", alert: "패킷 전달" },
+  metrics: { phase: "운영 지표", alert: "상태 추적" },
+  watch: { phase: "상황 감시", alert: "재판단 트리거" },
+  log: { phase: "상황 일지", alert: "보고 기록" },
+  challenge: { phase: "반증 검증", alert: "가정 재검토" },
+  queue: { phase: "조치 큐", alert: "우선순위" },
+  forecast: { phase: "준비 예측", alert: "24h 전망" },
+  broadcast: { phase: "전파 패키지", alert: "수신 확인" },
+  receipt: { phase: "수신 확인", alert: "미확인 추적" },
+  closeout: { phase: "종결 보고", alert: "기록 잠금" },
+  lessons: { phase: "교훈 라이브러리", alert: "재사용 준비" },
+  nextop: { phase: "다음 작전 템플릿", alert: "작전 시드" },
+  prefill: { phase: "초기 접수 프리필", alert: "접수값 잠금" }
 };
 
 const stageTransitionCopy = {
@@ -789,6 +807,114 @@ const stageTransitionCopy = {
     title: "결심카드 패키징",
     detail: "추천 방책, 시행 조건, 근거 테이블을 지휘관 확인 양식으로 잠급니다.",
     steps: ["추천 방책 검증", "승인 조건 결합", "브리핑 패킷 생성"]
+  },
+  briefing: {
+    kicker: "LIVE BRIEFING",
+    title: "심사 브리핑 구성",
+    detail: "시연 흐름, 예상 질문, 직접 근거를 한 화면에서 발표 순서로 정리합니다.",
+    steps: ["브리핑 런웨이 정렬", "심사 질문 매핑", "근거 잠금 확인"]
+  },
+  aar: {
+    kicker: "AFTER ACTION REVIEW",
+    title: "AAR 개선안 생성",
+    detail: "리허설 마찰, 실패경로, 결심 조건을 책임자와 기한이 있는 보완 과제로 변환합니다.",
+    steps: ["마찰 이벤트 회수", "책임자 배정", "보완 패킷 잠금"]
+  },
+  audit: {
+    kicker: "AUDIT LOGBOOK",
+    title: "검증 로그 작성",
+    detail: "자료 접수부터 AAR 보완 조치까지 근거, 공백, 책임자를 하나의 검증 장부로 묶습니다.",
+    steps: ["판단 이벤트 회수", "근거 원장 대조", "검증 공백 표시"]
+  },
+  submit: {
+    kicker: "SUBMISSION PACKAGE",
+    title: "최종 제출 패키지 잠금",
+    detail: "브리핑, 결심카드, AAR, 감사 로그를 제출 가능한 산출물 묶음으로 정리합니다.",
+    steps: ["준비도 점검", "산출물 묶음", "매니페스트 생성"]
+  },
+  retrain: {
+    kicker: "RETRAINING PLAN",
+    title: "72시간 재훈련 계획",
+    detail: "AAR 조치와 감사 공백을 담당자별 훈련 과제, 검증 게이트, 일정으로 다시 묶습니다.",
+    steps: ["AAR 조치 회수", "담당자별 훈련 편성", "검증 게이트 잠금"]
+  },
+  handoff: {
+    kicker: "HANDOFF CENTER",
+    title: "인수인계 패킷 생성",
+    detail: "결심카드, 제출 묶음, 재훈련 과제를 다음 운용자가 받을 수 있는 수신자별 패킷으로 정리합니다.",
+    steps: ["수신자 분류", "교신 문안 생성", "확인 체크 잠금"]
+  },
+  metrics: {
+    kicker: "OPERATIONS METRICS",
+    title: "운영 지표판 갱신",
+    detail: "위험 감소, 근거 부채, 재훈련 진행, 인수인계 완료율을 한 화면에서 추적합니다.",
+    steps: ["위험 추세 계산", "근거 부채 집계", "24시간 리듬 생성"]
+  },
+  watch: {
+    kicker: "DECISION WATCH",
+    title: "재판단 감시 시작",
+    detail: "결심 이후 현장에서 확인해야 할 트리거, 전파 문안, 즉시 조치 경로를 감시 화면으로 묶습니다.",
+    steps: ["트리거 기준 정렬", "경고 신호 매핑", "전파 문안 생성"]
+  },
+  log: {
+    kicker: "OPERATIONS LOG",
+    title: "상황 일지 기록",
+    detail: "감시 트리거와 전파 문안을 교대 가능한 보고 기록, 확인 상태, 다음 조치로 남깁니다.",
+    steps: ["보고 타임라인 생성", "확인 상태 정렬", "교대 기록 패킷화"]
+  },
+  challenge: {
+    kicker: "CHALLENGE REVIEW",
+    title: "결심 반증 검증",
+    detail: "최종 결심의 핵심 가정, 반대 신호, 확인 조치를 한 화면에서 다시 점검합니다.",
+    steps: ["핵심 가정 추출", "반증 신호 대조", "검증 조치 잠금"]
+  },
+  queue: {
+    kicker: "ACTION QUEUE",
+    title: "남은 조치 우선순위화",
+    detail: "AAR, 재훈련, 감시, 반증 검증에서 열린 일을 담당자별 실행 큐로 묶습니다.",
+    steps: ["열린 조치 수집", "담당자 부하 계산", "완료 게이트 정렬"]
+  },
+  forecast: {
+    kicker: "READINESS FORECAST",
+    title: "운용 준비도 예측",
+    detail: "조치 큐 처리 속도별 24~72시간 준비도, 잔여 위험, 병목 변화를 계산합니다.",
+    steps: ["큐 영향 산정", "시나리오 곡선 생성", "병목 게이트 표시"]
+  },
+  broadcast: {
+    kicker: "BROADCAST PACKAGE",
+    title: "수신자별 전파 문안 생성",
+    detail: "준비 예측과 조치 큐를 지휘관, 참모, 검증관이 바로 확인할 전파 패킷으로 변환합니다.",
+    steps: ["수신자 우선순위 정렬", "문안·근거 결합", "확인 게이트 잠금"]
+  },
+  receipt: {
+    kicker: "RECEIPT TRACKER",
+    title: "수신 확인과 재전파 추적",
+    detail: "전파 패키지가 실제 수신됐는지 확인하고 미확인 대상의 재전파 조치를 잠급니다.",
+    steps: ["수신 상태 집계", "미확인 대상 분리", "재전파 게이트 잠금"]
+  },
+  closeout: {
+    kicker: "CLOSEOUT REPORT",
+    title: "종결 보고와 보관 잠금",
+    detail: "결심, 수신 확인, 예외 처리, 보관 산출물을 다음 운용자가 확인할 종결 보고로 잠급니다.",
+    steps: ["최종 판단 요약", "예외 책임 확인", "보관 산출물 잠금"]
+  },
+  lessons: {
+    kicker: "LESSONS LIBRARY",
+    title: "재사용 교훈 패턴화",
+    detail: "종결 보고의 판단, 예외, 보관 산출물을 다음 작전에서 바로 쓰는 체크와 패턴으로 바꿉니다.",
+    steps: ["반복 패턴 추출", "재사용 체크 잠금", "교훈 패킷 저장"]
+  },
+  nextop: {
+    kicker: "NEXT OP TEMPLATE",
+    title: "다음 작전 접수 템플릿 생성",
+    detail: "교훈 라이브러리의 패턴과 체크를 다음 작전에서 바로 시작할 입력 템플릿으로 변환합니다.",
+    steps: ["작전 시드 생성", "초기 제약 잠금", "접수 패킷 저장"]
+  },
+  prefill: {
+    kicker: "INTAKE PREFILL",
+    title: "초기 접수값 프리필",
+    detail: "다음 작전 템플릿을 자료 접수 화면의 사전 입력값, 자료 매니페스트, 확인 게이트로 되돌립니다.",
+    steps: ["자료 매니페스트 구성", "접수 필드 채움", "초기 게이트 잠금"]
   }
 };
 
@@ -816,6 +942,25 @@ const state = {
   selectedEvidenceId: "ev_comm_gap",
   focusMode: false,
   presenterMode: false,
+  selectedBriefingStepId: "decision",
+  selectedBriefingQuestionId: "why-b",
+  selectedAarActionId: "aar-command_gap-0",
+  selectedAuditItemId: "audit-decision",
+  selectedSubmitBundleId: "submit-briefing",
+  selectedRetrainItemId: "retrain-command_gap-0",
+  selectedHandoffRecipientId: "handoff-commander",
+  selectedMetricId: "metric-readiness",
+  selectedWatchItemId: "watch-command_gap",
+  selectedLogItemId: "log-command_gap",
+  selectedChallengeItemId: "challenge-command_gap",
+  selectedQueueItemId: "queue-challenge-command_gap",
+  selectedForecastScenarioId: "forecast-paced",
+  selectedBroadcastRecipientId: "broadcast-commander",
+  selectedReceiptItemId: "receipt-broadcast-commander",
+  selectedCloseoutItemId: "closeout-final",
+  selectedLessonItemId: "lesson-command-gap",
+  selectedNextOpItemId: "nextop-seed-comms",
+  selectedPrefillItemId: "prefill-field-mission",
   lastRehearsalRiskEventId: null,
   decisionConditionState: {
     comms: true,
@@ -966,9 +1111,10 @@ function getAgentPersonIcon(profile) {
 
 function renderAgentPortrait(profile, sizeClass = "") {
   const className = ["agent-portrait", sizeClass, `portrait-${profile.portrait}`].filter(Boolean).join(" ");
+  const iconName = profile.personIcon || getAgentPersonIcon(profile);
   return `
     <span class="${className}" aria-hidden="true">
-      <i data-lucide="${profile.personIcon}"></i>
+      <i data-lucide="${iconName}"></i>
       <b>${profile.callsign}</b>
     </span>
   `;
@@ -1017,6 +1163,63 @@ function getGraphModeLabel(mode) {
 }
 
 function getPageBriefingItems(page) {
+  if (page === "prefill") {
+    const overviewItems = getPrefillOverviewItems();
+    const manifests = getPrefillManifestItems();
+    const fields = getPrefillFieldItems();
+    const gates = getPrefillGateItems();
+    return [
+      { label: "프리필 준비", value: `${getPrefillReadinessScore(overviewItems, manifests, fields, gates)}%`, detail: "자료·필드·게이트", tone: "primary" },
+      { label: "자료 매니페스트", value: `${manifests.filter((item) => item.ready).length}/${manifests.length}`, detail: "접수 전 준비 파일", tone: "evidence" },
+      { label: "접수 필드", value: `${fields.filter((item) => item.ready).length}/${fields.length}`, detail: "사전 입력값", tone: "support" },
+      { label: "초기 게이트", value: `${gates.filter((item) => item.ready).length}/${gates.length}`, detail: "첫 판단 잠금", tone: "primary" }
+    ];
+  }
+  if (page === "nextop") {
+    const summaryItems = getNextOperationSummaryItems();
+    const seedItems = getNextOperationSeedItems();
+    const constraints = getNextOperationConstraintItems();
+    const packets = getNextOperationPacketItems();
+    return [
+      { label: "템플릿 준비", value: `${getNextOperationReadinessScore(summaryItems, seedItems, constraints, packets)}%`, detail: "시드·제약·패킷", tone: "primary" },
+      { label: "작전 시드", value: `${seedItems.filter((item) => item.ready).length}/${seedItems.length}`, detail: "접수 전 채울 핵심값", tone: "evidence" },
+      { label: "초기 제약", value: `${constraints.filter((item) => item.ready).length}/${constraints.length}`, detail: "첫 검토 기준", tone: "support" },
+      { label: "템플릿 패킷", value: `${packets.length}개`, detail: "다음 작전 산출물", tone: "primary" }
+    ];
+  }
+  if (page === "lessons") {
+    const summaryItems = getLessonSummaryItems();
+    const patterns = getLessonPatternItems();
+    const checks = getLessonChecklistItems();
+    const archives = getLessonArchiveItems();
+    return [
+      { label: "교훈 준비", value: `${getLessonReadinessScore(summaryItems, patterns, checks, archives)}%`, detail: "패턴·체크·보관", tone: "primary" },
+      { label: "판단 패턴", value: `${patterns.length}개`, detail: "재사용 가능한 조건", tone: "evidence" },
+      { label: "재사용 체크", value: `${checks.filter((item) => item.ready).length}/${checks.length}`, detail: "다음 작전 적용 조건", tone: "support" },
+      { label: "보관 패킷", value: `${archives.length}개`, detail: "교훈 산출물", tone: "primary" }
+    ];
+  }
+  if (page === "closeout") {
+    const summaryItems = getCloseoutSummaryItems();
+    const exceptions = getCloseoutExceptionItems();
+    const archives = getCloseoutArchiveItems();
+    return [
+      { label: "종결 준비", value: `${getCloseoutReadinessScore(summaryItems, exceptions, archives)}%`, detail: "결심·수신·예외·보관", tone: "primary" },
+      { label: "잠금 항목", value: `${summaryItems.filter((item) => item.ready).length}/${summaryItems.length}`, detail: "종결 조건 충족", tone: "evidence" },
+      { label: "예외 처리", value: `${exceptions.filter((item) => !item.ready).length}건`, detail: "후속 책임 필요", tone: "danger" },
+      { label: "보관 산출물", value: `${archives.length}개`, detail: "제출·감사·수신 기록", tone: "support" }
+    ];
+  }
+  if (page === "data") {
+    const plan = demoData.operationPlan;
+    return [
+      { label: "입력 패키지", value: state.scenarioLoaded ? `${plan.documents.length}종` : "0종", detail: state.scenarioLoaded ? "작전 자료 접수 완료" : "접수된 자료 없음", tone: state.scenarioLoaded ? "support" : "" },
+      { label: "추출 상태", value: state.scenarioLoaded ? plan.operation_name : "대기", detail: state.scenarioLoaded ? `${plan.start_time}-${plan.deadline}` : "임무, 시간, 제한사항 자동 채움" },
+      { label: "방책 후보", value: state.scenarioLoaded ? `${demoData.coas.length}개안` : "잠김", detail: state.scenarioLoaded ? "A/B/C 시간·통신·군수 비교" : "자료 접수 후 생성" },
+      { label: "다음 조치", value: state.scenarioLoaded ? "가상부대 생성" : "작전계획 접수", detail: state.scenarioLoaded ? "역할별 검토 셀을 생성합니다." : "상단 실행 버튼으로 시작합니다.", tone: state.scenarioLoaded ? "primary" : "evidence" }
+    ];
+  }
+
   const plan = demoData.operationPlan;
   const selectedNode = graph.nodeMap.get(state.selectedNodeId);
   const selectedAgent = getAgentById(state.selectedAgentId) || demoData.agents[0];
@@ -1063,6 +1266,66 @@ function getPageBriefingItems(page) {
       { label: "시행 조건", value: `${getDecisionConditions().length}개`, detail: "통신·군수·재판단·후송" },
       { label: "근거 잠금", value: `${demoData.decision.evidence_ids.length}/${decisionSummary.evidenceTotal}`, detail: "직접 근거 / 전체 근거", tone: "evidence" },
       { label: "승인 상태", value: "지휘관 검토", detail: demoData.decision.command_authority_notice, tone: "support" }
+    ],
+    retrain: [
+      { label: "72시간 재훈련", value: `${getRetrainingScheduleItems().length}개`, detail: "AAR 조치를 일정으로 변환", tone: "primary" },
+      { label: "담당자", value: `${getRetrainingOwnerLoads().length}개 축`, detail: "훈련 과제별 책임 분산" },
+      { label: "검증 게이트", value: `${getRetrainingValidationGates().filter((item) => item.ready).length}/${getRetrainingValidationGates().length}`, detail: "재훈련 전 확인 조건", tone: "evidence" },
+      { label: "연결 근거", value: `${new Set(getRetrainingScheduleItems().map((item) => item.evidenceId).filter(Boolean)).size}건`, detail: "훈련 과제별 직접 근거" }
+    ],
+    handoff: [
+      { label: "인수인계 패킷", value: `${getHandoffRecipientItems().length}명`, detail: "수신자별 인계 묶음", tone: "primary" },
+      { label: "확인 체크", value: `${getHandoffChecklistItems().filter((item) => item.ready).length}/${getHandoffChecklistItems().length}`, detail: "다음 운용 전 확인" },
+      { label: "교신 문안", value: `${getHandoffSignalItems().length}건`, detail: "무전/브리핑용 문장", tone: "evidence" },
+      { label: "연결 산출물", value: `${getSubmissionBundleItems().length}개`, detail: "제출 묶음과 재훈련 계획" }
+    ],
+    metrics: [
+      { label: "운영 지표판", value: `${getOperationsMetricItems().length}개`, detail: "인수인계 이후 핵심 KPI", tone: "primary" },
+      { label: "위험 추세", value: `${getOperationsRiskTrend()[0]?.before || 0}→${getOperationsRiskTrend()[0]?.after || 0}`, detail: "상위 실패경로 감소" },
+      { label: "근거 부채", value: `${getOperationsEvidenceDebt().length}건`, detail: "추가 확인 필요 근거", tone: "evidence" },
+      { label: "운영 리듬", value: `${getOperationsCadenceItems().length}개`, detail: "다음 24시간 확인 주기" }
+    ],
+    watch: [
+      { label: "재판단 감시", value: `${getDecisionWatchItems().length}개`, detail: "현장 트리거 기준", tone: "primary" },
+      { label: "고위험 신호", value: `${getDecisionWatchItems().filter((item) => item.level === "critical").length}건`, detail: "즉시 보고 대상", tone: "danger" },
+      { label: "전파 문안", value: `${getWatchSignalItems().length}건`, detail: "무전·브리핑 문장", tone: "evidence" },
+      { label: "조치 경로", value: `${getWatchEscalationItems().length}개`, detail: "화면 이동과 책임자" }
+    ],
+    log: [
+      { label: "상황 일지", value: `${getOperationsLogItems().length}건`, detail: "감시 보고 기록", tone: "primary" },
+      { label: "확인 기록", value: `${getLogAcknowledgementItems().filter((item) => item.done).length}/${getLogAcknowledgementItems().length}`, detail: "교대 전 확인 상태", tone: "evidence" },
+      { label: "미확인", value: `${getOperationsLogItems().filter((item) => item.status !== "확인").length}건`, detail: "추적 필요 보고", tone: "danger" },
+      { label: "인계 묶음", value: `${getLogReportPacket().handoff_refs.length}개`, detail: "다음 운용자 참조" }
+    ],
+    challenge: [
+      { label: "반증 검증", value: `${getChallengeAssumptionItems().length}개`, detail: "핵심 가정 재검토", tone: "primary" },
+      { label: "위험 가정", value: `${getChallengeAssumptionItems().filter((item) => item.tone === "danger").length}개`, detail: "즉시 확인 필요", tone: "danger" },
+      { label: "반증 신호", value: `${getChallengeCounterItems().length}건`, detail: "가정별 반대 근거", tone: "evidence" },
+      { label: "검증 준비", value: `${getChallengeReadinessScore()}%`, detail: "조치·근거·책임 연결" }
+    ],
+    queue: [
+      { label: "조치 큐", value: `${getActionQueueItems().length}건`, detail: "열린 실행 항목", tone: "primary" },
+      { label: "긴급", value: `${getActionQueueItems().filter((item) => item.priority === "urgent").length}건`, detail: "우선 실행", tone: "danger" },
+      { label: "담당자", value: `${getActionQueueOwnerItems().length}명`, detail: "부하 분산" },
+      { label: "완료 기준", value: `${getActionQueueGateItems().filter((item) => item.ready).length}/${getActionQueueGateItems().length}`, detail: "닫힘 조건", tone: "evidence" }
+    ],
+    forecast: [
+      { label: "준비 예측", value: `${getReadinessForecastScore()}%`, detail: "선택 시나리오 전망", tone: "primary" },
+      { label: "시나리오", value: `${getForecastScenarioItems().length}개`, detail: "지연/기준/가속" },
+      { label: "병목", value: `${getForecastBottleneckItems().length}건`, detail: "준비도 저하 요인", tone: "danger" },
+      { label: "예측 게이트", value: `${getForecastGateItems().filter((item) => item.ready).length}/${getForecastGateItems().length}`, detail: "운용 전환 조건", tone: "evidence" }
+    ],
+    broadcast: [
+      { label: "전파 준비", value: `${getBroadcastReadinessScore()}%`, detail: "수신·문안·확인 상태", tone: "primary" },
+      { label: "수신자", value: `${getBroadcastRecipientItems().length}명`, detail: "지휘관·참모·검증관" },
+      { label: "수신자별 문안", value: `${getBroadcastMessageItems().length}건`, detail: "예측·큐·감시 통합", tone: "evidence" },
+      { label: "확인 게이트", value: `${getBroadcastAckItems().filter((item) => item.ready).length}/${getBroadcastAckItems().length}`, detail: "전파 완료 조건", tone: "support" }
+    ],
+    receipt: [
+      { label: "수신 확인", value: `${getReceiptReadinessScore()}%`, detail: "확인·대기·재전파 상태", tone: "primary" },
+      { label: "확인 완료", value: `${getReceiptTrackItems().filter((item) => item.ready).length}/${getReceiptTrackItems().length}`, detail: "수신자 확인 현황", tone: "evidence" },
+      { label: "미확인 대상", value: `${getReceiptTrackItems().filter((item) => !item.ready).length}명`, detail: "재전파 필요", tone: "danger" },
+      { label: "완료 게이트", value: `${getReceiptGateItems().filter((item) => item.ready).length}/${getReceiptGateItems().length}`, detail: "운용 기록 잠금", tone: "support" }
     ]
   };
 
@@ -1070,6 +1333,175 @@ function getPageBriefingItems(page) {
 }
 
 function getPageInsightItems(page) {
+  if (page === "prefill") {
+    const manifests = getPrefillManifestItems();
+    const fields = getPrefillFieldItems();
+    const gates = getPrefillGateItems();
+    const readiness = getPrefillReadinessScore(undefined, manifests, fields, gates);
+    const openGates = gates.filter((item) => !item.ready);
+    return [
+      {
+        label: "초기 접수 프리필",
+        title: `${readiness}% 접수값 잠금`,
+        body: "다음 작전 템플릿을 빈 접수 화면으로 되돌려 자료, 필드, 확인 게이트를 미리 채웁니다.",
+        evidence: `${manifests.length}개 자료 매니페스트`,
+        score: readiness,
+        tone: "primary"
+      },
+      {
+        label: "접수 필드",
+        title: `${fields.filter((item) => item.ready).length}/${fields.length}개 사전 입력`,
+        body: "임무, 시간, 통신, 결심 조건, 근거 책임자를 첫 화면에서 바로 검토하게 만듭니다.",
+        evidence: "작전 시드 기반",
+        score: clamp(58 + fields.filter((item) => item.ready).length * 8, 62, 98),
+        tone: "evidence"
+      },
+      {
+        label: "초기 게이트",
+        title: openGates.length ? `${openGates.length}개 확인 필요` : "첫 판단 게이트 충족",
+        body: "자료 접수 전 결심 산출 잠금, 통신 권한, 근거 책임, 훈련 삽입을 확인합니다.",
+        evidence: `${gates.length}개 게이트`,
+        score: clamp(100 - openGates.length * 11, 40, 96),
+        tone: openGates.length ? "danger" : "support"
+      }
+    ];
+  }
+  if (page === "nextop") {
+    const seedItems = getNextOperationSeedItems();
+    const constraints = getNextOperationConstraintItems();
+    const packets = getNextOperationPacketItems();
+    const readiness = getNextOperationReadinessScore(undefined, seedItems, constraints, packets);
+    const openConstraints = constraints.filter((item) => !item.ready);
+    return [
+      {
+        label: "다음 작전 템플릿",
+        title: `${readiness}% 접수 준비`,
+        body: "교훈 라이브러리의 반복 위험, 결심 조건, 근거 부채를 다음 작전 초기 입력값으로 바꿉니다.",
+        evidence: `${packets.length}개 템플릿 산출물`,
+        score: readiness,
+        tone: "primary"
+      },
+      {
+        label: "작전 시드",
+        title: `${seedItems[0]?.value || demoData.operationPlan.operation_name} 기준`,
+        body: "다음 작전 접수 전에도 임무, 통신, 결심 조건, 재훈련 삽입점을 미리 채워둡니다.",
+        evidence: `${seedItems.length}개 시드`,
+        score: clamp(68 + seedItems.filter((item) => item.ready).length * 7, 70, 98),
+        tone: "evidence"
+      },
+      {
+        label: "초기 제약",
+        title: openConstraints.length ? `${openConstraints.length}개 확인 필요` : "초기 제약 잠금",
+        body: "다음 작전 첫 접수 단계에서 통신, 수신, 근거, 훈련 반영을 놓치지 않게 만듭니다.",
+        evidence: `${constraints.length}개 제약`,
+        score: clamp(100 - openConstraints.length * 10, 42, 96),
+        tone: openConstraints.length ? "danger" : "support"
+      }
+    ];
+  }
+  if (page === "lessons") {
+    const patterns = getLessonPatternItems();
+    const checks = getLessonChecklistItems();
+    const archives = getLessonArchiveItems();
+    const readiness = getLessonReadinessScore(undefined, patterns, checks, archives);
+    const openChecks = checks.filter((item) => !item.ready);
+    return [
+      {
+        label: "교훈 라이브러리",
+        title: `${readiness}% 재사용 준비`,
+        body: "종결 보고의 결심, 미확인 수신, 근거 부채를 다음 작전 준비 체크로 재정렬합니다.",
+        evidence: `${archives.length}개 교훈 산출물`,
+        score: readiness,
+        tone: "primary"
+      },
+      {
+        label: "반복 패턴",
+        title: `${patterns[0]?.title || "조건부 결심"} 우선`,
+        body: "이번 작전에서 반복 가능성이 높은 실패 원인과 차단 조건을 패턴 카드로 남깁니다.",
+        evidence: `${patterns.length}개 패턴`,
+        score: clamp(70 + patterns.length * 4, 70, 96),
+        tone: "evidence"
+      },
+      {
+        label: "재사용 체크",
+        title: openChecks.length ? `${openChecks.length}개 보완 후 재사용` : "즉시 재사용 가능",
+        body: "다음 작전 전 확인할 수신, 통신, 근거, 재훈련 조건을 실행 체크로 분리합니다.",
+        evidence: `${checks.length}개 체크`,
+        score: clamp(100 - openChecks.length * 12, 40, 96),
+        tone: openChecks.length ? "danger" : "support"
+      }
+    ];
+  }
+  if (page === "closeout") {
+    const exceptions = getCloseoutExceptionItems();
+    const archives = getCloseoutArchiveItems();
+    const readiness = getCloseoutReadinessScore(undefined, exceptions, archives);
+    return [
+      {
+        label: "종결 보고",
+        title: `${readiness}% 종결 준비`,
+        body: "결심카드, 수신 확인, 제출 패키지, 감사 기록을 하나의 종결 보고로 묶어 다음 운용자가 바로 확인하게 합니다.",
+        evidence: `${archives.length}개 보관 산출물`,
+        score: readiness,
+        tone: "primary"
+      },
+      {
+        label: "예외 처리",
+        title: `${exceptions.filter((item) => !item.ready).length}건 후속 책임`,
+        body: "미확인 수신자, 근거 부채, 열린 큐, 검증 공백을 종결 후에도 놓치지 않도록 담당자와 조치 화면에 연결합니다.",
+        evidence: `${exceptions.length}개 예외`,
+        score: clamp(100 - exceptions.filter((item) => !item.ready).length * 10, 38, 96),
+        tone: "danger"
+      },
+      {
+        label: "보관 잠금",
+        title: `${archives.filter((item) => item.ready).length}/${archives.length} 산출물 보관`,
+        body: "제출 패키지, 수신 확인, 감사 로그, 재훈련 계획을 파일 수준 기록으로 남길 수 있게 정리합니다.",
+        evidence: "종결 보관 목록",
+        score: readiness,
+        tone: "evidence"
+      }
+    ];
+  }
+  if (page === "data") {
+    const plan = demoData.operationPlan;
+    return [
+      {
+        label: "자동 추출",
+        title: state.scenarioLoaded ? `${plan.operation_name} 구조화 완료` : "자료 접수 즉시 필드 잠금",
+        body: state.scenarioLoaded ? `${plan.documents.length}종 자료에서 임무, 시간, 제한사항, 방책을 같은 작전 키로 연결했습니다.` : "작전계획, 방책표, 군수, 통신, 기상을 동일 기준으로 정규화하도록 대기 중입니다.",
+        evidence: state.scenarioLoaded ? `${plan.documents.length}종 자료` : "로컬 자료 대기",
+        score: state.scenarioLoaded ? 94 : 24,
+        tone: state.scenarioLoaded ? "support" : "evidence"
+      },
+      state.scenarioLoaded
+        ? {
+          label: "방책 랭킹",
+          title: "B안 안정 후보 유지",
+          body: "통신 음영과 보급 접근성 부담이 낮아 결심카드 추천안으로 계속 승격됩니다.",
+          evidence: "COA B 비교표",
+          score: 88,
+          tone: "primary"
+        }
+        : {
+          label: "방책 랭킹",
+          title: "자료 접수 후 산출",
+          body: "방책표가 들어오기 전까지 후보 랭킹과 결심 추천은 표시하지 않습니다.",
+          evidence: "입력 없음",
+          score: 0,
+          tone: "neutral"
+        },
+      {
+        label: "다음 큐",
+        title: state.scenarioLoaded ? "가상부대 검토로 이관" : "계획서 접수 필요",
+        body: state.scenarioLoaded ? "역할별 에이전트가 통신, 군수, 재판단 기준을 나눠 검토할 수 있습니다." : "접수 전에는 후보 필드만 표시하고 결심 근거는 잠가 둡니다.",
+        evidence: state.scenarioLoaded ? "역할 매핑 준비" : "승인 전 대기",
+        score: state.scenarioLoaded ? 78 : 16,
+        tone: state.scenarioLoaded ? "primary" : "neutral"
+      }
+    ];
+  }
+
   const plan = demoData.operationPlan;
   const selectedNode = graph.nodeMap.get(state.selectedNodeId);
   const selectedAgent = getAgentById(state.selectedAgentId) || demoData.agents[0];
@@ -1249,6 +1681,266 @@ function getPageInsightItems(page) {
         score: decisionSummary.averageRisk,
         tone: "danger"
       }
+    ],
+    retrain: [
+      {
+        label: "훈련 과제",
+        title: `${getRetrainingScheduleItems().length}개 보완 드릴`,
+        body: "AAR 개선안의 책임자, 기한, 근거를 재훈련 시간표로 다시 묶어 다음 훈련 전 확인합니다.",
+        evidence: `${getAarImprovementItems().length}개 AAR 조치`,
+        score: 93,
+        tone: "primary"
+      },
+      {
+        label: "담당자 부하",
+        title: `${getRetrainingOwnerLoads().length}개 책임 축`,
+        body: getRetrainingOwnerLoads().slice(0, 2).map((item) => `${item.owner} ${item.load}건`).join(" / "),
+        evidence: "소유자별 훈련 편성",
+        score: 88,
+        tone: "support"
+      },
+      {
+        label: "검증 게이트",
+        title: `${getRetrainingValidationGates().filter((item) => item.ready).length}/${getRetrainingValidationGates().length} 잠금`,
+        body: "감사 공백과 결심 조건을 재훈련 전 통과 기준으로 압축합니다.",
+        evidence: `${getAuditCoverageSummary().gapCount}개 감사 공백`,
+        score: 86,
+        tone: "evidence"
+      }
+    ],
+    handoff: [
+      {
+        label: "수신자별 인계",
+        title: `${getHandoffRecipientItems().length}명에게 패킷 분배`,
+        body: "지휘관, 통신, 군수, 훈련장교가 받아야 할 조치와 근거를 각각 다른 패킷으로 분리합니다.",
+        evidence: `${getSubmissionBundleItems().length}개 산출물`,
+        score: 94,
+        tone: "primary"
+      },
+      {
+        label: "교신 문안",
+        title: `${getHandoffSignalItems().length}개 즉시 전파 문장`,
+        body: getHandoffSignalItems().slice(0, 2).map((item) => item.title).join(" / "),
+        evidence: "무전·브리핑 전환",
+        score: 88,
+        tone: "support"
+      },
+      {
+        label: "확인 체크",
+        title: `${getHandoffChecklistItems().filter((item) => item.ready).length}/${getHandoffChecklistItems().length} 잠금`,
+        body: "제출, 재훈련, 근거, 지휘관 검토 항목을 인계 전 확인 기준으로 압축합니다.",
+        evidence: "인수인계 패킷",
+        score: 90,
+        tone: "evidence"
+      }
+    ],
+    metrics: [
+      {
+        label: "운영 지표판",
+        title: `${getOperationsMetricItems().length}개 KPI 추적`,
+        body: "제출, 재훈련, 인수인계가 실제 운용 상태로 이어지는지 한 화면에서 확인합니다.",
+        evidence: `${getHandoffRecipientItems().length}명 수신자`,
+        score: getOperationsReadinessScore(),
+        tone: "primary"
+      },
+      {
+        label: "위험 추세",
+        title: `${getOperationsRiskTrend()[0]?.label || "위험"} ${getOperationsRiskTrend()[0]?.before || 0}→${getOperationsRiskTrend()[0]?.after || 0}`,
+        body: "AAR 조치와 재훈련 계획을 반영한 잔여 위험 변화를 추적합니다.",
+        evidence: `${getOperationsRiskTrend().length}개 실패경로`,
+        score: 92,
+        tone: "support"
+      },
+      {
+        label: "근거 부채",
+        title: `${getOperationsEvidenceDebt().length}개 확인 필요`,
+        body: "감사 로그에서 약한 근거와 미확인 문서를 운영 리듬에 올립니다.",
+        evidence: `근거 사용률 ${getOperationsEvidenceCoverageSummary().verifiedPercent}%`,
+        score: clamp(100 - getOperationsEvidenceDebt().length * 8, 48, 96),
+        tone: "evidence"
+      }
+    ],
+    watch: [
+      {
+        label: "재판단 감시",
+        title: `${getDecisionWatchItems()[0]?.title || "트리거"} 우선 확인`,
+        body: "결심 이후 현장에서 어떤 신호가 들어오면 위험, 결심, 근거 화면으로 돌아가야 하는지 표시합니다.",
+        evidence: `${getDecisionWatchItems().length}개 감시 기준`,
+        score: getWatchReadinessScore(),
+        tone: "primary"
+      },
+      {
+        label: "트리거 보드",
+        title: `${getDecisionWatchItems().filter((item) => item.level === "critical").length}개 즉시 보고`,
+        body: "보고 누락, 보급 대기, 후송 지연, 전환 승인 지연을 임계값과 책임자 기준으로 나눕니다.",
+        evidence: `${getWatchEscalationItems().length}개 조치 경로`,
+        score: 91,
+        tone: "danger"
+      },
+      {
+        label: "전파 문안",
+        title: `${getWatchSignalItems().length}개 문장 준비`,
+        body: "경고가 발생하면 무전망과 참모 브리핑에서 바로 읽을 수 있는 문장으로 전환합니다.",
+        evidence: "무전·참모망 전파",
+        score: 88,
+        tone: "evidence"
+      }
+    ],
+    log: [
+      {
+        label: "상황 일지",
+        title: `${getOperationsLogItems().length}건 보고 기록`,
+        body: "감시 트리거와 전파 문안을 시간순 일지로 남겨 다음 교대자가 무엇을 확인했는지 바로 볼 수 있습니다.",
+        evidence: `${getLogAcknowledgementItems().length}개 확인 항목`,
+        score: getLogReadinessScore(),
+        tone: "primary"
+      },
+      {
+        label: "보고 타임라인",
+        title: `${getOperationsLogItems()[0]?.time || "T+0"} 최신 보고`,
+        body: getOperationsLogItems()[0]?.summary || "감시 보고가 들어오면 위험, 결심, 인계 참조와 함께 기록됩니다.",
+        evidence: "감시 트리거 연결",
+        score: 90,
+        tone: "support"
+      },
+      {
+        label: "확인 기록",
+        title: `${getLogAcknowledgementItems().filter((item) => item.done).length}/${getLogAcknowledgementItems().length} 확인`,
+        body: "지휘, 참모, 인계 담당자가 확인해야 할 항목을 일지 끝에 잠급니다.",
+        evidence: "교대 전 확인",
+        score: getLogReadinessScore(),
+        tone: "evidence"
+      }
+    ],
+    challenge: [
+      {
+        label: "반증 검증",
+        title: `${getChallengeAssumptionItems()[0]?.title || "핵심 가정"} 재검토`,
+        body: "최종 결심을 승인한 뒤에도 어떤 가정이 틀리면 판단을 되돌려야 하는지 명시합니다.",
+        evidence: `${getChallengeAssumptionItems().length}개 가정`,
+        score: getChallengeReadinessScore(),
+        tone: "primary"
+      },
+      {
+        label: "반증 신호",
+        title: `${getChallengeCounterItems().filter((item) => item.severity === "높음").length}개 고위험 신호`,
+        body: "통신, 보급, 후송, 승인 지연 신호를 결심 반박 근거로 다시 대조합니다.",
+        evidence: `${getChallengeCounterItems().length}개 반대 근거`,
+        score: clamp(100 - getChallengeCounterItems().filter((item) => item.severity === "높음").length * 9, 54, 94),
+        tone: "danger"
+      },
+      {
+        label: "검증 조치",
+        title: `${getChallengeActionItems().length}개 확인 경로`,
+        body: "각 가정을 위험 화면, 근거 추적, 결심카드 갱신 조치로 바로 연결합니다.",
+        evidence: "책임자·근거·화면 이동",
+        score: getChallengeReadinessScore(),
+        tone: "evidence"
+      }
+    ],
+    queue: [
+      {
+        label: "조치 큐",
+        title: `${getActionQueueItems()[0]?.title || "열린 조치"} 우선 실행`,
+        body: "AAR, 재훈련, 감시, 반증 검증에서 열린 항목을 하나의 실행 큐로 합쳐 다음 담당자가 바로 처리할 수 있게 합니다.",
+        evidence: `${getActionQueueItems().length}건 큐`,
+        score: getActionQueueReadinessScore(),
+        tone: "primary"
+      },
+      {
+        label: "담당자 부하",
+        title: `${getActionQueueOwnerItems()[0]?.owner || "작전참모"} 집중`,
+        body: "같은 담당자에게 열린 조치가 몰리는지 보고, 지휘관 확인 전에 병목을 줄입니다.",
+        evidence: `${getActionQueueOwnerItems().length}명 담당자`,
+        score: clamp(100 - (getActionQueueOwnerItems()[0]?.open || 0) * 6, 52, 94),
+        tone: "evidence"
+      },
+      {
+        label: "닫힘 기준",
+        title: `${getActionQueueGateItems().filter((item) => item.ready).length}/${getActionQueueGateItems().length} 게이트 충족`,
+        body: "큐가 비어 보이는 것이 아니라 완료 기준을 충족해야 다음 운용 단계로 넘길 수 있게 잠급니다.",
+        evidence: "완료 게이트",
+        score: getActionQueueReadinessScore(),
+        tone: "support"
+      }
+    ],
+    forecast: [
+      {
+        label: "준비 예측",
+        title: `${getSelectedForecastScenario()?.label || "기준 처리"} ${getReadinessForecastScore()}% 전망`,
+        body: "큐를 지연, 기준, 가속 처리했을 때 준비도와 잔여 위험이 어떻게 바뀌는지 비교합니다.",
+        evidence: `${getForecastScenarioItems().length}개 시나리오`,
+        score: getReadinessForecastScore(),
+        tone: "primary"
+      },
+      {
+        label: "병목 신호",
+        title: `${getForecastBottleneckItems()[0]?.owner || "담당자"} 병목 우선`,
+        body: "가장 많은 열린 조치와 긴급 조치가 몰린 담당자를 예측 리스크로 표시합니다.",
+        evidence: `${getForecastBottleneckItems().length}개 병목`,
+        score: clamp(100 - (getForecastBottleneckItems()[0]?.impact || 0), 42, 94),
+        tone: "danger"
+      },
+      {
+        label: "전환 게이트",
+        title: `${getForecastGateItems().filter((item) => item.ready).length}/${getForecastGateItems().length} 조건 충족`,
+        body: "예측값이 다음 운용으로 넘길 수 있는지 게이트 기준으로 확인합니다.",
+        evidence: "24~72h 전망",
+        score: getReadinessForecastScore(),
+        tone: "evidence"
+      }
+    ],
+    broadcast: [
+      {
+        label: "전파 패키지",
+        title: `${getSelectedBroadcastRecipient()?.recipient || "지휘관"} 우선 전파`,
+        body: "준비 예측, 조치 큐, 인수인계 문안을 수신자별로 합쳐 실제 읽을 수 있는 전파 패킷으로 닫습니다.",
+        evidence: `${getBroadcastMessageItems().length}건 문안`,
+        score: getBroadcastReadinessScore(),
+        tone: "primary"
+      },
+      {
+        label: "확인 상태",
+        title: `${getBroadcastAckItems().filter((item) => item.ready).length}/${getBroadcastAckItems().length} 게이트 충족`,
+        body: "지휘관 승인, 참모 수신, 근거 링크, 큐 영향, 예측 점수 확인을 전파 완료 조건으로 잠급니다.",
+        evidence: "수신 확인 게이트",
+        score: getBroadcastReadinessScore(),
+        tone: "evidence"
+      },
+      {
+        label: "다음 조치",
+        title: `${getBroadcastRecipientItems().filter((item) => item.tone === "danger").length}건 즉시 전파`,
+        body: "긴급·고위험 조치가 있는 수신자는 위험 또는 큐 화면으로 바로 돌아갈 수 있게 연결합니다.",
+        evidence: `${getActionQueueItems().length}건 큐 영향`,
+        score: clamp(100 - getBroadcastRecipientItems().filter((item) => item.tone === "danger").length * 9, 52, 96),
+        tone: "danger"
+      }
+    ],
+    receipt: [
+      {
+        label: "수신 확인",
+        title: `${getSelectedReceiptItem()?.recipient || "지휘관"} ${getSelectedReceiptItem()?.status || "확인"} 상태`,
+        body: "전파 이후 누가 확인했고 누가 재전파 대상인지 수신자 단위로 추적해 다음 운용 기록으로 남깁니다.",
+        evidence: `${getReceiptTrackItems().filter((item) => item.ready).length}/${getReceiptTrackItems().length} 확인`,
+        score: getReceiptReadinessScore(),
+        tone: "primary"
+      },
+      {
+        label: "미확인 대상",
+        title: `${getReceiptTrackItems().filter((item) => !item.ready).length}명 재전파 필요`,
+        body: "확인 지연 수신자는 전파 패키지, 근거 추적, 조치 큐, 상황 일지로 바로 연결합니다.",
+        evidence: `${getReceiptEscalationItems().length}개 조치`,
+        score: clamp(100 - getReceiptTrackItems().filter((item) => !item.ready).length * 12, 42, 96),
+        tone: "danger"
+      },
+      {
+        label: "완료 게이트",
+        title: `${getReceiptGateItems().filter((item) => item.ready).length}/${getReceiptGateItems().length} 조건 충족`,
+        body: "모든 수신 상태가 근거 링크와 운용 일지에 남아야 전파가 실제로 닫힌 것으로 처리합니다.",
+        evidence: "수신 확인 게이트",
+        score: getReceiptReadinessScore(),
+        tone: "evidence"
+      }
     ]
   };
 
@@ -1423,14 +2115,72 @@ function formatKoreanObjectParticle(text) {
   return `${value}${hasFinalConsonant ? "을" : "를"}`;
 }
 
+function formatKoreanTopicParticle(text) {
+  const value = String(text || "").trim();
+  const lastCode = value.charCodeAt(value.length - 1);
+  const hasFinalConsonant = lastCode >= 0xac00 && lastCode <= 0xd7a3 && (lastCode - 0xac00) % 28 !== 0;
+  return `${value}${hasFinalConsonant ? "은" : "는"}`;
+}
+
 function getDemoJudgeCue() {
+  const stageOrder = ["data", "ontology", "agents", "rehearsal", "risk", "decision", "briefing", "aar", "audit", "submit", "retrain", "handoff", "metrics", "watch", "log", "challenge", "queue", "forecast", "broadcast", "receipt", "closeout", "lessons", "nextop", "prefill"];
+  const stageIndex = stageOrder.indexOf(state.currentStage) + 1;
+  if (state.currentStage === "data") {
+    return {
+      step: stageIndex > 0 ? `${String(stageIndex).padStart(2, "0")}/24` : "시연",
+      title: state.scenarioLoaded ? "자료가 작전 시드로 잠겼습니다" : "문서 접수 전 상태를 먼저 보여줍니다",
+      pitch: state.scenarioLoaded
+        ? "문서 파일을 단순 업로드한 것이 아니라 임무, 제한사항, 방책 비교가 같은 작전 키로 연결됐다고 설명합니다."
+        : "시작 전에는 모든 결심 근거가 잠겨 있고, 작전계획 접수 버튼 하나로 구조화가 시작된다고 말합니다.",
+      judge: "심사위원은 입력 자료가 실제 판단 필드로 바뀌는지 봅니다.",
+      proof: state.scenarioLoaded ? `${demoData.operationPlan.documents.length}종 자료 / ${demoData.coas.length}개 방책` : "파일 패키지, 파이프라인, 준비 상태가 대기값으로 구분됨",
+      next: state.scenarioLoaded ? "그래프에서 관계 보기" : "작전계획 접수",
+      action: state.scenarioLoaded ? "open-graph" : "load-scenario",
+      score: state.scenarioLoaded ? 92 : 34
+    };
+  }
+  if (state.currentStage === "lessons") {
+    return {
+      step: stageIndex > 0 ? `${String(stageIndex).padStart(2, "0")}/24` : "시연",
+      title: "종결 산출물을 다음 작전 교훈으로 바꿉니다",
+      pitch: "종결 보고에서 반복 패턴, 재사용 체크, 보관 패킷을 추출해 다음 작전 준비물로 남긴다고 설명합니다.",
+      judge: "심사위원은 시연 결과가 일회성 보고가 아니라 다음 계획 품질로 재사용되는지 확인합니다.",
+      proof: "판단 패턴·재사용 체크·교훈 패킷",
+      next: "다음 작전 템플릿 확인",
+      action: "open-nextop",
+      score: 95
+    };
+  }
+  if (state.currentStage === "nextop") {
+    return {
+      step: stageIndex > 0 ? `${String(stageIndex).padStart(2, "0")}/24` : "시연",
+      title: "교훈을 다음 작전 접수 템플릿으로 바꿉니다",
+      pitch: "마지막에는 재사용 교훈을 임무 시드, 초기 제약, 접수 패킷으로 변환해 다음 작전이 빈 화면에서 시작하지 않게 한다고 설명합니다.",
+      judge: "심사위원은 결과가 보고서 저장에서 끝나지 않고 다음 작전의 초기 입력 품질을 높이는지 확인합니다.",
+      proof: "작전 시드·초기 제약·템플릿 패킷",
+      next: "초기 접수 프리필 확인",
+      action: "open-prefill",
+      score: 96
+    };
+  }
+  if (state.currentStage === "prefill") {
+    return {
+      step: stageIndex > 0 ? `${String(stageIndex).padStart(2, "0")}/24` : "시연",
+      title: "다음 작전이 빈 접수 화면에서 시작하지 않습니다",
+      pitch: "템플릿에서 나온 자료 매니페스트, 접수 필드, 초기 게이트를 새 자료 접수 화면에 사전 입력값으로 넘긴다고 설명합니다.",
+      judge: "심사위원은 후속 작전의 시작 품질까지 닫히는지 확인합니다.",
+      proof: "자료 매니페스트·접수 필드·초기 게이트",
+      next: "프리필 저장",
+      action: "open-prefill",
+      score: 97
+    };
+  }
   const selectedFailure = getFailureById(state.selectedFailureId);
   const selectedFailureProfile = getFailureProfile(selectedFailure);
   const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
   const generatedPercent = demoData.agents.length ? Math.round((state.generatedAgentCount / demoData.agents.length) * 100) : 0;
   const evidenceTotal = new Set(demoData.failures.flatMap((failure) => failure.evidence)).size;
   const activeConditions = getActiveDecisionConditionIds().size;
-  const stageIndex = ["data", "ontology", "agents", "rehearsal", "risk", "decision"].indexOf(state.currentStage) + 1;
   const base = {
     data: {
       title: state.scenarioLoaded ? "자료가 작전 시드로 잠겼습니다" : "문서 접수 전 상태를 먼저 보여줍니다",
@@ -1489,10 +2239,145 @@ function getDemoJudgeCue() {
       next: "지휘관 브리핑 열기",
       action: "open-briefing",
       score: 96
+    },
+    briefing: {
+      title: "1분 브리핑과 심사 질문을 한 화면에서 닫습니다",
+      pitch: "자료, 그래프, 가상부대, 3D 리허설, 실패경로, 결심카드가 심사 답변 순서로 연결됐다고 설명합니다.",
+      judge: "심사위원은 시연 흐름이 기능 나열이 아니라 근거 잠금과 지휘관 승인으로 귀결되는지 봅니다.",
+      proof: `질문 ${getBriefingQuestionQueue().length}건 · 근거 ${getBriefingEvidenceLockItems().length}건 · 잔여위험 ${getBriefingSnapshot().residualRisk}`,
+      next: "검토 패킷 열기",
+      action: "open-briefing",
+      score: 98
+    },
+    aar: {
+      title: "리허설 결과를 실행 가능한 개선안으로 넘깁니다",
+      pitch: "실패경로와 결심카드에서 끝나지 않고 책임자, 기한, 근거가 있는 후속 조치로 다음 훈련 준비물을 만든다고 설명합니다.",
+      judge: "심사위원은 AI 검토가 현장 조치와 재훈련 계획까지 이어지는지 확인합니다.",
+      proof: `${getAarImprovementItems().length}개 조치 · ${getAarOwnerMatrix().length}개 책임 축 · 근거 ${getAarEvidenceReplayItems().length}건`,
+      next: "감사 로그 확인",
+      action: "open-audit",
+      score: 97
+    },
+    audit: {
+      title: "소스 투입부터 AAR까지 검증 장부로 닫습니다",
+      pitch: "자료, 그래프, 에이전트, 리허설, 실패경로, 결심, AAR 조치가 같은 근거 원장에 남아 있음을 보여줍니다.",
+      judge: "심사위원은 산출물이 화면용 설명이 아니라 추적 가능한 감사 기록인지 확인합니다.",
+      proof: `${getAuditTrailItems().length}개 판단 이벤트 · 근거 ${getAuditEvidenceLedger().length}건 · 공백 ${getAuditCoverageSummary().gapCount}건`,
+      next: "제출 패키지 확인",
+      action: "open-submit",
+      score: 99
+    },
+    submit: {
+      title: "최종 제출 패키지를 한 화면에서 잠급니다",
+      pitch: "브리핑, 결심카드, AAR, 감사 로그를 제출 가능한 묶음으로 만들고 빠진 게이트를 바로 확인합니다.",
+      judge: "심사위원은 결과물이 시연 화면에 머무르지 않고 제출 산출물로 정리되는지 봅니다.",
+      proof: `${getSubmissionBundleItems().length}개 산출물 · 준비도 ${getSubmissionReadinessScore()}% · ${getSubmissionManifest().files.length}개 파일`,
+      next: "재훈련 계획 확인",
+      action: "open-retrain",
+      score: getSubmissionReadinessScore()
+    },
+    retrain: {
+      title: "AAR 조치를 72시간 재훈련으로 배치합니다",
+      pitch: "최종 제출 뒤에도 끝나지 않고 담당자별 훈련 과제, 검증 게이트, 직접 근거가 붙은 재훈련 계획으로 이어진다고 설명합니다.",
+      judge: "심사위원은 AI 검토가 실제 다음 훈련 준비까지 연결되는지 확인합니다.",
+      proof: `${getRetrainingScheduleItems().length}개 훈련 과제 · ${getRetrainingOwnerLoads().length}개 책임 축 · 검증 ${getRetrainingValidationGates().filter((item) => item.ready).length}/${getRetrainingValidationGates().length}`,
+      next: "인수인계 확인",
+      action: "open-handoff",
+      score: 98
+    },
+    handoff: {
+      title: "결심과 재훈련을 다음 운용자에게 넘깁니다",
+      pitch: "마지막에는 결과물을 저장하는 데서 끝나지 않고, 수신자별 조치·근거·교신 문안이 묶인 인수인계 패킷으로 마감된다고 설명합니다.",
+      judge: "심사위원은 산출물이 실제 교대·후속 운용으로 전달 가능한지 확인합니다.",
+      proof: `${getHandoffRecipientItems().length}명 수신자 · 체크 ${getHandoffChecklistItems().filter((item) => item.ready).length}/${getHandoffChecklistItems().length} · 문안 ${getHandoffSignalItems().length}건`,
+      next: "운영 지표 확인",
+      action: "open-metrics",
+      score: 99
+    },
+    metrics: {
+      title: "인계 이후 상태를 운영 지표로 추적합니다",
+      pitch: "위험 감소, 근거 부채, 재훈련 준비, 인계 완료율을 한 화면에서 추적해 다음 24시간 운용 리듬으로 이어진다고 설명합니다.",
+      judge: "심사위원은 시연 결과가 실제 후속 운용의 상태판으로 남는지 확인합니다.",
+      proof: `준비도 ${getOperationsReadinessScore()}% · 위험 ${getOperationsRiskTrend()[0]?.before || 0}->${getOperationsRiskTrend()[0]?.after || 0} · 근거 부채 ${getOperationsEvidenceDebt().length}건`,
+      next: "상황 감시 확인",
+      action: "open-watch",
+      score: getOperationsReadinessScore()
+    },
+    watch: {
+      title: "현장 신호가 들어오면 재판단으로 돌아갑니다",
+      pitch: "결심 이후에도 끝난 화면이 아니라, 어떤 신호가 들어오면 위험·결심·근거로 복귀해야 하는지 감시 기준을 제공한다고 설명합니다.",
+      judge: "심사위원은 결과물이 운용 중 재판단 체계까지 이어지는지 확인합니다.",
+      proof: `감시 ${getDecisionWatchItems().length}개 · 전파 ${getWatchSignalItems().length}건 · 준비도 ${getWatchReadinessScore()}%`,
+      next: "상황 일지 확인",
+      action: "open-log",
+      score: getWatchReadinessScore()
+    },
+    log: {
+      title: "감시 보고를 교대 가능한 일지로 남깁니다",
+      pitch: "재판단 신호와 전파 문안이 실제 운용 기록으로 남고, 다음 담당자가 확인해야 할 항목까지 닫힌다고 설명합니다.",
+      judge: "심사위원은 결과물이 후속 운용의 기록과 책임 확인까지 이어지는지 확인합니다.",
+      proof: `보고 ${getOperationsLogItems().length}건 · 확인 ${getLogAcknowledgementItems().filter((item) => item.done).length}/${getLogAcknowledgementItems().length} · 준비도 ${getLogReadinessScore()}%`,
+      next: "반증 검증 확인",
+      action: "open-challenge",
+      score: getLogReadinessScore()
+    },
+    challenge: {
+      title: "최종 결심을 반증 기준으로 한 번 더 흔듭니다",
+      pitch: "B안 우선 결심이 틀릴 수 있는 조건을 먼저 열고, 반대 신호와 조치 경로가 준비됐는지 보여줍니다.",
+      judge: "심사위원은 AI가 낙관 결론만 내지 않고 스스로 반박 가능한 가정을 관리하는지 확인합니다.",
+      proof: `가정 ${getChallengeAssumptionItems().length}개 · 반증 ${getChallengeCounterItems().length}건 · 준비도 ${getChallengeReadinessScore()}%`,
+      next: "조치 큐 확인",
+      action: "open-queue",
+      score: getChallengeReadinessScore()
+    },
+    queue: {
+      title: "열린 일을 우선순위 큐로 닫습니다",
+      pitch: "모든 검토 산출물이 담당자, 기한, 근거, 완료 게이트가 붙은 실행 항목으로 정렬된다고 설명합니다.",
+      judge: "심사위원은 WAR GROUND가 분석 화면이 아니라 실제 후속 조치를 남기는지 확인합니다.",
+      proof: `큐 ${getActionQueueItems().length}건 · 담당자 ${getActionQueueOwnerItems().length}명 · 준비도 ${getActionQueueReadinessScore()}%`,
+      next: "준비 예측 확인",
+      action: "open-forecast",
+      score: getActionQueueReadinessScore()
+    },
+    forecast: {
+      title: "큐 처리 속도에 따른 24시간 준비도를 예측합니다",
+      pitch: "남은 조치를 지연, 기준, 가속으로 처리했을 때 준비도와 잔여 위험이 어떻게 달라지는지 보여줍니다.",
+      judge: "심사위원은 후속 조치가 단순 목록이 아니라 다음 운용 판단의 전망으로 이어지는지 확인합니다.",
+      proof: `예측 ${getReadinessForecastScore()}% · 시나리오 ${getForecastScenarioItems().length}개 · 병목 ${getForecastBottleneckItems().length}건`,
+      next: "전파 패키지 확인",
+      action: "open-broadcast",
+      score: getReadinessForecastScore()
+    },
+    broadcast: {
+      title: "예측과 큐를 수신자별 전파 문안으로 닫습니다",
+      pitch: "최종적으로 지휘관, 참모, 검증관이 받을 문안과 확인 게이트까지 같은 패키지로 생성된다고 설명합니다.",
+      judge: "심사위원은 분석 결과가 실제 전파와 수신 확인까지 이어지는지 확인합니다.",
+      proof: `전파 ${getBroadcastReadinessScore()}% · 수신자 ${getBroadcastRecipientItems().length}명 · 문안 ${getBroadcastMessageItems().length}건`,
+      next: "수신 확인",
+      action: "open-receipt",
+      score: getBroadcastReadinessScore()
+    },
+    receipt: {
+      title: "전파가 실제 수신됐는지 확인합니다",
+      pitch: "수신자별 확인 상태, 미확인 대상, 재전파 조치, 완료 게이트를 운용 기록으로 남긴다고 설명합니다.",
+      judge: "심사위원은 결과물이 전파 생성에서 끝나지 않고 수신 확인과 재전파 책임까지 닫히는지 확인합니다.",
+      proof: `수신 ${getReceiptTrackItems().filter((item) => item.ready).length}/${getReceiptTrackItems().length} · 미확인 ${getReceiptTrackItems().filter((item) => !item.ready).length}명 · 준비도 ${getReceiptReadinessScore()}%`,
+      next: "종결 보고 확인",
+      action: "open-closeout",
+      score: getReceiptReadinessScore()
+    },
+    closeout: {
+      title: "수신과 예외까지 종결 보고로 잠급니다",
+      pitch: "결심, 제출물, 수신 확인, 미결 예외, 보관 산출물이 하나의 운용 종결 보고로 남는다고 설명합니다.",
+      judge: "심사위원은 시연이 화면 전환으로 끝나지 않고 다음 운용자가 받을 기록으로 닫히는지 확인합니다.",
+      proof: "결심·수신·예외·보관 산출물 잠금",
+      next: "교훈 라이브러리 확인",
+      action: "open-lessons",
+      score: 94
     }
   };
   return {
-    step: stageIndex > 0 ? `${String(stageIndex).padStart(2, "0")}/06` : "시연",
+    step: stageIndex > 0 ? `${String(stageIndex).padStart(2, "0")}/24` : "시연",
     ...(base[state.currentStage] || base.data)
   };
 }
@@ -1530,6 +2415,91 @@ function getDemoJudgeDefenseItems() {
       question: "AI가 명령을 대신 내리는 것처럼 보이지 않나?",
       answer: "최종 화면은 검토안이며 승인 게이트, 지휘관 확인, human-in-the-loop 문구를 유지합니다.",
       location: "승인 게이트와 최종 승인 흐름"
+    },
+    briefing: {
+      question: "전체 시연을 한 문장으로 요약하면 무엇인가?",
+      answer: "작전 자료를 근거 그래프로 잠그고 3D 리허설에서 생긴 위험을 결심카드와 브리핑 패킷으로 닫는 도구입니다.",
+      location: "브리핑 런웨이와 심사 질문"
+    },
+    audit: {
+      question: "시연이 끝난 뒤 무엇이 검증 기록으로 남나?",
+      answer: "소스 투입부터 AAR 조치까지 판단 이벤트, 근거 원장, 검증 공백이 한 장부에 남습니다.",
+      location: "감사 로그 타임라인과 근거 원장"
+    },
+    submit: {
+      question: "최종 제출물은 어디서 확인하나?",
+      answer: "제출 패키지 화면에서 브리핑, 결심카드, AAR, 감사 로그 산출물과 준비 게이트를 한 번에 확인합니다.",
+      location: "제출 준비도와 산출물 묶음"
+    },
+    retrain: {
+      question: "시연 뒤 실제 개선은 어떻게 이어지나?",
+      answer: "AAR 조치를 72시간 일정, 담당자별 훈련 과제, 검증 게이트로 바꿔 다음 훈련 전 확인할 수 있습니다.",
+      location: "재훈련 일정과 검증 게이트"
+    },
+    handoff: {
+      question: "다음 담당자가 무엇을 먼저 해야 하나?",
+      answer: "인수인계 센터에서 수신자별 패킷, 교신 문안, 확인 체크를 분리해 첫 조치부터 볼 수 있습니다.",
+      location: "수신자별 인계와 교신 문안"
+    },
+    metrics: {
+      question: "인수인계 뒤에도 상태를 추적할 수 있나?",
+      answer: `운영 지표 화면에서 준비도 ${getOperationsReadinessScore()}%, 위험 추세, 근거 부채, 24시간 확인 리듬을 같이 봅니다.`,
+      location: "운영 지표판과 위험 추세"
+    },
+    watch: {
+      question: "현장 상황이 바뀌면 언제 결심을 다시 봐야 하나?",
+      answer: "상황 감시 화면에서 보고 누락, 보급 대기, 후송 지연, 전환 승인 지연을 임계값과 전파 문안으로 추적합니다.",
+      location: "재판단 감시와 트리거 보드"
+    },
+    log: {
+      question: "감시 뒤 실제 기록은 어디에 남나?",
+      answer: "상황 일지에서 감시 보고, 확인 상태, 다음 조치, 인계 참조를 시간순 기록으로 남깁니다.",
+      location: "보고 타임라인과 확인 기록"
+    },
+    challenge: {
+      question: "AI가 자기 결론을 반박하는 기준도 갖고 있나?",
+      answer: "반증 검증에서 B안 결심의 핵심 가정, 반대 신호, 위험·근거·결심 복귀 조치를 함께 잠급니다.",
+      location: "가정 보드와 반증 신호"
+    },
+    queue: {
+      question: "분석 뒤 실제로 남는 할 일은 무엇인가?",
+      answer: "조치 큐에서 AAR, 감시, 반증, 재훈련 산출물을 담당자·기한·근거가 있는 우선순위 작업으로 정리합니다.",
+      location: "우선순위 큐와 담당자 부하"
+    },
+    forecast: {
+      question: "그 조치를 처리하면 다음 운용 준비도는 얼마나 오르나?",
+      answer: "준비 예측에서 지연, 기준, 가속 처리 시나리오별 준비도, 잔여 위험, 병목 게이트를 비교합니다.",
+      location: "예측 시나리오와 병목 신호"
+    },
+    broadcast: {
+      question: "분석 결과를 실제 운용자에게 어떻게 전달하나?",
+      answer: "전파 패키지에서 수신자별 문안, 근거 링크, 큐 영향, 수신 확인 게이트를 같이 생성합니다.",
+      location: "수신자별 문안과 확인 게이트"
+    },
+    receipt: {
+      question: "전파 이후 확인이 안 된 대상은 어떻게 추적하나?",
+      answer: "수신 확인 화면에서 확인·대기·재전파 상태를 분리하고 근거, 큐, 일지로 바로 연결합니다.",
+      location: "수신 추적과 미확인 대상"
+    },
+    closeout: {
+      question: "마지막에 무엇이 실제 기록으로 남나?",
+      answer: "종결 보고에서 결심, 수신 확인, 예외 책임, 보관 산출물을 한 패킷으로 잠그고 저장할 수 있습니다.",
+      location: "종결 준비도, 예외 처리, 보관 산출물"
+    },
+    lessons: {
+      question: "종결 보고가 다음 훈련에 어떻게 재사용되나?",
+      answer: "교훈 라이브러리에서 반복 위험, 결심 조건, 근거 부채, 재훈련 전환을 다음 작전 체크로 남깁니다.",
+      location: "판단 패턴과 재사용 체크"
+    },
+    nextop: {
+      question: "다음 작전은 무엇을 들고 시작하나?",
+      answer: "다음 작전 템플릿에서 임무 시드, 통신 제약, 결심 조건, 위험 감시, 훈련 삽입 패킷을 바로 저장합니다.",
+      location: "작전 시드, 초기 제약, 템플릿 패킷"
+    },
+    prefill: {
+      question: "새 작전 접수 화면은 무엇이 미리 채워지나?",
+      answer: "초기 접수 프리필에서 자료 매니페스트, 임무·시간·통신·방책 필드, 첫 판단 게이트를 사전 입력값으로 잠급니다.",
+      location: "자료 매니페스트, 접수 필드, 접수 게이트"
     }
   };
   const item = stageDefense[state.currentStage] || stageDefense.data;
@@ -1586,13 +2556,131 @@ function getDemoRunSheetItems() {
       label: "결심카드 승인",
       talk: "AI 검토안은 승인 게이트와 지휘관 확인 뒤에만 닫힙니다.",
       proof: `${activeConditions}/${getDecisionConditions().length} 게이트`
+    },
+    {
+      stage: "briefing",
+      time: "04:45",
+      label: "심사 브리핑",
+      talk: "1분 설명, 예상 질문, 근거 잠금을 한 화면에서 확인합니다.",
+      proof: `${getBriefingQuestionQueue().length}개 질문`
+    },
+    {
+      stage: "aar",
+      time: "05:10",
+      label: "AAR 개선안",
+      talk: "리허설 마찰을 책임자와 기한이 있는 후속 조치로 전환합니다.",
+      proof: `${getAarImprovementItems().length}개 조치`
+    },
+    {
+      stage: "audit",
+      time: "05:35",
+      label: "감사 로그",
+      talk: "소스 투입부터 AAR까지 판단 이벤트와 근거 원장을 검증합니다.",
+      proof: `${getAuditTrailItems().length}개 이벤트`
+    },
+    {
+      stage: "submit",
+      time: "05:55",
+      label: "제출 패키지",
+      talk: "최종 산출물 묶음과 제출 전 게이트를 잠급니다.",
+      proof: `${getSubmissionBundleItems().length}개 산출물`
+    },
+    {
+      stage: "retrain",
+      time: "06:15",
+      label: "재훈련 계획",
+      talk: "AAR 조치를 72시간 재훈련 과제와 검증 게이트로 전환합니다.",
+      proof: `${getRetrainingScheduleItems().length}개 훈련 과제`
+    },
+    {
+      stage: "handoff",
+      time: "06:35",
+      label: "인수인계",
+      talk: "최종 결심과 재훈련 계획을 수신자별 인계 패킷으로 전달합니다.",
+      proof: `${getHandoffRecipientItems().length}명 수신자`
+    },
+    {
+      stage: "metrics",
+      time: "06:55",
+      label: "운영 지표",
+      talk: "인계 이후 위험, 근거, 재훈련 준비도를 운영 상태판으로 추적합니다.",
+      proof: `준비도 ${getOperationsReadinessScore()}%`
+    },
+    {
+      stage: "watch",
+      time: "07:15",
+      label: "상황 감시",
+      talk: "현장 신호가 임계값을 넘으면 위험, 결심, 근거 화면으로 바로 되돌아갑니다.",
+      proof: `${getDecisionWatchItems().length}개 트리거`
+    },
+    {
+      stage: "log",
+      time: "07:35",
+      label: "상황 일지",
+      talk: "감시 보고와 전파 문안을 교대 가능한 운용 기록으로 남깁니다.",
+      proof: `${getOperationsLogItems().length}건 기록`
+    },
+    {
+      stage: "challenge",
+      time: "07:55",
+      label: "반증 검증",
+      talk: "최종 결심이 틀릴 수 있는 가정과 반대 신호를 한 번 더 검토합니다.",
+      proof: `${getChallengeAssumptionItems().length}개 가정`
+    },
+    {
+      stage: "queue",
+      time: "08:15",
+      label: "조치 큐",
+      talk: "열린 산출물을 담당자, 기한, 근거가 있는 실행 항목으로 정렬합니다.",
+      proof: `${getActionQueueItems().length}건 조치`
+    },
+    {
+      stage: "forecast",
+      time: "08:35",
+      label: "준비 예측",
+      talk: "큐 처리 속도별 준비도와 잔여 위험을 다음 운용 판단으로 예측합니다.",
+      proof: `${getReadinessForecastScore()}% 전망`
+    },
+    {
+      stage: "broadcast",
+      time: "08:55",
+      label: "전파 패키지",
+      talk: "예측과 큐를 수신자별 문안과 확인 게이트로 전달합니다.",
+      proof: `${getBroadcastRecipientItems().length}명 수신자`
+    },
+    {
+      stage: "receipt",
+      time: "09:15",
+      label: "수신 확인",
+      talk: "전파 이후 확인·대기·재전파 상태를 운용 기록으로 남깁니다.",
+      proof: `${getReceiptTrackItems().filter((item) => item.ready).length}/${getReceiptTrackItems().length} 확인`
+    },
+    {
+      stage: "closeout",
+      time: "09:35",
+      label: "종결 보고",
+      talk: "결심, 수신, 예외, 보관 산출물을 다음 운용자용 종결 기록으로 잠급니다.",
+      proof: "기록 잠금"
     }
   ];
+}
+
+function shouldShowStartOnlyCue() {
+  return state.currentStage === "data" && !state.scenarioLoaded;
+}
+
+function setTopCueVisibility(target, visible) {
+  target.hidden = !visible;
+  target.setAttribute("aria-hidden", String(!visible));
+  if (!visible) target.innerHTML = "";
 }
 
 function renderDemoRunSheet() {
   const target = byId("demoRunSheet");
   if (!target) return;
+  const visible = shouldShowStartOnlyCue();
+  setTopCueVisibility(target, visible);
+  if (!visible) return;
   const items = getDemoRunSheetItems();
   const activeIndex = Math.max(0, items.findIndex((item) => item.stage === state.currentStage));
   const activeItem = items[activeIndex] || items[0];
@@ -1620,6 +2708,9 @@ function renderDemoRunSheet() {
 function renderDemoJudgeCue() {
   const target = byId("demoJudgeCue");
   if (!target) return;
+  const visible = shouldShowStartOnlyCue();
+  setTopCueVisibility(target, visible);
+  if (!visible) return;
   const cue = getDemoJudgeCue();
   const defenseItems = getDemoJudgeDefenseItems();
   target.innerHTML = `
@@ -1667,8 +2758,7 @@ function runDemoCueAction(action) {
     return;
   }
   if (action === "run-rehearsal") {
-    if (!state.agentsGenerated) generateAgents();
-    else runRehearsal();
+    runRehearsal();
     return;
   }
   if (action === "open-risk") {
@@ -1683,11 +2773,83 @@ function runDemoCueAction(action) {
   }
   if (action === "open-briefing") {
     openBriefingSheet();
+    return;
+  }
+  if (action === "open-aar") {
+    setStage("aar");
+    return;
+  }
+  if (action === "open-audit") {
+    setStage("audit");
+    return;
+  }
+  if (action === "open-submit") {
+    setStage("submit");
+    return;
+  }
+  if (action === "open-retrain") {
+    setStage("retrain");
+    return;
+  }
+  if (action === "open-handoff") {
+    setStage("handoff");
+    return;
+  }
+  if (action === "open-metrics") {
+    setStage("metrics");
+    return;
+  }
+  if (action === "open-watch") {
+    setStage("watch");
+    return;
+  }
+  if (action === "open-log") {
+    setStage("log");
+    return;
+  }
+  if (action === "open-challenge") {
+    setStage("challenge");
+    return;
+  }
+  if (action === "open-queue") {
+    setStage("queue");
+    return;
+  }
+  if (action === "open-forecast") {
+    setStage("forecast");
+    return;
+  }
+  if (action === "open-broadcast") {
+    setStage("broadcast");
+    return;
+  }
+  if (action === "open-receipt") {
+    setStage("receipt");
+    return;
+  }
+  if (action === "open-closeout") {
+    setStage("closeout");
+    return;
+  }
+  if (action === "open-lessons") {
+    setStage("lessons");
+    return;
+  }
+  if (action === "open-nextop") {
+    setStage("nextop");
+    return;
+  }
+  if (action === "open-prefill") {
+    setStage("prefill");
   }
 }
 
 function renderPageBriefings() {
-  document.querySelectorAll(".page-view[data-page]").forEach((page) => {
+  const activePage = document.querySelector(".page-view.is-active[data-page]")
+    || document.querySelector(`.page-view[data-page="${state.currentStage}"]`)
+    || document.querySelector(".page-view[data-page]");
+  const pages = activePage ? [activePage] : [];
+  pages.forEach((page) => {
     const heading = page.querySelector(":scope > .page-heading");
     if (!heading) return;
     const rail = ensurePageSideRail(page, heading);
@@ -1712,6 +2874,27 @@ function renderPageBriefings() {
   });
   renderDemoRunSheet();
   renderDemoJudgeCue();
+  const pageRenderers = {
+    briefing: renderBriefingRunway,
+    aar: renderAarImprovementPlan,
+    audit: renderAuditLogbook,
+    submit: renderSubmissionPackage,
+    retrain: renderRetrainingPlan,
+    handoff: renderHandoffCenter,
+    metrics: renderOperationsMetrics,
+    watch: renderDecisionWatch,
+    log: renderOperationsLog,
+    challenge: renderChallengeReview,
+    queue: renderActionQueue,
+    forecast: renderReadinessForecast,
+    broadcast: renderBroadcastPackage,
+    receipt: renderReceiptTracker,
+    closeout: renderCloseoutReport,
+    lessons: renderLessonsLibrary,
+    nextop: renderNextOperationTemplate,
+    prefill: renderIntakePrefill
+  };
+  pageRenderers[state.currentStage]?.();
 }
 
 function getAgentById(agentId) {
@@ -2544,11 +3727,11 @@ function setGraphMode(mode) {
   renderPageBriefings();
 }
 
-function setStage(stage) {
+function setStage(stage, options = {}) {
   const meta = stageMeta[stage];
   if (!meta) return;
   const previousStage = state.currentStage;
-  if (previousStage !== stage) beginStageTransition(stage);
+  if (previousStage !== stage && !options.skipTransition) beginStageTransition(stage);
   state.currentStage = stage;
   document.body.dataset.stage = stage;
   document.querySelectorAll(".workspace-tab").forEach((button) => {
@@ -2558,6 +3741,8 @@ function setStage(stage) {
     button.setAttribute("aria-current", active ? "page" : "false");
     button.tabIndex = active ? 0 : -1;
   });
+  syncCompactStageContext(stage);
+  scrollActiveWorkspaceTabIntoView();
   document.querySelectorAll(".page-view").forEach((page) => {
     const active = page.dataset.page === stage;
     page.hidden = !active;
@@ -2573,6 +3758,31 @@ function setStage(stage) {
   if (stage === "decision") setGraphMode("decision");
   renderPageBriefings();
   syncRouteState();
+}
+
+function syncCompactStageContext(stage) {
+  const tabs = [...document.querySelectorAll(".workspace-tab")];
+  const nav = document.querySelector(".workspace-tabs");
+  const activeIndex = tabs.findIndex((button) => button.dataset.stage === stage);
+  const anchorStages = new Set(["data", "decision", "receipt", "closeout"]);
+  if (activeIndex < 0) return;
+  let visibleCount = 0;
+  tabs.forEach((button, index) => {
+    const visible = button.dataset.stage === stage || anchorStages.has(button.dataset.stage) || Math.abs(index - activeIndex) <= 1;
+    button.classList.toggle("is-context-tab", visible);
+    button.setAttribute("aria-hidden", String(!visible && button.dataset.stage !== stage));
+    if (visible) visibleCount += 1;
+  });
+  if (nav) nav.dataset.visibleTabs = String(visibleCount);
+}
+
+function scrollActiveWorkspaceTabIntoView() {
+  const activeTab = document.querySelector(".workspace-tab.is-active");
+  if (!activeTab) return;
+  activeTab.scrollIntoView({
+    inline: "center",
+    block: "nearest"
+  });
 }
 
 function handleWorkspaceTabKeydown(event) {
@@ -2828,7 +4038,6 @@ function getBriefingSnapshot() {
   const activeConditions = getDecisionImpactModel().conditions.filter((condition) => state.decisionConditionState[condition.id]);
   const projectedRows = demoData.failures.map((failure) => getProjectedFailureScore(failure));
   const residualRisk = Math.round(projectedRows.reduce((sum, row) => sum + row.projected, 0) / projectedRows.length);
-  syncRouteState();
   const shareUrl = new URL(window.location.href);
   return {
     title: demoData.operationPlan.operation_name,
@@ -2928,6 +4137,5669 @@ function renderBriefingSheet() {
     </section>
   `;
   refreshIcons();
+}
+
+function getBriefingRunwayItems() {
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : null;
+  const activeConditions = getActiveDecisionConditionIds().size;
+  return [
+    {
+      id: "data",
+      stage: "data",
+      label: "자료",
+      title: "작전계획 접수",
+      script: "문서 업로드가 아니라 임무, 제한사항, 방책 비교가 같은 작전 시드로 정규화됩니다.",
+      proof: state.scenarioLoaded ? `${demoData.operationPlan.documents.length}종 자료 접수` : "접수 전",
+      ready: state.scenarioLoaded,
+      actionLabel: state.scenarioLoaded ? "자료 확인" : "접수 실행"
+    },
+    {
+      id: "ontology",
+      stage: "ontology",
+      label: "근거",
+      title: "결심 경로 역추적",
+      script: "그래프는 장식이 아니라 문서, 에이전트 발언, 실패경로, 결심카드를 연결한 근거 지도입니다.",
+      proof: `${graph.nodes.length}개 노드 / ${graph.edges.length}개 관계`,
+      ready: state.scenarioLoaded,
+      actionLabel: "그래프 보기"
+    },
+    {
+      id: "agents",
+      stage: "agents",
+      label: "역할",
+      title: "가상부대 역할 검토",
+      script: "23개 역할이 참모, 현장 제대, 대항군, 환경 변수로 나뉘어 각기 다른 허점을 냅니다.",
+      proof: `${state.generatedAgentCount}/${demoData.agents.length} 역할 준비`,
+      ready: state.agentsGenerated,
+      actionLabel: state.agentsGenerated ? "프로필 보기" : "부대 생성"
+    },
+    {
+      id: "rehearsal",
+      stage: "rehearsal",
+      label: "3D",
+      title: "마찰 이벤트 재생",
+      script: activeEvent
+        ? `${activeEvent.time} ${activeEvent.event} 장면이 실패경로와 결심 조건으로 이어집니다.`
+        : "3D 리허설은 보기용 장면이 아니라 시간순 위험 증거를 생성하는 단계입니다.",
+      proof: activeEvent ? `${activeEvent.time} 이벤트` : "리허설 대기",
+      ready: state.rehearsalStarted,
+      actionLabel: state.rehearsalStarted ? "리허설 보기" : "리허설 실행"
+    },
+    {
+      id: "risk",
+      stage: "risk",
+      label: "위험",
+      title: "실패경로 압축",
+      script: `${selectedFailure.title} 흐름은 차단 지점, 조기 경고, 즉시 조치로 바뀌어 결심카드에 들어갑니다.`,
+      proof: `${selectedFailure.title} ${selectedFailure.score}점`,
+      ready: state.rehearsalStarted,
+      actionLabel: "위험 확인"
+    },
+    {
+      id: "decision",
+      stage: "decision",
+      label: "결심",
+      title: `${demoData.decision.recommended_coa} 승인안`,
+      script: "AI 결과는 명령이 아니라 조건, 승인 게이트, 지휘관 확인 항목이 붙은 검토안입니다.",
+      proof: `${activeConditions}/${getDecisionConditions().length} 조건 활성`,
+      ready: activeConditions >= 3,
+      actionLabel: "결심카드"
+    },
+    {
+      id: "briefing",
+      stage: "briefing",
+      label: "브리핑",
+      title: "1분 브리핑",
+      script: "자료-근거-역할-3D-위험-결심을 심사 질문 순서로 묶고 근거 잠금 상태를 확인합니다.",
+      proof: `${getBriefingQuestionQueue().length}개 심사 질문`,
+      ready: state.scenarioLoaded && state.agentsGenerated && state.rehearsalStarted,
+      actionLabel: "패킷 열기"
+    }
+  ];
+}
+
+function getBriefingQuestionQueue() {
+  const snapshot = getBriefingSnapshot();
+  const selectedFailure = snapshot.failure;
+  const selectedEvent = snapshot.event || demoData.events.find((event) => event.severity === "high") || demoData.events[0];
+  return [
+    {
+      id: "why-b",
+      label: "심사 질문",
+      question: "왜 B안을 추천하나?",
+      answer: "B안은 통신 갱신과 보급 접근성이 유지되어 지휘공백과 지속성 저하를 동시에 낮춥니다.",
+      evidenceId: "ev_coa_b",
+      stage: "decision"
+    },
+    {
+      id: "why-3d",
+      label: "심사 질문",
+      question: "3D 리허설이 실제 판단에 어떤 값을 주나?",
+      answer: `${selectedEvent.time} ${selectedEvent.event} 이벤트가 ${selectedFailure.title} 차단점과 승인 조건으로 연결됩니다.`,
+      evidenceId: selectedEvent.evidence_ids?.[0] || state.selectedEvidenceId,
+      stage: "rehearsal"
+    },
+    {
+      id: "human-loop",
+      label: "심사 질문",
+      question: "AI가 명령을 대신 내리는 구조인가?",
+      answer: "아닙니다. 최종 산출물은 지휘관 검토안이며 승인 게이트와 Human-in-the-loop 문구를 계속 노출합니다.",
+      evidenceId: demoData.decision.evidence_ids[0],
+      stage: "decision"
+    },
+    {
+      id: "evidence-lock",
+      label: "심사 질문",
+      question: "근거 없는 권고는 어떻게 걸러지나?",
+      answer: "문서 근거, 에이전트 반론, 실패경로 연결이 없는 항목은 결심카드 근거 테이블에 잠기지 않습니다.",
+      evidenceId: selectedFailure.evidence[0],
+      stage: "ontology"
+    }
+  ];
+}
+
+function getBriefingEvidenceLockItems() {
+  const evidenceIds = [
+    ...demoData.decision.evidence_ids,
+    ...getFailureById(state.selectedFailureId).evidence,
+    state.selectedEvidenceId
+  ];
+  return [...new Set(evidenceIds)]
+    .map((id) => evidenceById.get(id))
+    .filter(Boolean)
+    .slice(0, 7)
+    .map((evidence) => {
+      const linkedFailures = demoData.failures.filter((failure) => failure.evidence.includes(evidence.id));
+      return {
+        ...evidence,
+        locked: demoData.decision.evidence_ids.includes(evidence.id),
+        linkedFailure: linkedFailures[0]?.title || "결심 근거"
+      };
+    });
+}
+
+function getBriefingReadinessItems() {
+  const evidenceLocks = getBriefingEvidenceLockItems();
+  const lockedCount = evidenceLocks.filter((item) => item.locked).length;
+  return [
+    { label: "자료", value: state.scenarioLoaded ? "접수 완료" : "대기", ready: state.scenarioLoaded },
+    { label: "가상부대", value: `${state.generatedAgentCount}/${demoData.agents.length}`, ready: state.agentsGenerated },
+    { label: "리허설", value: state.rehearsalStarted ? "이벤트 생성" : "미실행", ready: state.rehearsalStarted },
+    { label: "근거 잠금", value: `${lockedCount}/${evidenceLocks.length}`, ready: lockedCount >= 3 },
+    { label: "승인 조건", value: `${getActiveDecisionConditionIds().size}/${getDecisionConditions().length}`, ready: getActiveDecisionConditionIds().size >= 3 }
+  ];
+}
+
+function renderBriefingRunway() {
+  const page = byId("page-briefing");
+  if (!page) return;
+  const runway = getBriefingRunwayItems();
+  const selectedItem = runway.find((item) => item.id === state.selectedBriefingStepId) || runway.find((item) => item.id === "decision") || runway[0];
+  state.selectedBriefingStepId = selectedItem.id;
+  const timeline = byId("briefingRunwayTimeline");
+  const questions = byId("briefingQuestionQueue");
+  const drill = byId("briefingDrillCard");
+  const evidenceLock = byId("briefingEvidenceLock");
+  const script = byId("briefingOneLineScript");
+  const readiness = byId("briefingReadinessPanel");
+
+  if (script) {
+    script.innerHTML = `
+      <div class="panel-heading"><span>1분 브리핑</span><b>${selectedItem.title}</b></div>
+      <strong>${demoData.operationPlan.operation_name}</strong>
+      <p>${selectedItem.script}</p>
+      <div class="briefing-script-proof">
+        <span>${selectedItem.label}</span>
+        <b>${selectedItem.proof}</b>
+        <button class="mode-button" type="button" data-briefing-action="stage" data-briefing-ref="${selectedItem.stage}">${selectedItem.actionLabel}</button>
+      </div>
+    `;
+  }
+
+  if (timeline) {
+    timeline.innerHTML = runway
+      .map(
+        (item, index) => `
+          <article class="${item.id === selectedItem.id ? "is-selected" : ""} ${item.ready ? "is-ready" : "is-pending"}">
+            <button type="button" data-briefing-action="select" data-briefing-ref="${item.id}" aria-pressed="${item.id === selectedItem.id ? "true" : "false"}">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <b>${item.title}</b>
+              <em>${item.proof}</em>
+            </button>
+            <button class="briefing-jump-button" type="button" data-briefing-action="stage" data-briefing-ref="${item.stage}">${item.actionLabel}</button>
+          </article>
+        `
+      )
+      .join("");
+  }
+
+  if (questions) {
+    const queue = getBriefingQuestionQueue();
+    const selectedQuestion = queue.find((item) => item.id === state.selectedBriefingQuestionId) || queue[0];
+    state.selectedBriefingQuestionId = selectedQuestion.id;
+    questions.innerHTML = `
+      <div class="panel-heading"><span>심사 질문</span><b>${queue.length}개</b></div>
+      ${queue
+        .map(
+          (item) => `
+            <article class="${item.id === selectedQuestion.id ? "is-selected" : ""}" data-briefing-question-id="${item.id}">
+              <span>${item.label}</span>
+              <b>${item.question}</b>
+              <p>${item.answer}</p>
+              <footer>
+                <button type="button" data-briefing-action="question" data-briefing-ref="${item.id}">답변 드릴</button>
+                <button type="button" data-briefing-action="stage" data-briefing-ref="${item.stage}">화면 보기</button>
+                <button type="button" data-briefing-action="evidence" data-briefing-ref="${item.evidenceId}">근거 열기</button>
+              </footer>
+            </article>
+          `
+        )
+        .join("")}
+    `;
+    renderBriefingDrillCard(selectedQuestion, drill);
+  }
+
+  if (evidenceLock) {
+    const locks = getBriefingEvidenceLockItems();
+    evidenceLock.innerHTML = `
+      <div class="panel-heading"><span>근거 잠금</span><b>${locks.filter((item) => item.locked).length}/${locks.length}</b></div>
+      <div>
+        ${locks
+          .map(
+            (item) => `
+              <button class="${item.locked ? "is-locked" : ""}" type="button" data-briefing-action="evidence" data-briefing-ref="${item.id}">
+                <span>${item.locked ? "잠금" : "확인"}</span>
+                <b>${item.title}</b>
+                <em>${item.source} · ${item.linkedFailure}</em>
+              </button>
+            `
+          )
+          .join("")}
+      </div>
+    `;
+  }
+
+  if (readiness) {
+    readiness.innerHTML = `
+      <div class="panel-heading"><span>준비 상태</span><b>브리핑 체크</b></div>
+      <div class="briefing-readiness-grid">
+        ${getBriefingReadinessItems()
+          .map((item) => `<article class="${item.ready ? "is-ready" : "is-pending"}"><span>${item.label}</span><b>${item.value}</b></article>`)
+          .join("")}
+      </div>
+      <button class="combat-button" type="button" data-briefing-action="sheet"><i data-lucide="clipboard-list" aria-hidden="true"></i>검토 패킷 열기</button>
+    `;
+  }
+
+  refreshIcons();
+}
+
+function renderBriefingDrillCard(question, target = byId("briefingDrillCard")) {
+  if (!target || !question) return;
+  const evidence = evidenceById.get(question.evidenceId);
+  target.innerHTML = `
+    <div class="panel-heading"><span>답변 드릴</span><b>20초 답변</b></div>
+    <strong>${question.question}</strong>
+    <p>${question.answer}</p>
+    <ol>
+      <li><span>첫 문장</span><b>${question.answer.split(".")[0]}</b></li>
+      <li><span>보여줄 화면</span><b>${stageMeta[question.stage]?.phase || "관련 화면"}</b></li>
+      <li><span>근거</span><b>${evidence?.title || "선택 근거"}</b></li>
+    </ol>
+    <div class="briefing-drill-actions">
+      <button type="button" data-briefing-action="stage" data-briefing-ref="${question.stage}">보여줄 화면</button>
+      <button type="button" data-briefing-action="evidence" data-briefing-ref="${question.evidenceId}">근거 열기</button>
+    </div>
+  `;
+}
+
+function selectBriefingQuestion(questionId) {
+  const question = getBriefingQuestionQueue().find((item) => item.id === questionId) || getBriefingQuestionQueue()[0];
+  if (!question) return;
+  state.selectedBriefingQuestionId = question.id;
+  renderBriefingRunway();
+}
+
+async function runBriefingAction(action, ref, trigger = null) {
+  if (action === "select") {
+    state.selectedBriefingStepId = ref || state.selectedBriefingStepId;
+    renderBriefingRunway();
+    return;
+  }
+  if (action === "question") {
+    selectBriefingQuestion(ref);
+    return;
+  }
+  if (action === "stage") {
+    if (ref === "briefing") {
+      openBriefingSheet();
+      return;
+    }
+    if (stageMeta[ref]) setStage(ref);
+    if (ref === "data" && !state.scenarioLoaded) loadScenario();
+    if (ref === "agents" && !state.agentsGenerated) generateAgents();
+    if (ref === "rehearsal" && !state.rehearsalStarted) runRehearsal();
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "sheet") {
+    openBriefingSheet();
+    return;
+  }
+  if (action === "copy") {
+    await copyTextToClipboard(getBriefingText());
+    if (trigger) {
+      const previous = trigger.innerHTML;
+      trigger.textContent = "복사 완료";
+      window.setTimeout(() => {
+        trigger.innerHTML = previous;
+        refreshIcons();
+      }, 1200);
+    }
+    return;
+  }
+  if (action === "auto") {
+    runAutoDemo();
+  }
+}
+
+function getAarImprovementItems() {
+  const ownersByFailure = {
+    command_gap: "통신참모",
+    sustainment_drop: "군수참모",
+    accident_delay: "의무참모",
+    rejudge_delay: "SOP 검증관"
+  };
+  const dueByIndex = ["D+0 18:00", "D+1 09:00", "D+1 14:00", "D+2 훈련 전"];
+  const executionRows = getDecisionExecutionRows();
+  const executionByFailure = new Map(executionRows.map((row) => [row.failure.id, row]));
+  return demoData.failures.flatMap((failure) => {
+    const profile = getFailureProfile(failure);
+    const projected = getProjectedFailureScore(failure);
+    const event = profile.events[0] || demoData.events.find((item) => item.linked_risks.includes(failure.id));
+    const execution = executionByFailure.get(failure.id);
+    const actions = profile.mitigationActions.slice(0, 2);
+    return actions.map((action, actionIndex) => {
+      const evidenceId = failure.evidence[actionIndex] || execution?.evidenceId || state.selectedEvidenceId;
+      const evidence = evidenceById.get(evidenceId);
+      const reduction = Math.max(4, Math.round((failure.score - projected.projected) / Math.max(actions.length, 1)));
+      return {
+        id: `aar-${failure.id}-${actionIndex}`,
+        title: action,
+        owner: execution?.owner || ownersByFailure[failure.id] || "작전참모",
+        due: dueByIndex[actionIndex + (failure.score >= 90 ? 0 : 1)] || "D+2",
+        status: projected.projected <= 72 ? "통제 가능" : failure.score >= 90 ? "즉시 보완" : "추적 필요",
+        failure,
+        event,
+        evidence,
+        evidenceId,
+        before: failure.score,
+        after: projected.projected,
+        reduction,
+        priority: failure.score >= 90 ? "high" : failure.score >= 82 ? "medium" : "low"
+      };
+    });
+  });
+}
+
+function getAarOwnerMatrix() {
+  const items = getAarImprovementItems();
+  const owners = new Map();
+  items.forEach((item) => {
+    if (!owners.has(item.owner)) {
+      owners.set(item.owner, {
+        owner: item.owner,
+        actions: [],
+        high: 0,
+        evidence: new Set(),
+        maxRisk: 0
+      });
+    }
+    const entry = owners.get(item.owner);
+    entry.actions.push(item);
+    if (item.priority === "high") entry.high += 1;
+    if (item.evidenceId) entry.evidence.add(item.evidenceId);
+    entry.maxRisk = Math.max(entry.maxRisk, item.before);
+  });
+  return [...owners.values()].map((entry) => ({
+    ...entry,
+    evidenceCount: entry.evidence.size,
+    load: entry.actions.length
+  }));
+}
+
+function getAarEvidenceReplayItems() {
+  return demoData.events
+    .filter((event) => event.severity === "high" || event.linked_risks.length)
+    .map((event) => {
+      const failure = demoData.failures.find((item) => event.linked_risks.includes(item.id)) || getFailureById(state.selectedFailureId);
+      const evidenceId = event.evidence_ids?.[0] || failure.evidence[0];
+      const evidence = evidenceById.get(evidenceId);
+      return {
+        event,
+        failure,
+        evidence,
+        evidenceId,
+        actionCount: getAarImprovementItems().filter((item) => item.failure.id === failure.id).length
+      };
+    })
+    .slice(0, 6);
+}
+
+function getAarPacket() {
+  const actions = getAarImprovementItems();
+  return {
+    package_type: "war-ground-aar-improvement-plan",
+    generated_at: new Date().toISOString(),
+    mission: demoData.operationPlan.operation_name,
+    recommended_decision: demoData.decision.recommended_coa,
+    selected_action: state.selectedAarActionId,
+    actions: actions.map((item) => ({
+      id: item.id,
+      title: item.title,
+      owner: item.owner,
+      due: item.due,
+      status: item.status,
+      failure: item.failure.title,
+      event: item.event ? `${item.event.time} ${item.event.event}` : null,
+      evidence: item.evidence?.title || item.evidenceId,
+      risk_before: item.before,
+      risk_after: item.after
+    })),
+    owner_matrix: getAarOwnerMatrix().map((owner) => ({
+      owner: owner.owner,
+      actions: owner.load,
+      high_priority: owner.high,
+      evidence: owner.evidenceCount,
+      max_risk: owner.maxRisk
+    }))
+  };
+}
+
+function renderAarImprovementPlan() {
+  const page = byId("page-aar");
+  if (!page) return;
+  const actions = getAarImprovementItems();
+  const selected = actions.find((item) => item.id === state.selectedAarActionId) || actions[0];
+  if (selected) state.selectedAarActionId = selected.id;
+  const owners = getAarOwnerMatrix();
+  const replayItems = getAarEvidenceReplayItems();
+  const averageBefore = Math.round(actions.reduce((sum, item) => sum + item.before, 0) / Math.max(actions.length, 1));
+  const averageAfter = Math.round(actions.reduce((sum, item) => sum + item.after, 0) / Math.max(actions.length, 1));
+  const summary = byId("aarSummaryPanel");
+  const board = byId("aarActionBoard");
+  const ownerMatrix = byId("aarOwnerMatrix");
+  const evidenceReplay = byId("aarEvidenceReplay");
+
+  if (summary) {
+    summary.innerHTML = `
+      <div class="panel-heading"><span>AAR 개선안</span><b>${actions.length}개 조치</b></div>
+      <strong>${selected?.failure.title || "후속 조치"} 보완 계획</strong>
+      <p>${selected?.title || "리허설 이후 보완 조치를 선택하세요."}</p>
+      <div class="aar-summary-kpis">
+        <article><span>평균 위험</span><b>${averageBefore} → ${averageAfter}</b></article>
+        <article><span>책임 축</span><b>${owners.length}개</b></article>
+        <article><span>즉시 보완</span><b>${actions.filter((item) => item.priority === "high").length}건</b></article>
+      </div>
+      ${selected ? `
+        <div class="aar-selected-action">
+          <span>${selected.owner} · ${selected.due}</span>
+          <b>${selected.status}</b>
+          <em>근거: ${selected.evidence?.title || selected.evidenceId}</em>
+          <div>
+            <button type="button" data-aar-action="risk" data-aar-ref="${selected.failure.id}">실패경로</button>
+            <button type="button" data-aar-action="evidence" data-aar-ref="${selected.evidenceId}">근거 열기</button>
+          </div>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (board) {
+    board.innerHTML = `
+      <div class="panel-heading"><span>조치 보드</span><b>소유자 / 기한 / 위험감쇄</b></div>
+      ${actions
+        .map(
+          (item) => `
+            <article class="aar-action-card is-${item.priority} ${item.id === state.selectedAarActionId ? "is-selected" : ""}">
+              <button type="button" data-aar-action="select" data-aar-ref="${item.id}" aria-pressed="${item.id === state.selectedAarActionId ? "true" : "false"}">
+                <span>${item.status}</span>
+                <b>${item.title}</b>
+                <p>${item.failure.title} ${item.before} → ${item.after} / ${item.owner}</p>
+              </button>
+              <footer>
+                <em>${item.due}</em>
+                <button type="button" data-aar-action="event" data-aar-ref="${item.event?.id || ""}">리허설</button>
+              </footer>
+            </article>
+          `
+        )
+        .join("")}
+    `;
+  }
+
+  if (ownerMatrix) {
+    ownerMatrix.innerHTML = `
+      <div class="panel-heading"><span>책임자 매트릭스</span><b>${owners.length}개 책임 축</b></div>
+      ${owners
+        .map(
+          (owner) => `
+            <article>
+              <span>${owner.owner}</span>
+              <b>${owner.load}개 조치</b>
+              <p>최고 위험 ${owner.maxRisk} · 직접 근거 ${owner.evidenceCount}건 · 즉시 ${owner.high}건</p>
+              <i><span style="width: ${Math.min(100, owner.maxRisk)}%"></span></i>
+            </article>
+          `
+        )
+        .join("")}
+    `;
+  }
+
+  if (evidenceReplay) {
+    evidenceReplay.innerHTML = `
+      <div class="panel-heading"><span>근거 리플레이</span><b>${replayItems.length}개 이벤트</b></div>
+      ${replayItems
+        .map(
+          (item) => `
+            <button type="button" data-aar-action="event" data-aar-ref="${item.event.id}">
+              <span>${item.event.time} · ${riskLabel(item.event.severity)}</span>
+              <b>${item.event.event}</b>
+              <em>${item.failure.title} / ${item.evidence?.title || item.evidenceId} / 조치 ${item.actionCount}건</em>
+            </button>
+          `
+        )
+        .join("")}
+    `;
+  }
+  refreshIcons();
+}
+
+function runAarAction(action, ref) {
+  if (action === "select") {
+    state.selectedAarActionId = ref || state.selectedAarActionId;
+    renderAarImprovementPlan();
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "event") {
+    const index = demoData.events.findIndex((event) => event.id === ref);
+    setStage("rehearsal");
+    if (index >= 0) {
+      clearTimer("rehearsalTimer");
+      state.rehearsalStarted = true;
+      state.rehearsalPaused = true;
+      setText("rehearsalPauseButton", "계속");
+      showEvent(index);
+    }
+    return;
+  }
+  if (action === "decision") {
+    setStage("decision");
+    setDecisionTab("card");
+    return;
+  }
+  if (action === "rehearsal") {
+    setStage("rehearsal");
+    return;
+  }
+  if (action === "packet") {
+    downloadJson(getAarPacket(), "war-ground-aar-improvement-plan.json");
+  }
+}
+
+function getAuditTrailItems() {
+  const selectedFailure = getFailureById(state.selectedFailureId);
+  const activeEvent = state.rehearsalIndex >= 0 ? demoData.events[state.rehearsalIndex] : demoData.events.find((event) => event.severity === "high");
+  const activeConditions = getActiveDecisionConditionIds().size;
+  const aarActions = getAarImprovementItems();
+  const evidenceTotal = demoData.evidence.length;
+  return [
+    {
+      id: "audit-intake",
+      stage: "data",
+      time: "00:00",
+      title: "작전계획 접수",
+      summary: `${demoData.operationPlan.documents.length}종 자료에서 임무, 제한사항, 방책 비교를 추출`,
+      proof: state.scenarioLoaded ? "접수 완료" : "시연 데이터 기준",
+      evidenceIds: ["ev_plan_mission"],
+      status: state.scenarioLoaded ? "완료" : "대기",
+      tone: "source"
+    },
+    {
+      id: "audit-graph",
+      stage: "ontology",
+      time: "00:45",
+      title: "근거 그래프 구성",
+      summary: `${graph.nodes.length}개 노드와 ${graph.edges.length}개 관계로 결심 경로 연결`,
+      proof: "결심 노드 역추적 가능",
+      evidenceIds: demoData.decision.evidence_ids,
+      status: "검증",
+      tone: "evidence"
+    },
+    {
+      id: "audit-agents",
+      stage: "agents",
+      time: "01:25",
+      title: "가상부대 역할 검토",
+      summary: `${state.generatedAgentCount || demoData.agents.length}개 역할이 위험 초점과 산출물을 분담`,
+      proof: `${debateEntries.length}개 토론 발언`,
+      evidenceIds: debateEntries.map((item) => item.evidence),
+      status: state.agentsGenerated ? "완료" : "준비",
+      tone: "agent"
+    },
+    {
+      id: "audit-rehearsal",
+      stage: "rehearsal",
+      time: activeEvent?.time || "02:05",
+      title: "리허설 이벤트 기록",
+      summary: activeEvent ? `${activeEvent.event} / ${activeEvent.impact}` : "시간순 이벤트 대기",
+      proof: `${demoData.events.length}개 이벤트`,
+      evidenceIds: activeEvent?.evidence_ids || ["ev_redteam_delay"],
+      status: state.rehearsalStarted ? "재생" : "대기",
+      tone: activeEvent?.severity === "high" ? "danger" : "event"
+    },
+    {
+      id: "audit-risk",
+      stage: "risk",
+      time: "03:10",
+      title: "실패경로 압축",
+      summary: `${selectedFailure.title} ${selectedFailure.score}점 흐름을 차단 지점과 조치로 압축`,
+      proof: `${demoData.failures.length}개 실패경로`,
+      evidenceIds: selectedFailure.evidence,
+      status: "위험 잠금",
+      tone: "risk"
+    },
+    {
+      id: "audit-decision",
+      stage: "decision",
+      time: "04:05",
+      title: "결심카드 승인 게이트",
+      summary: `${demoData.decision.recommended_coa} 추천안과 ${activeConditions}/${getDecisionConditions().length}개 승인 조건 확인`,
+      proof: `${demoData.decision.evidence_ids.length}/${evidenceTotal} 직접 근거`,
+      evidenceIds: demoData.decision.evidence_ids,
+      status: "검토안",
+      tone: "decision"
+    },
+    {
+      id: "audit-briefing",
+      stage: "briefing",
+      time: "04:45",
+      title: "브리핑 근거 잠금",
+      summary: `${getBriefingQuestionQueue().length}개 심사 질문과 ${getBriefingEvidenceLockItems().length}개 근거 잠금`,
+      proof: "1분 브리핑 준비",
+      evidenceIds: getBriefingEvidenceLockItems().flatMap((item) => item.evidenceIds || []),
+      status: "발표 가능",
+      tone: "briefing"
+    },
+    {
+      id: "audit-aar",
+      stage: "aar",
+      time: "05:10",
+      title: "AAR 후속 조치",
+      summary: `${aarActions.length}개 보완 조치가 책임자, 기한, 근거와 연결`,
+      proof: `${getAarOwnerMatrix().length}개 책임 축`,
+      evidenceIds: aarActions.map((item) => item.evidenceId).filter(Boolean),
+      status: "후속 조치",
+      tone: "aar"
+    }
+  ];
+}
+
+function getAuditEvidenceLedger() {
+  const trail = getAuditTrailItems();
+  return demoData.evidence.map((evidence) => {
+    const linkedTrail = trail.filter((item) => item.evidenceIds.includes(evidence.id));
+    const linkedFailures = demoData.failures.filter((failure) => failure.evidence.includes(evidence.id));
+    const linkedEvents = demoData.events.filter((event) => event.evidence_ids?.includes(evidence.id));
+    return {
+      ...evidence,
+      linkedTrail,
+      linkedFailures,
+      linkedEvents,
+      coverage: linkedTrail.length + linkedFailures.length + linkedEvents.length
+    };
+  });
+}
+
+function getAuditCoverageSummary() {
+  const trail = getAuditTrailItems();
+  const ledger = getAuditEvidenceLedger();
+  const usedEvidence = new Set(trail.flatMap((item) => item.evidenceIds));
+  const weakEvidence = ledger.filter((item) => item.coverage <= 1);
+  const pendingTrail = trail.filter((item) => ["대기", "준비"].includes(item.status));
+  const highRiskOpen = getAarImprovementItems().filter((item) => item.priority === "high");
+  return {
+    trailCount: trail.length,
+    evidenceCount: ledger.length,
+    usedEvidenceCount: usedEvidence.size,
+    weakEvidenceCount: weakEvidence.length,
+    pendingCount: pendingTrail.length,
+    gapCount: weakEvidence.length + pendingTrail.length,
+    highActionCount: highRiskOpen.length,
+    verifiedPercent: Math.round((usedEvidence.size / Math.max(ledger.length, 1)) * 100),
+    weakEvidence,
+    pendingTrail,
+    highRiskOpen
+  };
+}
+
+function renderAuditLogbook() {
+  const page = byId("page-audit");
+  if (!page) return;
+  const trail = getAuditTrailItems();
+  const selected = trail.find((item) => item.id === state.selectedAuditItemId) || trail[0];
+  if (selected) state.selectedAuditItemId = selected.id;
+  const ledger = getAuditEvidenceLedger();
+  const summaryData = getAuditCoverageSummary();
+  const summary = byId("auditSummaryPanel");
+  const timeline = byId("auditTimelinePanel");
+  const evidence = byId("auditEvidencePanel");
+  const gap = byId("auditGapPanel");
+
+  if (summary) {
+    summary.innerHTML = `
+      <div class="panel-heading"><span>감사 로그</span><b>소스 투입부터 AAR까지</b></div>
+      <strong>${selected?.title || "검증 항목"} 검증</strong>
+      <p>${selected?.summary || "판단 이벤트를 선택하면 연결 근거와 검증 상태를 확인합니다."}</p>
+      <div class="audit-summary-kpis">
+        <article><span>판단 이벤트</span><b>${summaryData.trailCount}</b></article>
+        <article><span>근거 사용률</span><b>${summaryData.verifiedPercent}%</b></article>
+        <article><span>검증 공백</span><b>${summaryData.gapCount}</b></article>
+      </div>
+      ${selected ? `
+        <div class="audit-selected-item">
+          <span>${selected.time} · ${stageMeta[selected.stage]?.phase || selected.stage}</span>
+          <b>${selected.status}</b>
+          <em>${selected.proof}</em>
+          <button type="button" data-audit-action="stage" data-audit-ref="${selected.stage}">해당 화면</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (timeline) {
+    timeline.innerHTML = `
+      <div class="panel-heading"><span>판단 타임라인</span><b>${trail.length}개 이벤트</b></div>
+      ${trail
+        .map(
+          (item) => `
+            <article class="audit-timeline-item is-${item.tone} ${item.id === state.selectedAuditItemId ? "is-selected" : ""}">
+              <button type="button" data-audit-action="select" data-audit-ref="${item.id}" aria-pressed="${item.id === state.selectedAuditItemId ? "true" : "false"}">
+                <span>${item.time} · ${item.status}</span>
+                <b>${item.title}</b>
+                <p>${item.summary}</p>
+              </button>
+              <footer>
+                <em>${item.evidenceIds.length}개 근거</em>
+                <button type="button" data-audit-action="stage" data-audit-ref="${item.stage}">보기</button>
+              </footer>
+            </article>
+          `
+        )
+        .join("")}
+    `;
+  }
+
+  if (evidence) {
+    evidence.innerHTML = `
+      <div class="panel-heading"><span>근거 원장</span><b>${ledger.length}개 출처</b></div>
+      ${ledger
+        .map(
+          (item) => `
+            <button type="button" class="audit-evidence-row ${item.coverage <= 1 ? "is-weak" : ""}" data-audit-action="evidence" data-audit-ref="${item.id}">
+              <span>${item.source}</span>
+              <b>${item.title}</b>
+              <em>연결 ${item.coverage}건 · 실패경로 ${item.linkedFailures.length} · 이벤트 ${item.linkedEvents.length}</em>
+            </button>
+          `
+        )
+        .join("")}
+    `;
+  }
+
+  if (gap) {
+    const gapRows = [
+      ...summaryData.pendingTrail.map((item) => ({
+        label: "대기 항목",
+        title: item.title,
+        detail: item.proof,
+        action: "stage",
+        ref: item.stage
+      })),
+      ...summaryData.weakEvidence.map((item) => ({
+        label: "약한 근거",
+        title: item.title,
+        detail: `${item.source} / 연결 ${item.coverage}건`,
+        action: "evidence",
+        ref: item.id
+      })),
+      ...summaryData.highRiskOpen.slice(0, 3).map((item) => ({
+        label: "즉시 보완",
+        title: item.title,
+        detail: `${item.owner} · ${item.due}`,
+        action: "stage",
+        ref: "aar"
+      }))
+    ].slice(0, 8);
+    gap.innerHTML = `
+      <div class="panel-heading"><span>검증 공백</span><b>${gapRows.length}개 점검</b></div>
+      ${gapRows.length
+        ? gapRows
+          .map(
+            (item) => `
+              <button type="button" data-audit-action="${item.action}" data-audit-ref="${item.ref}">
+                <span>${item.label}</span>
+                <b>${item.title}</b>
+                <em>${item.detail}</em>
+              </button>
+            `
+          )
+          .join("")
+        : `<p class="audit-empty">현재 검증 공백이 없습니다.</p>`}
+    `;
+  }
+}
+
+function runAuditAction(action, ref) {
+  if (action === "select") {
+    state.selectedAuditItemId = ref || state.selectedAuditItemId;
+    renderAuditLogbook();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+  }
+}
+
+function getSubmissionReadinessItems() {
+  const auditSummary = getAuditCoverageSummary();
+  const briefingSnapshot = getBriefingSnapshot();
+  const activeConditions = getActiveDecisionConditionIds().size;
+  const aarActions = getAarImprovementItems();
+  return [
+    {
+      id: "source",
+      label: "자료 접수",
+      value: state.scenarioLoaded ? "완료" : "시연 데이터",
+      detail: `${demoData.operationPlan.documents.length}종 자료 / ${demoData.coas.length}개 방책`,
+      ready: true
+    },
+    {
+      id: "rehearsal",
+      label: "리허설 근거",
+      value: state.rehearsalStarted ? "재생 완료" : "데모 기준",
+      detail: `${demoData.events.length}개 이벤트 / ${demoData.failures.length}개 실패경로`,
+      ready: true
+    },
+    {
+      id: "decision",
+      label: "결심 게이트",
+      value: `${activeConditions}/${getDecisionConditions().length}`,
+      detail: `${demoData.decision.recommended_coa} / 직접 근거 ${demoData.decision.evidence_ids.length}건`,
+      ready: activeConditions >= getDecisionConditions().length
+    },
+    {
+      id: "briefing",
+      label: "브리핑",
+      value: "준비",
+      detail: `${getBriefingQuestionQueue().length}개 질문 / 잔여위험 ${briefingSnapshot.residualRisk}`,
+      ready: getBriefingQuestionQueue().length >= 4
+    },
+    {
+      id: "aar",
+      label: "AAR 조치",
+      value: `${aarActions.length}건`,
+      detail: `${getAarOwnerMatrix().length}개 책임 축 / 즉시 ${aarActions.filter((item) => item.priority === "high").length}건`,
+      ready: aarActions.length >= 6
+    },
+    {
+      id: "audit",
+      label: "감사 로그",
+      value: `${auditSummary.verifiedPercent}%`,
+      detail: `${auditSummary.trailCount}개 판단 이벤트 / 공백 ${auditSummary.gapCount}건`,
+      ready: auditSummary.verifiedPercent >= 80
+    },
+    {
+      id: "retrain",
+      label: "재훈련 계획",
+      value: `${getRetrainingScheduleItems().length}건`,
+      detail: `${getRetrainingOwnerLoads().length}개 책임 축 / 검증 ${getRetrainingValidationGates().filter((item) => item.ready).length}/${getRetrainingValidationGates().length}`,
+      ready: getRetrainingScheduleItems().length >= 6
+    }
+  ];
+}
+
+function getSubmissionReadinessScore() {
+  const items = getSubmissionReadinessItems();
+  return Math.round((items.filter((item) => item.ready).length / Math.max(items.length, 1)) * 100);
+}
+
+function getSubmissionBundleItems() {
+  const auditSummary = getAuditCoverageSummary();
+  return [
+    {
+      id: "submit-briefing",
+      title: "심사 브리핑 패킷",
+      type: "presentation",
+      stage: "briefing",
+      owner: "발표자",
+      status: "준비",
+      detail: `1분 브리핑, ${getBriefingQuestionQueue().length}개 예상 질문, ${getBriefingEvidenceLockItems().length}개 근거 잠금`,
+      fileName: "war-ground-briefing-packet.json"
+    },
+    {
+      id: "submit-decision",
+      title: "지휘관 결심카드",
+      type: "decision",
+      stage: "decision",
+      owner: "지휘관",
+      status: "승인 대기",
+      detail: `${demoData.decision.recommended_coa} / ${demoData.decision.immediate_actions.length}개 즉시 조치`,
+      fileName: "war-ground-decision-card.json"
+    },
+    {
+      id: "submit-aar",
+      title: "AAR 개선안",
+      type: "followup",
+      stage: "aar",
+      owner: "작전참모",
+      status: "후속 조치",
+      detail: `${getAarImprovementItems().length}개 조치 / ${getAarOwnerMatrix().length}개 책임 축`,
+      fileName: "war-ground-aar-improvement-plan.json"
+    },
+    {
+      id: "submit-audit",
+      title: "감사 로그",
+      type: "audit",
+      stage: "audit",
+      owner: "검증관",
+      status: auditSummary.gapCount ? "공백 표시" : "검증 완료",
+      detail: `${auditSummary.trailCount}개 판단 이벤트 / 근거 사용률 ${auditSummary.verifiedPercent}%`,
+      fileName: "war-ground-audit-logbook.json"
+    },
+    {
+      id: "submit-retrain",
+      title: "72시간 재훈련 계획",
+      type: "retraining",
+      stage: "retrain",
+      owner: "훈련장교",
+      status: "편성 완료",
+      detail: `${getRetrainingScheduleItems().length}개 훈련 과제 / ${getRetrainingValidationGates().filter((item) => item.ready).length}개 검증 게이트 잠금`,
+      fileName: "war-ground-72h-retraining-plan.json"
+    },
+    {
+      id: "submit-manifest",
+      title: "제출 매니페스트",
+      type: "manifest",
+      stage: "submit",
+      owner: "제출 담당",
+      status: "생성",
+      detail: "산출물 파일명, 준비도, 직접 근거, 생성 시각을 묶은 최종 목록",
+      fileName: "war-ground-submission-manifest.json"
+    }
+  ];
+}
+
+function getSubmissionManifest() {
+  const readiness = getSubmissionReadinessItems();
+  const bundles = getSubmissionBundleItems();
+  return {
+    package_type: "war-ground-final-submission-package",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    mission: demoData.operationPlan.mission,
+    readiness_score: getSubmissionReadinessScore(),
+    recommended_decision: demoData.decision.recommended_coa,
+    files: bundles.map((item) => ({
+      id: item.id,
+      file_name: item.fileName,
+      title: item.title,
+      owner: item.owner,
+      status: item.status,
+      source_stage: item.stage
+    })),
+    readiness_gates: readiness.map((item) => ({
+      id: item.id,
+      label: item.label,
+      value: item.value,
+      ready: item.ready,
+      detail: item.detail
+    })),
+    audit: {
+      trail_events: getAuditTrailItems().length,
+      evidence_sources: getAuditEvidenceLedger().length,
+      gaps: getAuditCoverageSummary().gapCount
+    },
+    retraining: {
+      drills: getRetrainingScheduleItems().length,
+      owners: getRetrainingOwnerLoads().length,
+      validation_gates: getRetrainingValidationGates().length
+    }
+  };
+}
+
+function renderSubmissionPackage() {
+  const page = byId("page-submit");
+  if (!page) return;
+  const readiness = getSubmissionReadinessItems();
+  const bundles = getSubmissionBundleItems();
+  const selected = bundles.find((item) => item.id === state.selectedSubmitBundleId) || bundles[0];
+  if (selected) state.selectedSubmitBundleId = selected.id;
+  const manifest = getSubmissionManifest();
+  const score = getSubmissionReadinessScore();
+  const readinessPanel = byId("submitReadinessPanel");
+  const bundlePanel = byId("submitBundlePanel");
+  const checklistPanel = byId("submitChecklistPanel");
+  const manifestPanel = byId("submitManifestPanel");
+
+  if (readinessPanel) {
+    readinessPanel.innerHTML = `
+      <div class="panel-heading"><span>제출 준비도</span><b>${score}%</b></div>
+      <strong>최종 제출 패키지</strong>
+      <p>${manifest.files.length}개 산출물과 ${readiness.length}개 준비 게이트를 제출 전 한 번에 확인합니다.</p>
+      <div class="submit-score-ring" aria-label="제출 준비도 ${score}%"><span>${score}%</span><i style="--score:${score}"></i></div>
+      <div class="submit-selected-bundle">
+        <span>${selected?.owner || "제출 담당"}</span>
+        <b>${selected?.title || "산출물 선택"}</b>
+        <em>${selected?.detail || "산출물을 선택하면 제출 상태를 확인합니다."}</em>
+      </div>
+    `;
+  }
+
+  if (bundlePanel) {
+    bundlePanel.innerHTML = `
+      <div class="panel-heading"><span>산출물 묶음</span><b>${bundles.length}개 파일</b></div>
+      ${bundles.map((item) => `
+        <article class="submit-bundle-card ${item.id === state.selectedSubmitBundleId ? "is-selected" : ""}">
+          <button type="button" data-submit-action="select" data-submit-ref="${item.id}" aria-pressed="${item.id === state.selectedSubmitBundleId ? "true" : "false"}">
+            <span>${item.type} · ${item.status}</span>
+            <b>${item.title}</b>
+            <p>${item.detail}</p>
+          </button>
+          <footer>
+            <em>${item.fileName}</em>
+            <button type="button" data-submit-action="stage" data-submit-ref="${item.stage}">보기</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (checklistPanel) {
+    checklistPanel.innerHTML = `
+      <div class="panel-heading"><span>제출 체크리스트</span><b>${readiness.filter((item) => item.ready).length}/${readiness.length}</b></div>
+      ${readiness.map((item) => `
+        <article class="${item.ready ? "is-ready" : "is-pending"}">
+          <span>${item.ready ? "READY" : "CHECK"}</span>
+          <b>${item.label}</b>
+          <p>${item.value} · ${item.detail}</p>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (manifestPanel) {
+    manifestPanel.innerHTML = `
+      <div class="panel-heading"><span>제출 매니페스트</span><b>${manifest.package_type}</b></div>
+      <div class="submit-manifest-list">
+        <article><span>작전</span><b>${manifest.operation}</b></article>
+        <article><span>추천 결심</span><b>${manifest.recommended_decision}</b></article>
+        <article><span>파일</span><b>${manifest.files.length}개</b></article>
+        <article><span>감사</span><b>${manifest.audit.trail_events}개 이벤트</b></article>
+      </div>
+      <div class="submit-manifest-actions">
+        <button type="button" data-submit-action="copy">요약 복사</button>
+        <button type="button" data-submit-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function getSubmissionSummaryText() {
+  const manifest = getSubmissionManifest();
+  return [
+    `WAR GROUND 제출 패키지`,
+    `작전: ${manifest.operation}`,
+    `추천 결심: ${manifest.recommended_decision}`,
+    `준비도: ${manifest.readiness_score}%`,
+    `파일: ${manifest.files.map((item) => item.file_name).join(", ")}`,
+    `감사: 판단 이벤트 ${manifest.audit.trail_events}개 / 근거 ${manifest.audit.evidence_sources}개 / 공백 ${manifest.audit.gaps}개`
+  ].join("\n");
+}
+
+function runSubmissionAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedSubmitBundleId = ref || state.selectedSubmitBundleId;
+    renderSubmissionPackage();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getSubmissionManifest(), "war-ground-final-submission-package.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getSubmissionSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getRetrainingDrillMeta(failureId) {
+  const drillByFailure = {
+    command_gap: {
+      drill: "예비망 전환 3분 드릴",
+      measure: "보고 누락 0건",
+      range: "통신 음영 진입 전",
+      asset: "통신참모 / 무전반"
+    },
+    sustainment_drop: {
+      drill: "보급 대기점 재배치 워크스루",
+      measure: "대기 15분 이하",
+      range: "보급 대기점 노출 전",
+      asset: "군수참모 / 보급반"
+    },
+    accident_delay: {
+      drill: "후송로 개방 연락훈련",
+      measure: "후송 판단 5분 이내",
+      range: "시정 저하 확인 직후",
+      asset: "의무참모 / 통제관"
+    },
+    rejudge_delay: {
+      drill: "전환 승인권자 콜드콜",
+      measure: "재판단 승인 2콜 이내",
+      range: "04:20 이전",
+      asset: "SOP 검증관 / 지휘소"
+    }
+  };
+  return drillByFailure[failureId] || {
+    drill: "위험 차단 반복훈련",
+    measure: "잔여 위험 72점 이하",
+    range: "다음 훈련 전",
+    asset: "작전참모"
+  };
+}
+
+function getRetrainingScheduleItems() {
+  const windows = ["D+0 18:00", "D+1 09:00", "D+1 15:00", "D+2 10:00", "D+2 15:00", "D+3 09:00"];
+  return getAarImprovementItems().slice(0, 8).map((action, index) => {
+    const meta = getRetrainingDrillMeta(action.failure.id);
+    return {
+      id: `retrain-${action.failure.id}-${index}`,
+      title: action.title,
+      owner: action.owner,
+      window: windows[index % windows.length],
+      status: index < 2 ? "즉시 편성" : action.priority === "high" ? "우선 편성" : "예정",
+      drill: meta.drill,
+      measure: meta.measure,
+      range: meta.range,
+      asset: meta.asset,
+      failure: action.failure,
+      event: action.event,
+      evidence: action.evidence,
+      evidenceId: action.evidenceId,
+      sourceActionId: action.id,
+      residualRisk: action.after,
+      priority: action.priority
+    };
+  });
+}
+
+function getRetrainingOwnerLoads() {
+  const owners = new Map();
+  getRetrainingScheduleItems().forEach((item) => {
+    if (!owners.has(item.owner)) {
+      owners.set(item.owner, {
+        owner: item.owner,
+        drills: [],
+        evidence: new Set(),
+        high: 0,
+        earliest: item.window
+      });
+    }
+    const owner = owners.get(item.owner);
+    owner.drills.push(item);
+    if (item.evidenceId) owner.evidence.add(item.evidenceId);
+    if (item.priority === "high") owner.high += 1;
+  });
+  return [...owners.values()].map((owner) => ({
+    ...owner,
+    load: owner.drills.length,
+    evidenceCount: owner.evidence.size,
+    readiness: clamp(72 + owner.evidence.size * 8 - owner.high * 4, 58, 98)
+  }));
+}
+
+function getRetrainingValidationGates() {
+  const schedule = getRetrainingScheduleItems();
+  const audit = getAuditCoverageSummary();
+  const activeConditions = getActiveDecisionConditionIds().size;
+  const highDrills = schedule.filter((item) => item.priority === "high");
+  return [
+    {
+      id: "gate-aar",
+      label: "AAR 조치 전환",
+      value: `${schedule.length}/${getAarImprovementItems().length}`,
+      detail: "후속 조치가 훈련 과제로 변환됨",
+      ready: schedule.length >= 6,
+      tone: "primary"
+    },
+    {
+      id: "gate-evidence",
+      label: "직접 근거",
+      value: `${new Set(schedule.map((item) => item.evidenceId).filter(Boolean)).size}건`,
+      detail: "각 훈련 과제에 문서 또는 이벤트 근거 연결",
+      ready: audit.verifiedPercent >= 80,
+      tone: "evidence"
+    },
+    {
+      id: "gate-decision",
+      label: "결심 조건 유지",
+      value: `${activeConditions}/${getDecisionConditions().length}`,
+      detail: "통신, 군수, 재판단, 후송 조건을 재훈련 기준으로 유지",
+      ready: activeConditions >= getDecisionConditions().length,
+      tone: "support"
+    },
+    {
+      id: "gate-high-risk",
+      label: "고위험 우선",
+      value: `${highDrills.length}건`,
+      detail: "90점 이상 실패경로를 D+1 이전 과제로 배치",
+      ready: highDrills.length >= 2,
+      tone: "danger"
+    }
+  ];
+}
+
+function getRetrainingPacket() {
+  const schedule = getRetrainingScheduleItems();
+  return {
+    package_type: "war-ground-72h-retraining-plan",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    source_decision: demoData.decision.recommended_coa,
+    selected_drill: state.selectedRetrainItemId,
+    schedule: schedule.map((item) => ({
+      id: item.id,
+      source_action: item.sourceActionId,
+      window: item.window,
+      title: item.title,
+      drill: item.drill,
+      owner: item.owner,
+      status: item.status,
+      validation: item.measure,
+      failure: item.failure.title,
+      evidence: item.evidence?.title || item.evidenceId
+    })),
+    owners: getRetrainingOwnerLoads().map((owner) => ({
+      owner: owner.owner,
+      drills: owner.load,
+      high_priority: owner.high,
+      evidence: owner.evidenceCount,
+      readiness: owner.readiness
+    })),
+    validation_gates: getRetrainingValidationGates().map((gate) => ({
+      id: gate.id,
+      label: gate.label,
+      value: gate.value,
+      ready: gate.ready,
+      detail: gate.detail
+    }))
+  };
+}
+
+function renderRetrainingPlan() {
+  const page = byId("page-retrain");
+  if (!page) return;
+  const schedule = getRetrainingScheduleItems();
+  const selected = schedule.find((item) => item.id === state.selectedRetrainItemId) || schedule[0];
+  if (selected) state.selectedRetrainItemId = selected.id;
+  const owners = getRetrainingOwnerLoads();
+  const gates = getRetrainingValidationGates();
+  const schedulePanel = byId("retrainSchedulePanel");
+  const ownerPanel = byId("retrainOwnerPanel");
+  const validationPanel = byId("retrainValidationPanel");
+  const drillPanel = byId("retrainDrillPanel");
+
+  if (schedulePanel) {
+    schedulePanel.innerHTML = `
+      <div class="panel-heading"><span>72시간 재훈련</span><b>${schedule.length}개 과제</b></div>
+      <div class="retrain-schedule-list">
+        ${schedule.map((item) => `
+          <article class="retrain-schedule-card is-${item.priority} ${item.id === state.selectedRetrainItemId ? "is-selected" : ""}">
+            <button type="button" data-retrain-action="select" data-retrain-ref="${item.id}" aria-pressed="${item.id === state.selectedRetrainItemId ? "true" : "false"}">
+              <span>${item.window} · ${item.status}</span>
+              <b>${item.drill}</b>
+              <p>${item.title}</p>
+            </button>
+            <footer>
+              <em>${item.owner}</em>
+              <button type="button" data-retrain-action="risk" data-retrain-ref="${item.failure.id}">위험</button>
+            </footer>
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  if (ownerPanel) {
+    ownerPanel.innerHTML = `
+      <div class="panel-heading"><span>훈련 과제</span><b>${owners.length}개 책임 축</b></div>
+      ${owners.map((owner) => `
+        <article>
+          <span>${owner.owner}</span>
+          <b>${owner.load}개 드릴 · 즉시 ${owner.high}건</b>
+          <p>${owner.drills.slice(0, 2).map((item) => item.drill).join(" / ")}</p>
+          <i><span style="width: ${owner.readiness}%"></span></i>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (validationPanel) {
+    validationPanel.innerHTML = `
+      <div class="panel-heading"><span>검증 게이트</span><b>${gates.filter((item) => item.ready).length}/${gates.length}</b></div>
+      ${gates.map((gate) => `
+        <article class="is-${gate.tone} ${gate.ready ? "is-ready" : "is-pending"}">
+          <span>${gate.ready ? "LOCK" : "CHECK"}</span>
+          <b>${gate.label}</b>
+          <p>${gate.value} · ${gate.detail}</p>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (drillPanel) {
+    drillPanel.innerHTML = `
+      <div class="panel-heading"><span>선택 훈련</span><b>${selected?.window || "대기"}</b></div>
+      ${selected ? `
+        <strong>${selected.drill}</strong>
+        <p>${selected.title}</p>
+        <div class="retrain-drill-facts">
+          <article><span>담당</span><b>${selected.owner}</b></article>
+          <article><span>기준</span><b>${selected.measure}</b></article>
+          <article><span>시점</span><b>${selected.range}</b></article>
+          <article><span>자산</span><b>${selected.asset}</b></article>
+        </div>
+        <div class="retrain-source-card">
+          <span>${selected.failure.title} · 잔여위험 ${selected.residualRisk}</span>
+          <b>${selected.event ? `${selected.event.time} ${selected.event.event}` : "관련 이벤트 없음"}</b>
+          <em>${selected.evidence?.title || selected.evidenceId}</em>
+        </div>
+        <div class="retrain-drill-actions">
+          <button type="button" data-retrain-action="evidence" data-retrain-ref="${selected.evidenceId}">근거 열기</button>
+          <button type="button" data-retrain-action="stage" data-retrain-ref="aar">AAR 보기</button>
+          <button type="button" data-retrain-action="download">계획 저장</button>
+        </div>
+      ` : "<p>선택된 훈련 과제가 없습니다.</p>"}
+    `;
+  }
+  refreshIcons();
+}
+
+function runRetrainingAction(action, ref) {
+  if (action === "select") {
+    state.selectedRetrainItemId = ref || state.selectedRetrainItemId;
+    renderRetrainingPlan();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getRetrainingPacket(), "war-ground-72h-retraining-plan.json");
+  }
+}
+
+function getHandoffRecipientItems() {
+  const schedule = getRetrainingScheduleItems();
+  const commandDrill = schedule.find((item) => item.failure.id === "command_gap") || schedule[0];
+  const logisticsDrill = schedule.find((item) => item.failure.id === "sustainment_drop") || schedule[1] || schedule[0];
+  const auditSummary = getAuditCoverageSummary();
+  return [
+    {
+      id: "handoff-commander",
+      recipient: "지휘관",
+      role: "최종 승인",
+      priority: "즉시",
+      packet: "결심 승인 인계",
+      action: demoData.decision.commander_check_items[0] || demoData.decision.immediate_actions[0],
+      proof: `${demoData.decision.recommended_coa} / 직접 근거 ${demoData.decision.evidence_ids.length}건`,
+      evidenceId: demoData.decision.evidence_ids[0],
+      stage: "decision",
+      tone: "primary"
+    },
+    {
+      id: "handoff-signals",
+      recipient: "통신참모",
+      role: "통신 보완",
+      priority: commandDrill?.status || "즉시",
+      packet: "예비망 전환 인계",
+      action: commandDrill?.title || "예비망 전환 권한 확인",
+      proof: commandDrill ? `${commandDrill.window} · ${commandDrill.drill}` : "통신 음영 차단",
+      evidenceId: commandDrill?.evidenceId || "ev_comm_gap",
+      stage: "retrain",
+      tone: "danger"
+    },
+    {
+      id: "handoff-logistics",
+      recipient: "군수참모",
+      role: "보급 지속성",
+      priority: logisticsDrill?.status || "우선",
+      packet: "보급 대기점 인계",
+      action: logisticsDrill?.title || "보급 대기점 재배치",
+      proof: logisticsDrill ? `${logisticsDrill.window} · ${logisticsDrill.drill}` : "보급 접근성 유지",
+      evidenceId: logisticsDrill?.evidenceId || "ev_logistics_supply",
+      stage: "retrain",
+      tone: "support"
+    },
+    {
+      id: "handoff-training",
+      recipient: "훈련장교",
+      role: "재훈련 통제",
+      priority: "D+0",
+      packet: "72시간 재훈련 인계",
+      action: `${schedule.length}개 훈련 과제 편성 확인`,
+      proof: `${getRetrainingValidationGates().filter((item) => item.ready).length}/${getRetrainingValidationGates().length} 검증 게이트`,
+      evidenceId: schedule[0]?.evidenceId || state.selectedEvidenceId,
+      stage: "retrain",
+      tone: "primary"
+    },
+    {
+      id: "handoff-auditor",
+      recipient: "검증관",
+      role: "근거 추적",
+      priority: auditSummary.gapCount ? "확인" : "잠금",
+      packet: "감사 로그 인계",
+      action: `${auditSummary.gapCount}개 검증 공백 추적`,
+      proof: `근거 사용률 ${auditSummary.verifiedPercent}% / 판단 이벤트 ${auditSummary.trailCount}개`,
+      evidenceId: getAuditEvidenceLedger().find((item) => item.coverage <= 1)?.id || demoData.decision.evidence_ids[0],
+      stage: "audit",
+      tone: auditSummary.gapCount ? "evidence" : "support"
+    }
+  ];
+}
+
+function getHandoffChecklistItems() {
+  const recipients = getHandoffRecipientItems();
+  const signals = getHandoffSignalItems();
+  const readiness = getSubmissionReadinessScore();
+  return [
+    {
+      id: "handoff-submit",
+      label: "제출 패키지",
+      value: `${readiness}%`,
+      detail: "최종 제출 묶음과 매니페스트 확인",
+      ready: readiness >= 80
+    },
+    {
+      id: "handoff-recipients",
+      label: "수신자",
+      value: `${recipients.length}명`,
+      detail: "지휘관, 참모, 훈련장교, 검증관 분리",
+      ready: recipients.length >= 4
+    },
+    {
+      id: "handoff-retrain",
+      label: "재훈련",
+      value: `${getRetrainingScheduleItems().length}건`,
+      detail: "AAR 조치가 훈련 과제로 변환됨",
+      ready: getRetrainingScheduleItems().length >= 6
+    },
+    {
+      id: "handoff-signals",
+      label: "교신 문안",
+      value: `${signals.length}건`,
+      detail: "인계 직후 전파 가능한 문장",
+      ready: signals.length >= 3
+    },
+    {
+      id: "handoff-evidence",
+      label: "근거 연결",
+      value: `${new Set(recipients.map((item) => item.evidenceId).filter(Boolean)).size}건`,
+      detail: "수신자별 직접 근거 연결",
+      ready: recipients.every((item) => Boolean(item.evidenceId))
+    }
+  ];
+}
+
+function getHandoffSignalItems() {
+  return getHandoffRecipientItems().slice(0, 4).map((item) => ({
+    id: `signal-${item.id}`,
+    recipientId: item.id,
+    recipient: item.recipient,
+    title: `${item.recipient} ${item.packet}`,
+    channel: item.recipient === "지휘관" ? "지휘망" : item.recipient === "훈련장교" ? "훈련통제망" : "참모망",
+    message: `[WAR GROUND] ${item.packet}: ${item.action}. 근거 ${evidenceById.get(item.evidenceId)?.title || item.evidenceId}. ${item.proof}.`,
+    stage: item.stage,
+    evidenceId: item.evidenceId,
+    tone: item.tone
+  }));
+}
+
+function getHandoffPacket() {
+  const recipients = getHandoffRecipientItems();
+  const selected = recipients.find((item) => item.id === state.selectedHandoffRecipientId) || recipients[0];
+  return {
+    package_type: "war-ground-operator-handoff-packet",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    selected_recipient: selected?.recipient,
+    recommended_decision: demoData.decision.recommended_coa,
+    recipients: recipients.map((item) => ({
+      id: item.id,
+      recipient: item.recipient,
+      role: item.role,
+      packet: item.packet,
+      action: item.action,
+      proof: item.proof,
+      evidence: evidenceById.get(item.evidenceId)?.title || item.evidenceId,
+      source_stage: item.stage
+    })),
+    checklist: getHandoffChecklistItems(),
+    signals: getHandoffSignalItems().map((item) => ({
+      recipient: item.recipient,
+      channel: item.channel,
+      message: item.message,
+      evidence: evidenceById.get(item.evidenceId)?.title || item.evidenceId
+    })),
+    submission_manifest: getSubmissionManifest(),
+    retraining_plan: getRetrainingPacket()
+  };
+}
+
+function renderHandoffCenter() {
+  const page = byId("page-handoff");
+  if (!page) return;
+  const recipients = getHandoffRecipientItems();
+  const selected = recipients.find((item) => item.id === state.selectedHandoffRecipientId) || recipients[0];
+  if (selected) state.selectedHandoffRecipientId = selected.id;
+  const checklist = getHandoffChecklistItems();
+  const signals = getHandoffSignalItems();
+  const summary = byId("handoffSummaryPanel");
+  const recipientPanel = byId("handoffRecipientPanel");
+  const signalPanel = byId("handoffSignalPanel");
+  const packetPanel = byId("handoffPacketPanel");
+
+  if (summary) {
+    summary.innerHTML = `
+      <div class="panel-heading"><span>인수인계 패킷</span><b>${recipients.length}명 수신</b></div>
+      <strong>${selected?.packet || "인계 패킷"} 준비</strong>
+      <p>${selected?.action || "다음 운용자가 먼저 확인할 조치를 선택합니다."}</p>
+      <div class="handoff-summary-kpis">
+        <article><span>체크</span><b>${checklist.filter((item) => item.ready).length}/${checklist.length}</b></article>
+        <article><span>문안</span><b>${signals.length}건</b></article>
+        <article><span>근거</span><b>${new Set(recipients.map((item) => item.evidenceId).filter(Boolean)).size}건</b></article>
+      </div>
+      ${selected ? `
+        <div class="handoff-selected-card">
+          <span>${selected.recipient} · ${selected.role}</span>
+          <b>${selected.priority}</b>
+          <em>${selected.proof}</em>
+          <button type="button" data-handoff-action="stage" data-handoff-ref="${selected.stage}">출처 화면</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (recipientPanel) {
+    recipientPanel.innerHTML = `
+      <div class="panel-heading"><span>수신자별 인계</span><b>${recipients.length}개 패킷</b></div>
+      ${recipients.map((item) => `
+        <article class="handoff-recipient-card is-${item.tone} ${item.id === state.selectedHandoffRecipientId ? "is-selected" : ""}">
+          <button type="button" data-handoff-action="select" data-handoff-ref="${item.id}" aria-pressed="${item.id === state.selectedHandoffRecipientId ? "true" : "false"}">
+            <span>${item.priority} · ${item.role}</span>
+            <b>${item.recipient}</b>
+            <p>${item.action}</p>
+          </button>
+          <footer>
+            <em>${item.packet}</em>
+            <button type="button" data-handoff-action="evidence" data-handoff-ref="${item.evidenceId}">근거</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (signalPanel) {
+    signalPanel.innerHTML = `
+      <div class="panel-heading"><span>교신 문안</span><b>${signals.length}건</b></div>
+      ${signals.map((item) => `
+        <article class="handoff-signal-card is-${item.tone}">
+          <span>${item.channel} · ${item.recipient}</span>
+          <b>${item.title}</b>
+          <p>${item.message}</p>
+          <button type="button" data-handoff-action="copy-signal" data-handoff-ref="${item.id}">문안 복사</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (packetPanel) {
+    const signal = signals.find((item) => item.recipientId === selected?.id) || signals[0];
+    packetPanel.innerHTML = `
+      <div class="panel-heading"><span>패킷 상세</span><b>${selected?.recipient || "수신자"}</b></div>
+      ${selected ? `
+        <strong>${selected.packet}</strong>
+        <p>${selected.action}</p>
+        <div class="handoff-checklist">
+          ${checklist.map((item) => `
+            <article class="${item.ready ? "is-ready" : "is-pending"}">
+              <span>${item.ready ? "READY" : "CHECK"}</span>
+              <b>${item.label}</b>
+              <p>${item.value} · ${item.detail}</p>
+            </article>
+          `).join("")}
+        </div>
+        <div class="handoff-message-preview">
+          <span>${signal?.channel || "교신망"}</span>
+          <b>${signal?.title || selected.packet}</b>
+          <p>${signal?.message || selected.proof}</p>
+        </div>
+        <div class="handoff-packet-actions">
+          <button type="button" data-handoff-action="evidence" data-handoff-ref="${selected.evidenceId}">근거 열기</button>
+          <button type="button" data-handoff-action="copy">패킷 요약</button>
+          <button type="button" data-handoff-action="download">JSON 저장</button>
+        </div>
+      ` : "<p>수신자를 선택하면 인계 패킷을 표시합니다.</p>"}
+    `;
+  }
+  refreshIcons();
+}
+
+function getHandoffSummaryText() {
+  const packet = getHandoffPacket();
+  return [
+    `WAR GROUND 인수인계 패킷`,
+    `작전: ${packet.operation}`,
+    `추천 결심: ${packet.recommended_decision}`,
+    `수신자: ${packet.recipients.map((item) => `${item.recipient}/${item.packet}`).join(", ")}`,
+    `체크: ${packet.checklist.filter((item) => item.ready).length}/${packet.checklist.length}`,
+    `교신: ${packet.signals.map((item) => `${item.channel} ${item.recipient}`).join(" / ")}`
+  ].join("\n");
+}
+
+function runHandoffAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedHandoffRecipientId = ref || state.selectedHandoffRecipientId;
+    renderHandoffCenter();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getHandoffPacket(), "war-ground-operator-handoff-packet.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getHandoffSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "패킷 요약";
+      }, 1200);
+    });
+    return;
+  }
+  if (action === "copy-signal") {
+    const signal = getHandoffSignalItems().find((item) => item.id === ref);
+    copyTextToClipboard(signal?.message || getHandoffSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "문안 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getOperationsRiskTrend() {
+  return demoData.failures.map((failure) => {
+    const projected = getProjectedFailureScore(failure);
+    const scheduleCount = Math.max(1, failure.mitigation_steps?.length || 0);
+    const handoffCount = failure.evidence.filter((id) => demoData.decision.evidence_ids.includes(id)).length || 1;
+    const after = clamp(projected.projected - scheduleCount * 2 - handoffCount * 2, 28, failure.score);
+    return {
+      id: failure.id,
+      label: failure.title,
+      before: failure.score,
+      after,
+      delta: failure.score - after,
+      scheduleCount,
+      handoffCount,
+      tone: after >= 80 ? "danger" : after >= 65 ? "evidence" : "support"
+    };
+  }).sort((a, b) => b.after - a.after);
+}
+
+function getOperationsEvidenceCoverageSummary() {
+  const usedEvidence = new Set([
+    ...demoData.failures.flatMap((failure) => failure.evidence),
+    ...demoData.events.flatMap((event) => event.evidence_ids || []),
+    ...demoData.decision.evidence_ids
+  ]);
+  const weakEvidence = demoData.evidence.filter((item) => item.status !== "근거 있음" || !usedEvidence.has(item.id));
+  return {
+    usedEvidenceCount: usedEvidence.size,
+    evidenceCount: demoData.evidence.length,
+    verifiedPercent: Math.round((usedEvidence.size / Math.max(demoData.evidence.length, 1)) * 100),
+    weakEvidence
+  };
+}
+
+function getOperationsEvidenceDebt() {
+  const coverage = getOperationsEvidenceCoverageSummary();
+  return coverage.weakEvidence
+    .map((item) => ({
+      id: item.id,
+      title: item.title,
+      source: item.source,
+      status: item.status,
+      coverage: demoData.failures.filter((failure) => failure.evidence.includes(item.id)).length
+        + demoData.events.filter((event) => event.evidence_ids?.includes(item.id)).length
+        + (demoData.decision.evidence_ids.includes(item.id) ? 1 : 0),
+      owner: item.status === "추정" ? "검증관" : "작전참모",
+      action: item.status === "근거 있음" ? "추가 연결 확인" : "원문 재확인",
+      tone: item.status === "추정" ? "danger" : "evidence"
+    }));
+}
+
+function getOperationsCadenceItems() {
+  const risk = getOperationsRiskTrend()[0];
+  const debt = getOperationsEvidenceDebt()[0];
+  return [
+    {
+      time: "T+0",
+      label: "인계 확인",
+      owner: "지휘관",
+      detail: "5개 수신자 축 확인",
+      stage: "handoff",
+      tone: "primary"
+    },
+    {
+      time: "T+2h",
+      label: "위험 재평가",
+      owner: "작전참모",
+      detail: `${risk?.label || "잔여 위험"} ${risk?.after || 0}점 재확인`,
+      stage: "risk",
+      tone: risk?.tone || "support"
+    },
+    {
+      time: "T+6h",
+      label: "근거 부채 정리",
+      owner: debt?.owner || "검증관",
+      detail: debt ? `${debt.title} 확인` : "근거 부채 없음",
+      stage: "audit",
+      tone: "evidence"
+    },
+    {
+      time: "T+12h",
+      label: "재훈련 체크",
+      owner: "훈련장교",
+      detail: `${demoData.failures.length * 2}개 과제 준비도 확인`,
+      stage: "retrain",
+      tone: "support"
+    },
+    {
+      time: "T+24h",
+      label: "운영 지표 재생성",
+      owner: "검증관",
+      detail: "위험, 근거, 인계 지표 재산출",
+      stage: "metrics",
+      tone: "primary"
+    }
+  ];
+}
+
+function getOperationsMetricItems() {
+  const evidenceScore = getOperationsEvidenceCoverageSummary().verifiedPercent;
+  const handoffReady = 92;
+  const retrainReady = clamp(76 + getActiveDecisionConditionIds().size * 5, 70, 96);
+  const submissionReady = clamp(72 + demoData.decision.evidence_ids.length * 5 + getActiveDecisionConditionIds().size * 3, 70, 98);
+  const topRiskAfter = getOperationsRiskTrend()[0]?.after || 0;
+  return [
+    {
+      id: "metric-readiness",
+      label: "운용 준비",
+      value: `${submissionReady}%`,
+      score: submissionReady,
+      detail: "제출 패키지 게이트",
+      tone: "primary"
+    },
+    {
+      id: "metric-handoff",
+      label: "인계 완료",
+      value: `${handoffReady}%`,
+      score: handoffReady,
+      detail: "5개 수신자 축",
+      tone: "support"
+    },
+    {
+      id: "metric-retrain",
+      label: "재훈련 잠금",
+      value: `${retrainReady}%`,
+      score: retrainReady,
+      detail: `${demoData.failures.length * 2}개 훈련 과제`,
+      tone: "evidence"
+    },
+    {
+      id: "metric-evidence",
+      label: "근거 건전성",
+      value: `${evidenceScore}%`,
+      score: evidenceScore,
+      detail: `부채 ${getOperationsEvidenceDebt().length}건`,
+      tone: "primary"
+    },
+    {
+      id: "metric-risk",
+      label: "잔여 위험",
+      value: `${topRiskAfter}`,
+      score: clamp(100 - topRiskAfter, 8, 96),
+      detail: "상위 실패경로 잔여값",
+      tone: topRiskAfter >= 70 ? "danger" : "support"
+    }
+  ];
+}
+
+function getOperationsReadinessScore() {
+  const metrics = getOperationsMetricItems();
+  return Math.round(metrics.reduce((sum, item) => sum + item.score, 0) / Math.max(metrics.length, 1));
+}
+
+function getOperationsMetricsPacket() {
+  return {
+    package_type: "war-ground-operations-metrics",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getOperationsReadinessScore(),
+    metric_items: getOperationsMetricItems(),
+    risk_trend: getOperationsRiskTrend(),
+    evidence_debt: getOperationsEvidenceDebt(),
+    cadence: getOperationsCadenceItems(),
+    handoff_summary: {
+      recipients: 5,
+      decision: demoData.decision.recommended_coa,
+      signals: 4,
+      next_stage: "handoff"
+    }
+  };
+}
+
+function getOperationsMetricsSummaryText() {
+  const packet = getOperationsMetricsPacket();
+  return [
+    "WAR GROUND 운영 지표",
+    `작전: ${packet.operation}`,
+    `준비도: ${packet.readiness_score}%`,
+    `KPI: ${packet.metric_items.map((item) => `${item.label} ${item.value}`).join(" / ")}`,
+    `상위 위험: ${packet.risk_trend[0]?.label || "없음"} ${packet.risk_trend[0]?.before || 0}->${packet.risk_trend[0]?.after || 0}`,
+    `근거 부채: ${packet.evidence_debt.length}건`,
+    `운영 리듬: ${packet.cadence.map((item) => `${item.time} ${item.label}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderOperationsMetrics() {
+  const page = byId("page-metrics");
+  if (!page) return;
+  const metrics = getOperationsMetricItems();
+  const selected = metrics.find((item) => item.id === state.selectedMetricId) || metrics[0];
+  if (selected) state.selectedMetricId = selected.id;
+  const riskTrend = getOperationsRiskTrend();
+  const evidenceDebt = getOperationsEvidenceDebt();
+  const cadence = getOperationsCadenceItems();
+  const overview = byId("metricsOverviewPanel");
+  const risk = byId("metricsRiskPanel");
+  const evidence = byId("metricsEvidencePanel");
+  const cadencePanel = byId("metricsCadencePanel");
+
+  if (overview) {
+    overview.innerHTML = `
+      <div class="panel-heading"><span>운영 지표판</span><b>${getOperationsReadinessScore()}%</b></div>
+      <strong>${selected?.label || "운용 준비"} 상태</strong>
+      <p>${selected?.detail || "인수인계 이후 핵심 상태를 추적합니다."}</p>
+      <div class="metrics-kpi-grid">
+        ${metrics.map((item) => `
+          <button class="metrics-kpi-card is-${item.tone} ${item.id === state.selectedMetricId ? "is-selected" : ""}" type="button" data-metrics-action="select" data-metrics-ref="${item.id}" aria-pressed="${item.id === state.selectedMetricId ? "true" : "false"}">
+            <span>${item.label}</span>
+            <b>${item.value}</b>
+            <em>${item.detail}</em>
+            <i style="--value:${item.score}%"><small></small></i>
+          </button>
+        `).join("")}
+      </div>
+      <div class="metrics-selected-card">
+        <span>현재 추적</span>
+        <b>${selected?.label || "KPI"}</b>
+        <p>${selected?.detail || "세부 지표 없음"}</p>
+        <button type="button" data-metrics-action="copy">요약 복사</button>
+      </div>
+    `;
+  }
+
+  if (risk) {
+    risk.innerHTML = `
+      <div class="panel-heading"><span>위험 추세</span><b>${riskTrend.length}개 경로</b></div>
+      ${riskTrend.map((item) => {
+        const afterPercent = clamp(item.after, 0, 100);
+        return `
+          <article class="metrics-risk-row is-${item.tone}">
+            <header>
+              <span>${item.delta}점 감소 · 재훈련 ${item.scheduleCount}건</span>
+              <b>${item.label}</b>
+              <em>${item.before} → ${item.after}</em>
+            </header>
+            <div class="metrics-risk-bars" aria-label="${item.label} 위험 추세">
+              <i style="--value:${item.before}%"></i>
+              <b style="--value:${afterPercent}%"></b>
+            </div>
+            <footer>
+              <small>인계 ${item.handoffCount}건 연결</small>
+              <button type="button" data-metrics-action="stage" data-metrics-ref="risk">위험 보기</button>
+            </footer>
+          </article>
+        `;
+      }).join("")}
+    `;
+  }
+
+  if (evidence) {
+    evidence.innerHTML = `
+      <div class="panel-heading"><span>근거 부채</span><b>${evidenceDebt.length}건</b></div>
+      ${evidenceDebt.length ? evidenceDebt.map((item) => `
+        <article class="metrics-debt-card is-${item.tone}">
+          <span>${item.status} · ${item.owner}</span>
+          <b>${item.title}</b>
+          <p>${item.source} / 연결 ${item.coverage}건</p>
+          <footer>
+            <em>${item.action}</em>
+            <button type="button" data-metrics-action="evidence" data-metrics-ref="${item.id}">근거</button>
+          </footer>
+        </article>
+      `).join("") : `
+        <article class="metrics-debt-card is-support">
+          <span>부채 없음</span>
+          <b>근거 원장 잠금</b>
+          <p>추가 확인이 필요한 근거가 없습니다.</p>
+        </article>
+      `}
+    `;
+  }
+
+  if (cadencePanel) {
+    cadencePanel.innerHTML = `
+      <div class="panel-heading"><span>운영 리듬</span><b>24h</b></div>
+      ${cadence.map((item) => `
+        <article class="metrics-cadence-item is-${item.tone}">
+          <time>${item.time}</time>
+          <div>
+            <span>${item.owner}</span>
+            <b>${item.label}</b>
+            <p>${item.detail}</p>
+          </div>
+          <button type="button" data-metrics-action="stage" data-metrics-ref="${item.stage}">열기</button>
+        </article>
+      `).join("")}
+      <div class="metrics-cadence-actions">
+        <button type="button" data-metrics-action="stage" data-metrics-ref="handoff">인계 확인</button>
+        <button type="button" data-metrics-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runMetricsAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedMetricId = ref || state.selectedMetricId;
+    renderOperationsMetrics();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getOperationsMetricsPacket(), "war-ground-operations-metrics.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getOperationsMetricsSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getDecisionWatchItems() {
+  const ownerByFailure = {
+    command_gap: "통신참모",
+    sustainment_drop: "군수참모",
+    accident_delay: "의무참모",
+    rejudge_delay: "지휘관"
+  };
+  const thresholdByFailure = {
+    command_gap: "보고 누락 1회 또는 10분 두절",
+    sustainment_drop: "보급 대기 15분 초과",
+    accident_delay: "후송 예상 20분 초과",
+    rejudge_delay: "1개 보고주기 내 승인 없음"
+  };
+  const channelByFailure = {
+    command_gap: "지휘망",
+    sustainment_drop: "군수망",
+    accident_delay: "의무망",
+    rejudge_delay: "참모망"
+  };
+  return demoData.failures.map((failure) => {
+    const event = demoData.events.find((item) => item.linked_risks.includes(failure.id));
+    const projected = getProjectedFailureScore(failure);
+    const remaining = projected.projected;
+    const level = failure.score >= 90 || remaining >= 70 ? "critical" : remaining >= 58 ? "watch" : "stable";
+    return {
+      id: `watch-${failure.id}`,
+      failureId: failure.id,
+      title: failure.title,
+      owner: ownerByFailure[failure.id] || "작전참모",
+      channel: channelByFailure[failure.id] || "지휘망",
+      window: event?.time || failure.decision_point.split(" ")[0],
+      trigger: thresholdByFailure[failure.id] || failure.early_warning,
+      earlyWarning: failure.early_warning,
+      action: failure.mitigation_steps?.[0] || failure.mitigation,
+      evidenceId: failure.evidence[0] || state.selectedEvidenceId,
+      before: failure.score,
+      after: remaining,
+      level,
+      status: level === "critical" ? "즉시 보고" : level === "watch" ? "감시 강화" : "안정 감시",
+      stage: level === "critical" ? "risk" : "decision"
+    };
+  }).sort((a, b) => {
+    const weight = { critical: 3, watch: 2, stable: 1 };
+    return weight[b.level] - weight[a.level] || b.before - a.before;
+  });
+}
+
+function getWatchEscalationItems() {
+  const watchItems = getDecisionWatchItems();
+  const selected = watchItems.find((item) => item.id === state.selectedWatchItemId) || watchItems[0];
+  if (!selected) return [];
+  return [
+    {
+      id: "watch-confirm",
+      label: "신호 확인",
+      owner: selected.owner,
+      detail: `${selected.trigger} 여부를 ${selected.channel}에서 확인`,
+      stage: "rehearsal",
+      evidenceId: selected.evidenceId,
+      tone: selected.level === "critical" ? "danger" : "evidence"
+    },
+    {
+      id: "watch-risk",
+      label: "위험 재개방",
+      owner: "작전참모",
+      detail: `${selected.title} 실패경로와 차단 지점 재확인`,
+      stage: "risk",
+      failureId: selected.failureId,
+      tone: "danger"
+    },
+    {
+      id: "watch-decision",
+      label: "결심 조건 갱신",
+      owner: "지휘관",
+      detail: demoData.decision.conditional_coa,
+      stage: "decision",
+      evidenceId: selected.evidenceId,
+      tone: "primary"
+    },
+    {
+      id: "watch-broadcast",
+      label: "전파",
+      owner: selected.owner,
+      detail: `${selected.channel} 문안으로 현장과 참모에게 공유`,
+      stage: "watch",
+      evidenceId: selected.evidenceId,
+      tone: "support"
+    }
+  ];
+}
+
+function getWatchSignalItems() {
+  return getDecisionWatchItems().slice(0, 4).map((item) => ({
+    id: `watch-signal-${item.failureId}`,
+    watchId: item.id,
+    channel: item.channel,
+    title: `${item.title} ${item.status}`,
+    message: `[WAR GROUND WATCH] ${item.title}: ${item.trigger}. ${formatKoreanTopicParticle(item.owner)} ${item.action}. 근거 ${evidenceById.get(item.evidenceId)?.title || item.evidenceId}.`,
+    evidenceId: item.evidenceId,
+    tone: item.level === "critical" ? "danger" : item.level === "watch" ? "evidence" : "support"
+  }));
+}
+
+function getWatchReadinessScore() {
+  const items = getDecisionWatchItems();
+  const signalCount = getWatchSignalItems().length;
+  const criticalCount = items.filter((item) => item.level === "critical").length;
+  const evidenceCount = new Set(items.map((item) => item.evidenceId).filter(Boolean)).size;
+  return clamp(72 + signalCount * 4 + evidenceCount * 3 - criticalCount * 3, 58, 98);
+}
+
+function getWatchPacket() {
+  return {
+    package_type: "war-ground-decision-watch",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getWatchReadinessScore(),
+    watch_items: getDecisionWatchItems(),
+    escalation: getWatchEscalationItems(),
+    signals: getWatchSignalItems(),
+    decision: demoData.decision.recommended_coa
+  };
+}
+
+function getWatchSummaryText() {
+  const packet = getWatchPacket();
+  return [
+    "WAR GROUND 상황 감시",
+    `작전: ${packet.operation}`,
+    `추천 결심: ${packet.decision}`,
+    `준비도: ${packet.readiness_score}%`,
+    `트리거: ${packet.watch_items.map((item) => `${item.title}/${item.status}`).join(" / ")}`,
+    `전파: ${packet.signals.map((item) => `${item.channel} ${item.title}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderDecisionWatch() {
+  const page = byId("page-watch");
+  if (!page) return;
+  const watchItems = getDecisionWatchItems();
+  const selected = watchItems.find((item) => item.id === state.selectedWatchItemId) || watchItems[0];
+  if (selected) state.selectedWatchItemId = selected.id;
+  const escalation = getWatchEscalationItems();
+  const signals = getWatchSignalItems();
+  const overview = byId("watchOverviewPanel");
+  const triggerPanel = byId("watchTriggerPanel");
+  const signalPanel = byId("watchSignalPanel");
+  const actionPanel = byId("watchActionPanel");
+
+  if (overview) {
+    const criticalCount = watchItems.filter((item) => item.level === "critical").length;
+    overview.innerHTML = `
+      <div class="panel-heading"><span>재판단 감시</span><b>${getWatchReadinessScore()}%</b></div>
+      <strong>${selected?.title || "감시 기준"} 추적</strong>
+      <p>${selected?.earlyWarning || "현장 신호를 기준으로 재판단 시점을 확인합니다."}</p>
+      <div class="watch-kpi-grid">
+        <article><span>트리거</span><b>${watchItems.length}</b><em>감시 기준</em></article>
+        <article><span>즉시 보고</span><b>${criticalCount}</b><em>고위험 신호</em></article>
+        <article><span>전파 문안</span><b>${signals.length}</b><em>무전·참모망</em></article>
+      </div>
+      ${selected ? `
+        <div class="watch-selected-card is-${selected.level}">
+          <span>${selected.window} · ${selected.owner}</span>
+          <b>${selected.trigger}</b>
+          <p>${selected.action}</p>
+          <button type="button" data-watch-action="copy">요약 복사</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (triggerPanel) {
+    triggerPanel.innerHTML = `
+      <div class="panel-heading"><span>트리거 보드</span><b>${watchItems.length}개 기준</b></div>
+      ${watchItems.map((item) => `
+        <article class="watch-trigger-card is-${item.level} ${item.id === state.selectedWatchItemId ? "is-selected" : ""}">
+          <button type="button" data-watch-action="select" data-watch-ref="${item.id}" aria-pressed="${item.id === state.selectedWatchItemId ? "true" : "false"}">
+            <span>${item.window} · ${item.status}</span>
+            <b>${item.title}</b>
+            <p>${item.trigger}</p>
+            <i style="--value:${item.after}%"><small></small></i>
+          </button>
+          <footer>
+            <em>${item.before} → ${item.after}</em>
+            <button type="button" data-watch-action="risk" data-watch-ref="${item.failureId}">위험</button>
+            <button type="button" data-watch-action="evidence" data-watch-ref="${item.evidenceId}">근거</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (signalPanel) {
+    signalPanel.innerHTML = `
+      <div class="panel-heading"><span>전파 문안</span><b>${signals.length}건</b></div>
+      ${signals.map((item) => `
+        <article class="watch-signal-card is-${item.tone}">
+          <span>${item.channel}</span>
+          <b>${item.title}</b>
+          <p>${item.message}</p>
+          <button type="button" data-watch-action="copy-signal" data-watch-ref="${item.id}">문안 복사</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (actionPanel) {
+    actionPanel.innerHTML = `
+      <div class="panel-heading"><span>재판단 조치</span><b>${selected?.status || "감시"}</b></div>
+      ${escalation.map((item, index) => {
+        const action = item.failureId ? "risk" : item.stage ? "stage" : "evidence";
+        const ref = item.failureId || item.stage || item.evidenceId;
+        return `
+          <article class="watch-action-step is-${item.tone}">
+            <span>${String(index + 1).padStart(2, "0")} · ${item.owner}</span>
+            <b>${item.label}</b>
+            <p>${item.detail}</p>
+            <button type="button" data-watch-action="${action}" data-watch-ref="${ref}">열기</button>
+          </article>
+        `;
+      }).join("")}
+      <div class="watch-packet-actions">
+        <button type="button" data-watch-action="stage" data-watch-ref="decision">결심 확인</button>
+        <button type="button" data-watch-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runWatchAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedWatchItemId = ref || state.selectedWatchItemId;
+    renderDecisionWatch();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || getDecisionWatchItems()[0]?.failureId || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getWatchPacket(), "war-ground-decision-watch.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getWatchSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+    return;
+  }
+  if (action === "copy-signal") {
+    const signal = getWatchSignalItems().find((item) => item.id === ref);
+    copyTextToClipboard(signal?.message || getWatchSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "문안 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getOperationsLogItems() {
+  const statusByLevel = {
+    critical: "추적",
+    watch: "확인",
+    stable: "확인"
+  };
+  const toneByLevel = {
+    critical: "danger",
+    watch: "evidence",
+    stable: "support"
+  };
+  const watchItems = getDecisionWatchItems();
+  const signalsByWatch = new Map(getWatchSignalItems().map((item) => [item.watchId, item]));
+  const baseMinutes = 8;
+  return watchItems.map((item, index) => {
+    const signal = signalsByWatch.get(item.id);
+    const minutes = baseMinutes + index * 9;
+    const time = `T+${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+    return {
+      id: `log-${item.failureId}`,
+      watchId: item.id,
+      failureId: item.failureId,
+      time,
+      title: `${item.title} ${item.status}`,
+      source: item.channel,
+      owner: item.owner,
+      status: statusByLevel[item.level] || "확인",
+      tone: toneByLevel[item.level] || "support",
+      summary: signal?.message || `${item.title} 감시 기준 확인`,
+      action: item.action,
+      evidenceId: item.evidenceId,
+      nextStage: item.level === "critical" ? "risk" : "watch",
+      handoffRef: item.level === "critical" ? "지휘관 인계" : "참모 확인"
+    };
+  });
+}
+
+function getLogAcknowledgementItems() {
+  const logs = getOperationsLogItems();
+  const openCount = logs.filter((item) => item.status !== "확인").length;
+  return [
+    {
+      id: "ack-commander",
+      label: "지휘관 확인",
+      owner: "지휘관",
+      detail: `${openCount}건 추적 보고 확인`,
+      done: openCount <= 1,
+      stage: "decision",
+      tone: openCount ? "danger" : "support"
+    },
+    {
+      id: "ack-watch",
+      label: "감시 기준 유지",
+      owner: "작전참모",
+      detail: `${getDecisionWatchItems().length}개 트리거 일지화`,
+      done: true,
+      stage: "watch",
+      tone: "primary"
+    },
+    {
+      id: "ack-handoff",
+      label: "인계 참조",
+      owner: "인계 담당",
+      detail: `${logs.length}건 기록을 다음 운용자에게 전달`,
+      done: true,
+      stage: "handoff",
+      tone: "evidence"
+    },
+    {
+      id: "ack-evidence",
+      label: "근거 연결",
+      owner: "검증관",
+      detail: `${new Set(logs.map((item) => item.evidenceId).filter(Boolean)).size}건 직접 근거`,
+      done: logs.every((item) => Boolean(item.evidenceId)),
+      stage: "audit",
+      tone: "support"
+    }
+  ];
+}
+
+function getLogReadinessScore() {
+  const acknowledgements = getLogAcknowledgementItems();
+  const done = acknowledgements.filter((item) => item.done).length;
+  return Math.round((done / Math.max(acknowledgements.length, 1)) * 100);
+}
+
+function getLogReportPacket() {
+  const logs = getOperationsLogItems();
+  return {
+    package_type: "war-ground-operations-log",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getLogReadinessScore(),
+    reports: logs,
+    acknowledgements: getLogAcknowledgementItems(),
+    handoff_refs: logs.map((item) => ({
+      id: item.id,
+      title: item.title,
+      status: item.status,
+      handoff: item.handoffRef,
+      evidence: evidenceById.get(item.evidenceId)?.title || item.evidenceId
+    }))
+  };
+}
+
+function getLogSummaryText() {
+  const packet = getLogReportPacket();
+  return [
+    "WAR GROUND 상황 일지",
+    `작전: ${packet.operation}`,
+    `준비도: ${packet.readiness_score}%`,
+    `보고: ${packet.reports.map((item) => `${item.time} ${item.title}/${item.status}`).join(" / ")}`,
+    `확인: ${packet.acknowledgements.map((item) => `${item.label} ${item.done ? "완료" : "대기"}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderOperationsLog() {
+  const page = byId("page-log");
+  if (!page) return;
+  const logs = getOperationsLogItems();
+  const selected = logs.find((item) => item.id === state.selectedLogItemId) || logs[0];
+  if (selected) state.selectedLogItemId = selected.id;
+  const acknowledgements = getLogAcknowledgementItems();
+  const overview = byId("logOverviewPanel");
+  const timeline = byId("logTimelinePanel");
+  const report = byId("logReportPanel");
+  const acknowledge = byId("logAcknowledgePanel");
+
+  if (overview) {
+    const openCount = logs.filter((item) => item.status !== "확인").length;
+    overview.innerHTML = `
+      <div class="panel-heading"><span>상황 일지</span><b>${getLogReadinessScore()}%</b></div>
+      <strong>${selected?.title || "보고 기록"} 저장</strong>
+      <p>${selected?.summary || "감시 보고를 시간순 운용 기록으로 남깁니다."}</p>
+      <div class="log-kpi-grid">
+        <article><span>보고</span><b>${logs.length}</b><em>기록 건수</em></article>
+        <article><span>추적</span><b>${openCount}</b><em>미확인 보고</em></article>
+        <article><span>확인</span><b>${acknowledgements.filter((item) => item.done).length}/${acknowledgements.length}</b><em>교대 기준</em></article>
+      </div>
+      ${selected ? `
+        <div class="log-selected-card is-${selected.tone}">
+          <span>${selected.time} · ${selected.owner}</span>
+          <b>${selected.status}</b>
+          <p>${selected.action}</p>
+          <button type="button" data-log-action="copy">요약 복사</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (timeline) {
+    timeline.innerHTML = `
+      <div class="panel-heading"><span>보고 타임라인</span><b>${logs.length}건</b></div>
+      ${logs.map((item) => `
+        <article class="log-timeline-card is-${item.tone} ${item.id === state.selectedLogItemId ? "is-selected" : ""}">
+          <button type="button" data-log-action="select" data-log-ref="${item.id}" aria-pressed="${item.id === state.selectedLogItemId ? "true" : "false"}">
+            <span>${item.time} · ${item.source}</span>
+            <b>${item.title}</b>
+            <p>${item.summary}</p>
+          </button>
+          <footer>
+            <em>${item.handoffRef}</em>
+            <button type="button" data-log-action="stage" data-log-ref="${item.nextStage}">열기</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (report) {
+    report.innerHTML = `
+      <div class="panel-heading"><span>보고 상세</span><b>${selected?.status || "기록"}</b></div>
+      ${selected ? `
+        <strong>${selected.title}</strong>
+        <p>${selected.summary}</p>
+        <div class="log-report-grid">
+          <article><span>담당</span><b>${selected.owner}</b></article>
+          <article><span>출처</span><b>${selected.source}</b></article>
+          <article><span>근거</span><b>${evidenceById.get(selected.evidenceId)?.title || selected.evidenceId}</b></article>
+        </div>
+        <div class="log-report-actions">
+          <button type="button" data-log-action="risk" data-log-ref="${selected.failureId}">위험 보기</button>
+          <button type="button" data-log-action="evidence" data-log-ref="${selected.evidenceId}">근거 추적</button>
+          <button type="button" data-log-action="stage" data-log-ref="handoff">인계 확인</button>
+        </div>
+      ` : "<p>보고를 선택하면 상세 기록을 표시합니다.</p>"}
+    `;
+  }
+
+  if (acknowledge) {
+    acknowledge.innerHTML = `
+      <div class="panel-heading"><span>확인 기록</span><b>${acknowledgements.filter((item) => item.done).length}/${acknowledgements.length}</b></div>
+      ${acknowledgements.map((item) => `
+        <article class="log-ack-card is-${item.tone} ${item.done ? "is-done" : "is-open"}">
+          <span>${item.done ? "확인" : "대기"} · ${item.owner}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-log-action="stage" data-log-ref="${item.stage}">열기</button>
+        </article>
+      `).join("")}
+      <div class="log-packet-actions">
+        <button type="button" data-log-action="stage" data-log-ref="watch">감시 보기</button>
+        <button type="button" data-log-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runLogAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedLogItemId = ref || state.selectedLogItemId;
+    renderOperationsLog();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || getOperationsLogItems()[0]?.failureId || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getLogReportPacket(), "war-ground-operations-log.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getLogSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getChallengeAssumptionItems() {
+  const assumptionByFailure = {
+    command_gap: "B안 우회축에서도 10분 내 지휘 보고가 유지된다.",
+    sustainment_drop: "보급 대기점 접근성이 유지되어 전투 지속성이 급락하지 않는다.",
+    accident_delay: "후송 판단이 지연돼도 주공 전개와 보고 체계가 동시에 흔들리지 않는다.",
+    rejudge_delay: "재판단 승인 기준이 지휘관 확인 전에 공백으로 남지 않는다."
+  };
+  const invalidationByFailure = {
+    command_gap: "보고 누락 1회가 발생하면 B안 우선 추천을 재검토한다.",
+    sustainment_drop: "보급 대기가 15분을 넘으면 예비 축선과 보급 대기점을 재설정한다.",
+    accident_delay: "후송 예상이 20분을 넘으면 3D 리허설 이벤트를 다시 연다.",
+    rejudge_delay: "1개 보고주기 내 승인 공백이 있으면 결심카드 조건을 보류한다."
+  };
+  const watchByFailure = new Map(getDecisionWatchItems().map((item) => [item.failureId, item]));
+  const logByFailure = new Map(getOperationsLogItems().map((item) => [item.failureId, item]));
+  return demoData.failures.map((failure) => {
+    const watch = watchByFailure.get(failure.id);
+    const log = logByFailure.get(failure.id);
+    const projected = getProjectedFailureScore(failure);
+    const residual = projected.projected;
+    const tone = watch?.level === "critical" || residual >= 70 ? "danger" : residual >= 58 ? "evidence" : "support";
+    return {
+      id: `challenge-${failure.id}`,
+      failureId: failure.id,
+      title: `${failure.title} 가정`,
+      assumption: assumptionByFailure[failure.id] || failure.mitigation,
+      invalidates: invalidationByFailure[failure.id] || failure.early_warning,
+      owner: watch?.owner || failure.owner || "작전참모",
+      counter: watch?.trigger || failure.early_warning,
+      evidenceId: watch?.evidenceId || failure.evidence[0] || state.selectedEvidenceId,
+      logStatus: log?.status || "대기",
+      residual,
+      confidence: clamp(100 - residual + failure.evidence.length * 4, 42, 96),
+      severity: tone === "danger" ? "높음" : tone === "evidence" ? "중간" : "낮음",
+      tone,
+      stage: tone === "danger" ? "risk" : "decision"
+    };
+  }).sort((a, b) => {
+    const weight = { danger: 3, evidence: 2, support: 1 };
+    return weight[b.tone] - weight[a.tone] || b.residual - a.residual;
+  });
+}
+
+function getSelectedChallengeAssumption() {
+  const items = getChallengeAssumptionItems();
+  return items.find((item) => item.id === state.selectedChallengeItemId) || items[0];
+}
+
+function getChallengeCounterItems() {
+  const selected = getSelectedChallengeAssumption();
+  if (!selected) return [];
+  const evidence = evidenceById.get(selected.evidenceId);
+  const log = getOperationsLogItems().find((item) => item.failureId === selected.failureId);
+  return [
+    {
+      id: "counter-trigger",
+      label: "현장 임계값",
+      title: selected.counter,
+      detail: selected.invalidates,
+      severity: selected.severity,
+      evidenceId: selected.evidenceId,
+      tone: selected.tone
+    },
+    {
+      id: "counter-evidence",
+      label: "반대 근거",
+      title: evidence?.title || selected.evidenceId,
+      detail: evidence?.source || "근거 원장",
+      severity: evidence ? "중간" : "높음",
+      evidenceId: selected.evidenceId,
+      tone: evidence ? "evidence" : "danger"
+    },
+    {
+      id: "counter-log",
+      label: "일지 상태",
+      title: `${log?.status || "대기"} · ${log?.handoffRef || "인계 확인"}`,
+      detail: log?.summary || "감시 보고가 아직 일지로 확정되지 않았습니다.",
+      severity: log?.status === "확인" ? "낮음" : "높음",
+      evidenceId: selected.evidenceId,
+      tone: log?.status === "확인" ? "support" : "danger"
+    }
+  ];
+}
+
+function getChallengeActionItems() {
+  const selected = getSelectedChallengeAssumption();
+  if (!selected) return [];
+  return [
+    {
+      id: "challenge-risk",
+      label: "실패경로 재개방",
+      owner: "작전참모",
+      detail: `${selected.title}의 잔여 위험 ${selected.residual}점을 다시 확인`,
+      action: "risk",
+      ref: selected.failureId,
+      tone: selected.tone
+    },
+    {
+      id: "challenge-evidence",
+      label: "근거 반박 추적",
+      owner: "검증관",
+      detail: evidenceById.get(selected.evidenceId)?.title || selected.evidenceId,
+      action: "evidence",
+      ref: selected.evidenceId,
+      tone: "evidence"
+    },
+    {
+      id: "challenge-decision",
+      label: "결심 조건 갱신",
+      owner: "지휘관",
+      detail: selected.invalidates,
+      action: "stage",
+      ref: "decision",
+      tone: "primary"
+    },
+    {
+      id: "challenge-log",
+      label: "일지 확인",
+      owner: selected.owner,
+      detail: "반증 기준을 다음 교대 기록에 남깁니다.",
+      action: "stage",
+      ref: "log",
+      tone: "support"
+    }
+  ];
+}
+
+function getChallengeReadinessScore() {
+  const assumptions = getChallengeAssumptionItems();
+  const counters = getChallengeCounterItems();
+  const averageConfidence = Math.round(assumptions.reduce((sum, item) => sum + item.confidence, 0) / Math.max(assumptions.length, 1));
+  const highCounters = counters.filter((item) => item.severity === "높음").length;
+  return clamp(averageConfidence + getChallengeActionItems().length * 3 - highCounters * 5, 48, 98);
+}
+
+function getChallengeReviewPacket() {
+  return {
+    package_type: "war-ground-challenge-review",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    decision: demoData.decision.recommended_coa,
+    readiness_score: getChallengeReadinessScore(),
+    selected_assumption: getSelectedChallengeAssumption(),
+    assumptions: getChallengeAssumptionItems(),
+    counters: getChallengeCounterItems(),
+    actions: getChallengeActionItems()
+  };
+}
+
+function getChallengeSummaryText() {
+  const packet = getChallengeReviewPacket();
+  return [
+    "WAR GROUND 반증 검증",
+    `작전: ${packet.operation}`,
+    `결심: ${packet.decision}`,
+    `준비도: ${packet.readiness_score}%`,
+    `선택 가정: ${packet.selected_assumption?.title || "없음"}`,
+    `반증 신호: ${packet.counters.map((item) => `${item.label}/${item.severity}`).join(" / ")}`,
+    `조치: ${packet.actions.map((item) => `${item.label}-${item.owner}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderChallengeReview() {
+  const page = byId("page-challenge");
+  if (!page) return;
+  const assumptions = getChallengeAssumptionItems();
+  const selected = assumptions.find((item) => item.id === state.selectedChallengeItemId) || assumptions[0];
+  if (selected) state.selectedChallengeItemId = selected.id;
+  const counters = getChallengeCounterItems();
+  const actions = getChallengeActionItems();
+  const overview = byId("challengeOverviewPanel");
+  const assumptionPanel = byId("challengeAssumptionPanel");
+  const counterPanel = byId("challengeCounterPanel");
+  const actionPanel = byId("challengeActionPanel");
+
+  if (overview) {
+    const dangerCount = assumptions.filter((item) => item.tone === "danger").length;
+    overview.innerHTML = `
+      <div class="panel-heading"><span>반증 검증</span><b>${getChallengeReadinessScore()}%</b></div>
+      <strong>${selected?.title || "핵심 가정"} 재검토</strong>
+      <p>${selected?.assumption || "결심이 유지되려면 참이어야 하는 가정을 다시 확인합니다."}</p>
+      <div class="challenge-kpi-grid">
+        <article><span>가정</span><b>${assumptions.length}</b><em>검증 대상</em></article>
+        <article><span>고위험</span><b>${dangerCount}</b><em>즉시 확인</em></article>
+        <article><span>반증</span><b>${counters.length}</b><em>선택 가정 신호</em></article>
+      </div>
+      ${selected ? `
+        <div class="challenge-selected-card is-${selected.tone}">
+          <span>${selected.owner} · 잔여 ${selected.residual}</span>
+          <b>${selected.invalidates}</b>
+          <p>${selected.counter}</p>
+          <button type="button" data-challenge-action="copy">요약 복사</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (assumptionPanel) {
+    assumptionPanel.innerHTML = `
+      <div class="panel-heading"><span>가정 보드</span><b>${assumptions.length}개</b></div>
+      ${assumptions.map((item) => `
+        <article class="challenge-assumption-card is-${item.tone} ${item.id === state.selectedChallengeItemId ? "is-selected" : ""}">
+          <button type="button" data-challenge-action="select" data-challenge-ref="${item.id}" aria-pressed="${item.id === state.selectedChallengeItemId ? "true" : "false"}">
+            <span>${item.owner} · ${item.severity}</span>
+            <b>${item.title}</b>
+            <p>${item.assumption}</p>
+            <i style="--value:${item.confidence}%"><small></small></i>
+          </button>
+          <footer>
+            <em>잔여 ${item.residual}</em>
+            <button type="button" data-challenge-action="risk" data-challenge-ref="${item.failureId}">위험</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (counterPanel) {
+    counterPanel.innerHTML = `
+      <div class="panel-heading"><span>반증 신호</span><b>${selected?.severity || "대기"}</b></div>
+      ${counters.map((item) => `
+        <article class="challenge-counter-card is-${item.tone}">
+          <span>${item.label} · ${item.severity}</span>
+          <b>${item.title}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-challenge-action="evidence" data-challenge-ref="${item.evidenceId}">근거 추적</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (actionPanel) {
+    actionPanel.innerHTML = `
+      <div class="panel-heading"><span>검증 조치</span><b>${actions.length}개</b></div>
+      ${actions.map((item, index) => `
+        <article class="challenge-action-step is-${item.tone}">
+          <span>${String(index + 1).padStart(2, "0")} · ${item.owner}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-challenge-action="${item.action}" data-challenge-ref="${item.ref}">열기</button>
+        </article>
+      `).join("")}
+      <div class="challenge-packet-actions">
+        <button type="button" data-challenge-action="stage" data-challenge-ref="decision">결심 확인</button>
+        <button type="button" data-challenge-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runChallengeAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedChallengeItemId = ref || state.selectedChallengeItemId;
+    renderChallengeReview();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || getSelectedChallengeAssumption()?.failureId || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || getSelectedChallengeAssumption()?.evidenceId || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getChallengeReviewPacket(), "war-ground-challenge-review.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getChallengeSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function normalizeQueuePriority(priority, score = 0) {
+  if (priority === "urgent" || priority === "high" || priority === "medium" || priority === "normal") return priority;
+  if (score >= 88) return "urgent";
+  if (score >= 78) return "high";
+  if (score >= 62) return "medium";
+  return "normal";
+}
+
+function getActionQueueItems() {
+  const challengeItems = getChallengeAssumptionItems().map((item) => ({
+    id: `queue-${item.id}`,
+    source: "반증",
+    title: item.invalidates,
+    detail: item.assumption,
+    owner: item.owner,
+    due: item.tone === "danger" ? "즉시" : "다음 보고 전",
+    priority: normalizeQueuePriority(item.tone === "danger" ? "urgent" : item.tone === "evidence" ? "high" : "medium", item.residual),
+    score: item.residual,
+    stage: item.stage,
+    action: item.failureId ? "risk" : "stage",
+    ref: item.failureId || item.stage,
+    evidenceId: item.evidenceId,
+    failureId: item.failureId,
+    tone: item.tone
+  }));
+
+  const watchItems = getDecisionWatchItems().map((item) => ({
+    id: `queue-${item.id}`,
+    source: "감시",
+    title: `${item.title} ${item.status}`,
+    detail: item.trigger,
+    owner: item.owner,
+    due: item.window,
+    priority: normalizeQueuePriority(item.level === "critical" ? "urgent" : item.level === "watch" ? "high" : "medium", item.before),
+    score: item.before,
+    stage: item.stage,
+    action: "risk",
+    ref: item.failureId,
+    evidenceId: item.evidenceId,
+    failureId: item.failureId,
+    tone: item.level === "critical" ? "danger" : item.level === "watch" ? "evidence" : "support"
+  }));
+
+  const aarItems = getAarImprovementItems().slice(0, 6).map((item) => ({
+    id: `queue-${item.id}`,
+    source: "AAR",
+    title: item.title,
+    detail: `${item.failure.title} ${item.before}→${item.after}`,
+    owner: item.owner,
+    due: item.due,
+    priority: normalizeQueuePriority(item.priority === "high" ? "high" : item.priority === "medium" ? "medium" : "normal", item.before),
+    score: item.before,
+    stage: "aar",
+    action: "risk",
+    ref: item.failure.id,
+    evidenceId: item.evidenceId,
+    failureId: item.failure.id,
+    tone: item.priority === "high" ? "danger" : item.priority === "medium" ? "evidence" : "support"
+  }));
+
+  const retrainItems = getRetrainingScheduleItems().slice(0, 4).map((item) => ({
+    id: `queue-${item.id}`,
+    source: "훈련",
+    title: item.drill,
+    detail: item.measure,
+    owner: item.owner,
+    due: item.window,
+    priority: normalizeQueuePriority(item.priority === "high" ? "high" : "normal", item.residualRisk),
+    score: item.residualRisk,
+    stage: "retrain",
+    action: "stage",
+    ref: "retrain",
+    evidenceId: item.evidenceId,
+    failureId: item.failure.id,
+    tone: item.priority === "high" ? "danger" : "support"
+  }));
+
+  const priorityWeight = { urgent: 4, high: 3, medium: 2, normal: 1 };
+  return [...challengeItems, ...watchItems, ...aarItems, ...retrainItems]
+    .sort((a, b) => priorityWeight[b.priority] - priorityWeight[a.priority] || b.score - a.score)
+    .slice(0, 16);
+}
+
+function getSelectedActionQueueItem() {
+  const items = getActionQueueItems();
+  return items.find((item) => item.id === state.selectedQueueItemId) || items[0];
+}
+
+function getActionQueueOwnerItems() {
+  const owners = new Map();
+  getActionQueueItems().forEach((item) => {
+    if (!owners.has(item.owner)) {
+      owners.set(item.owner, {
+        owner: item.owner,
+        items: [],
+        urgent: 0,
+        evidence: new Set(),
+        maxScore: 0
+      });
+    }
+    const owner = owners.get(item.owner);
+    owner.items.push(item);
+    if (item.priority === "urgent") owner.urgent += 1;
+    if (item.evidenceId) owner.evidence.add(item.evidenceId);
+    owner.maxScore = Math.max(owner.maxScore, item.score);
+  });
+  return [...owners.values()]
+    .map((owner) => ({
+      ...owner,
+      open: owner.items.length,
+      evidenceCount: owner.evidence.size,
+      loadScore: clamp(owner.items.length * 18 + owner.urgent * 16, 18, 98),
+      readiness: clamp(96 - owner.items.length * 5 - owner.urgent * 8 + owner.evidence.size * 3, 44, 96)
+    }))
+    .sort((a, b) => b.loadScore - a.loadScore || b.maxScore - a.maxScore);
+}
+
+function getActionQueueGateItems() {
+  const items = getActionQueueItems();
+  const owners = getActionQueueOwnerItems();
+  const urgent = items.filter((item) => item.priority === "urgent");
+  const evidenceCovered = items.filter((item) => Boolean(item.evidenceId)).length;
+  const maxOwnerLoad = owners[0]?.open || 0;
+  return [
+    {
+      id: "queue-gate-urgent",
+      label: "긴급 조치 식별",
+      value: `${urgent.length}건`,
+      detail: "즉시 처리 항목이 큐 상단에 고정됨",
+      ready: urgent.length > 0,
+      tone: urgent.length ? "danger" : "support"
+    },
+    {
+      id: "queue-gate-evidence",
+      label: "근거 연결",
+      value: `${evidenceCovered}/${items.length}`,
+      detail: "조치 항목마다 추적 가능한 근거가 붙음",
+      ready: evidenceCovered === items.length,
+      tone: "evidence"
+    },
+    {
+      id: "queue-gate-owner",
+      label: "담당자 부하",
+      value: `${maxOwnerLoad}건`,
+      detail: "한 담당자에게 과도하게 몰린 조치 확인",
+      ready: maxOwnerLoad <= 5,
+      tone: maxOwnerLoad > 5 ? "danger" : "support"
+    },
+    {
+      id: "queue-gate-handoff",
+      label: "인계 가능",
+      value: `${getHandoffChecklistItems().filter((item) => item.ready).length}/${getHandoffChecklistItems().length}`,
+      detail: "큐가 다음 운용자에게 전달될 조건",
+      ready: getHandoffChecklistItems().every((item) => item.ready),
+      tone: "primary"
+    }
+  ];
+}
+
+function getActionQueueReadinessScore() {
+  const gates = getActionQueueGateItems();
+  const readyScore = Math.round((gates.filter((item) => item.ready).length / Math.max(gates.length, 1)) * 100);
+  const urgentPenalty = getActionQueueItems().filter((item) => item.priority === "urgent").length * 3;
+  return clamp(readyScore - urgentPenalty + 18, 32, 98);
+}
+
+function getActionQueuePacket() {
+  return {
+    package_type: "war-ground-action-queue",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getActionQueueReadinessScore(),
+    selected_item: getSelectedActionQueueItem(),
+    queue_items: getActionQueueItems(),
+    owner_loads: getActionQueueOwnerItems(),
+    gates: getActionQueueGateItems()
+  };
+}
+
+function getActionQueueSummaryText() {
+  const packet = getActionQueuePacket();
+  return [
+    "WAR GROUND 조치 큐",
+    `작전: ${packet.operation}`,
+    `준비도: ${packet.readiness_score}%`,
+    `최우선: ${packet.queue_items[0]?.title || "없음"}`,
+    `담당자: ${packet.owner_loads.map((item) => `${item.owner} ${item.open}건`).join(" / ")}`,
+    `게이트: ${packet.gates.map((item) => `${item.label} ${item.ready ? "완료" : "대기"}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderActionQueue() {
+  const page = byId("page-queue");
+  if (!page) return;
+  const items = getActionQueueItems();
+  const selected = items.find((item) => item.id === state.selectedQueueItemId) || items[0];
+  if (selected) state.selectedQueueItemId = selected.id;
+  const owners = getActionQueueOwnerItems();
+  const gates = getActionQueueGateItems();
+  const overview = byId("queueOverviewPanel");
+  const priorityPanel = byId("queuePriorityPanel");
+  const ownerPanel = byId("queueOwnerPanel");
+  const gatePanel = byId("queueGatePanel");
+
+  if (overview) {
+    const urgentCount = items.filter((item) => item.priority === "urgent").length;
+    overview.innerHTML = `
+      <div class="panel-heading"><span>조치 큐</span><b>${getActionQueueReadinessScore()}%</b></div>
+      <strong>${selected?.title || "열린 조치"} 실행 대기</strong>
+      <p>${selected?.detail || "남은 작업을 담당자와 우선순위 기준으로 정리합니다."}</p>
+      <div class="queue-kpi-grid">
+        <article><span>열린 조치</span><b>${items.length}</b><em>큐 항목</em></article>
+        <article><span>긴급</span><b>${urgentCount}</b><em>즉시 실행</em></article>
+        <article><span>담당자</span><b>${owners.length}</b><em>부하 분산</em></article>
+      </div>
+      ${selected ? `
+        <div class="queue-selected-card is-${selected.tone}">
+          <span>${selected.source} · ${selected.owner} · ${selected.due}</span>
+          <b>${selected.priority.toUpperCase()}</b>
+          <p>${selected.title}</p>
+          <button type="button" data-queue-action="copy">요약 복사</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (priorityPanel) {
+    priorityPanel.innerHTML = `
+      <div class="panel-heading"><span>우선순위 큐</span><b>${items.length}건</b></div>
+      ${items.map((item, index) => `
+        <article class="queue-item-card is-${item.tone} is-${item.priority} ${item.id === state.selectedQueueItemId ? "is-selected" : ""}">
+          <button type="button" data-queue-action="select" data-queue-ref="${item.id}" aria-pressed="${item.id === state.selectedQueueItemId ? "true" : "false"}">
+            <span>${String(index + 1).padStart(2, "0")} · ${item.source} · ${item.due}</span>
+            <b>${item.title}</b>
+            <p>${item.detail}</p>
+            <i style="--value:${clamp(item.score, 0, 100)}%"><small></small></i>
+          </button>
+          <footer>
+            <em>${item.owner}</em>
+            <button type="button" data-queue-action="${item.action}" data-queue-ref="${item.ref}">열기</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (ownerPanel) {
+    ownerPanel.innerHTML = `
+      <div class="panel-heading"><span>담당자 부하</span><b>${owners.length}명</b></div>
+      ${owners.map((item) => `
+        <article class="queue-owner-card ${item.urgent ? "is-danger" : "is-support"}">
+          <span>${item.urgent}건 긴급 · 근거 ${item.evidenceCount}건</span>
+          <b>${item.owner}</b>
+          <p>${item.items.map((queueItem) => queueItem.source).join(" / ")}</p>
+          <i style="--value:${item.loadScore}%"><small></small></i>
+          <button type="button" data-queue-action="select" data-queue-ref="${item.items[0]?.id || ""}">${item.open}건 보기</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (gatePanel) {
+    gatePanel.innerHTML = `
+      <div class="panel-heading"><span>완료 게이트</span><b>${gates.filter((item) => item.ready).length}/${gates.length}</b></div>
+      ${gates.map((item) => `
+        <article class="queue-gate-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${item.ready ? "완료" : "대기"}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <em>${item.value}</em>
+        </article>
+      `).join("")}
+      <div class="queue-packet-actions">
+        <button type="button" data-queue-action="stage" data-queue-ref="handoff">인계 확인</button>
+        <button type="button" data-queue-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runActionQueueAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedQueueItemId = ref || state.selectedQueueItemId;
+    renderActionQueue();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || getSelectedActionQueueItem()?.failureId || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || getSelectedActionQueueItem()?.evidenceId || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getActionQueuePacket(), "war-ground-action-queue.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getActionQueueSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getReadinessForecastItems() {
+  const queueItems = getActionQueueItems();
+  const urgentCount = queueItems.filter((item) => item.priority === "urgent").length;
+  const highCount = queueItems.filter((item) => item.priority === "high").length;
+  const ownerLoad = getActionQueueOwnerItems()[0]?.open || 0;
+  const baseReadiness = Math.round((getOperationsReadinessScore() + getActionQueueReadinessScore() + getChallengeReadinessScore()) / 3);
+  const riskTrend = getOperationsRiskTrend()[0];
+  const topRiskAfter = riskTrend?.after || 0;
+  return [
+    {
+      id: "forecast-current",
+      label: "현재",
+      horizon: "0h",
+      readiness: clamp(baseReadiness - urgentCount * 3, 24, 96),
+      residualRisk: topRiskAfter,
+      queueOpen: queueItems.length,
+      ownerLoad,
+      detail: "큐 처리 전 현재 준비도",
+      tone: urgentCount ? "danger" : "evidence"
+    },
+    {
+      id: "forecast-24h",
+      label: "24h",
+      horizon: "24h",
+      readiness: clamp(baseReadiness + highCount * 2 - urgentCount, 34, 98),
+      residualRisk: clamp(topRiskAfter - highCount * 3, 8, 96),
+      queueOpen: Math.max(0, queueItems.length - highCount - urgentCount),
+      ownerLoad: Math.max(0, ownerLoad - 2),
+      detail: "긴급·고위험 큐 처리 후",
+      tone: "primary"
+    },
+    {
+      id: "forecast-72h",
+      label: "72h",
+      horizon: "72h",
+      readiness: clamp(baseReadiness + queueItems.length * 2 - ownerLoad, 42, 99),
+      residualRisk: clamp(topRiskAfter - queueItems.length * 2, 4, 92),
+      queueOpen: Math.max(0, Math.round(queueItems.length * 0.25)),
+      ownerLoad: Math.max(0, Math.round(ownerLoad * 0.4)),
+      detail: "재훈련·인계까지 반영",
+      tone: "support"
+    }
+  ];
+}
+
+function getForecastScenarioItems() {
+  const base = getReadinessForecastItems();
+  const current = base[0] || { readiness: 60, residualRisk: 70, queueOpen: 0, ownerLoad: 0 };
+  const paced = base[1] || current;
+  const complete = base[2] || paced;
+  return [
+    {
+      id: "forecast-delayed",
+      label: "지연 처리",
+      detail: "긴급 조치가 다음 보고주기까지 밀림",
+      readiness: clamp(current.readiness - 8, 20, 94),
+      residualRisk: clamp(current.residualRisk + 6, 8, 98),
+      queueOpen: current.queueOpen,
+      ownerLoad: current.ownerLoad + 1,
+      gate: "재판단 필요",
+      tone: "danger"
+    },
+    {
+      id: "forecast-paced",
+      label: "기준 처리",
+      detail: "긴급·고위험 큐를 24시간 안에 처리",
+      readiness: paced.readiness,
+      residualRisk: paced.residualRisk,
+      queueOpen: paced.queueOpen,
+      ownerLoad: paced.ownerLoad,
+      gate: "운용 유지",
+      tone: "primary"
+    },
+    {
+      id: "forecast-accelerated",
+      label: "가속 처리",
+      detail: "담당자 부하를 재분배하고 재훈련을 앞당김",
+      readiness: complete.readiness,
+      residualRisk: complete.residualRisk,
+      queueOpen: complete.queueOpen,
+      ownerLoad: complete.ownerLoad,
+      gate: "전환 가능",
+      tone: "support"
+    }
+  ];
+}
+
+function getSelectedForecastScenario() {
+  const scenarios = getForecastScenarioItems();
+  return scenarios.find((item) => item.id === state.selectedForecastScenarioId) || scenarios[1] || scenarios[0];
+}
+
+function getForecastBottleneckItems() {
+  const selected = getSelectedForecastScenario();
+  const owners = getActionQueueOwnerItems();
+  const urgent = getActionQueueItems().filter((item) => item.priority === "urgent");
+  const gates = getActionQueueGateItems().filter((item) => !item.ready);
+  return [
+    ...owners.slice(0, 3).map((owner) => ({
+      id: `forecast-owner-${owner.owner}`,
+      label: "담당자 병목",
+      owner: owner.owner,
+      title: `${owner.open}건 조치 집중`,
+      detail: `${owner.urgent}건 긴급 · 준비도 ${owner.readiness}%`,
+      impact: clamp(owner.loadScore - selected.readiness + 34, 8, 92),
+      action: "stage",
+      ref: "queue",
+      tone: owner.urgent ? "danger" : "evidence"
+    })),
+    ...urgent.slice(0, 2).map((item) => ({
+      id: `forecast-urgent-${item.id}`,
+      label: "긴급 큐",
+      owner: item.owner,
+      title: item.title,
+      detail: `${item.source} · ${item.due}`,
+      impact: clamp(item.score - selected.readiness + 28, 10, 94),
+      action: item.action,
+      ref: item.ref,
+      tone: "danger"
+    })),
+    ...gates.slice(0, 2).map((gate) => ({
+      id: `forecast-gate-${gate.id}`,
+      label: "게이트 미충족",
+      owner: "검증관",
+      title: gate.label,
+      detail: gate.detail,
+      impact: 42,
+      action: "stage",
+      ref: "queue",
+      tone: gate.tone
+    }))
+  ].slice(0, 6);
+}
+
+function getForecastGateItems() {
+  const selected = getSelectedForecastScenario();
+  return [
+    {
+      id: "forecast-gate-readiness",
+      label: "준비도",
+      value: `${selected?.readiness || 0}%`,
+      detail: "다음 운용 단계 전 80% 이상 필요",
+      ready: (selected?.readiness || 0) >= 80,
+      tone: "primary"
+    },
+    {
+      id: "forecast-gate-risk",
+      label: "잔여 위험",
+      value: `${selected?.residualRisk || 0}`,
+      detail: "상위 실패경로 잔여 위험 65 이하",
+      ready: (selected?.residualRisk || 100) <= 65,
+      tone: "danger"
+    },
+    {
+      id: "forecast-gate-queue",
+      label: "큐 잔량",
+      value: `${selected?.queueOpen || 0}건`,
+      detail: "열린 조치 8건 이하",
+      ready: (selected?.queueOpen || 0) <= 8,
+      tone: "evidence"
+    },
+    {
+      id: "forecast-gate-load",
+      label: "담당자 부하",
+      value: `${selected?.ownerLoad || 0}건`,
+      detail: "최대 담당자 부하 5건 이하",
+      ready: (selected?.ownerLoad || 0) <= 5,
+      tone: "support"
+    }
+  ];
+}
+
+function getReadinessForecastScore() {
+  const selected = getSelectedForecastScenario();
+  const gates = getForecastGateItems();
+  const gateScore = Math.round((gates.filter((item) => item.ready).length / Math.max(gates.length, 1)) * 100);
+  return clamp(Math.round(((selected?.readiness || 0) + gateScore) / 2), 24, 99);
+}
+
+function getReadinessForecastPacket() {
+  return {
+    package_type: "war-ground-readiness-forecast",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    forecast_score: getReadinessForecastScore(),
+    selected_scenario: getSelectedForecastScenario(),
+    timeline: getReadinessForecastItems(),
+    scenarios: getForecastScenarioItems(),
+    bottlenecks: getForecastBottleneckItems(),
+    gates: getForecastGateItems()
+  };
+}
+
+function getReadinessForecastSummaryText() {
+  const packet = getReadinessForecastPacket();
+  return [
+    "WAR GROUND 준비 예측",
+    `작전: ${packet.operation}`,
+    `시나리오: ${packet.selected_scenario?.label || "기준"}`,
+    `예측 점수: ${packet.forecast_score}%`,
+    `준비도: ${packet.selected_scenario?.readiness || 0}% / 잔여 위험 ${packet.selected_scenario?.residualRisk || 0}`,
+    `병목: ${packet.bottlenecks.map((item) => `${item.owner}-${item.title}`).join(" / ")}`,
+    `게이트: ${packet.gates.map((item) => `${item.label} ${item.ready ? "완료" : "대기"}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderReadinessForecast() {
+  const page = byId("page-forecast");
+  if (!page) return;
+  const timeline = getReadinessForecastItems();
+  const scenarios = getForecastScenarioItems();
+  const selected = scenarios.find((item) => item.id === state.selectedForecastScenarioId) || scenarios[1] || scenarios[0];
+  if (selected) state.selectedForecastScenarioId = selected.id;
+  const bottlenecks = getForecastBottleneckItems();
+  const gates = getForecastGateItems();
+  const overview = byId("forecastOverviewPanel");
+  const scenarioPanel = byId("forecastScenarioPanel");
+  const bottleneckPanel = byId("forecastBottleneckPanel");
+  const gatePanel = byId("forecastGatePanel");
+
+  if (overview) {
+    overview.innerHTML = `
+      <div class="panel-heading"><span>준비 예측</span><b>${getReadinessForecastScore()}%</b></div>
+      <strong>${selected?.label || "기준 처리"} 전망</strong>
+      <p>${selected?.detail || "조치 큐 처리 속도별 준비도 변화를 예측합니다."}</p>
+      <div class="forecast-kpi-grid">
+        <article><span>준비도</span><b>${selected?.readiness || 0}%</b><em>선택 시나리오</em></article>
+        <article><span>잔여 위험</span><b>${selected?.residualRisk || 0}</b><em>상위 경로</em></article>
+        <article><span>큐 잔량</span><b>${selected?.queueOpen || 0}</b><em>열린 조치</em></article>
+      </div>
+      <div class="forecast-selected-card is-${selected?.tone || "primary"}">
+        <span>${selected?.gate || "운용 유지"} · 담당자 최대 ${selected?.ownerLoad || 0}건</span>
+        <b>${selected?.label || "예측"}</b>
+        <p>${selected?.detail || "예측 시나리오를 선택하세요."}</p>
+        <button type="button" data-forecast-action="copy">요약 복사</button>
+      </div>
+    `;
+  }
+
+  if (scenarioPanel) {
+    scenarioPanel.innerHTML = `
+      <div class="panel-heading"><span>예측 시나리오</span><b>${scenarios.length}개</b></div>
+      ${scenarios.map((item) => `
+        <article class="forecast-scenario-card is-${item.tone} ${item.id === state.selectedForecastScenarioId ? "is-selected" : ""}">
+          <button type="button" data-forecast-action="select" data-forecast-ref="${item.id}" aria-pressed="${item.id === state.selectedForecastScenarioId ? "true" : "false"}">
+            <span>${item.gate} · 큐 ${item.queueOpen}건</span>
+            <b>${item.label}</b>
+            <p>${item.detail}</p>
+            <div class="forecast-bars" aria-label="${item.label} 예측">
+              <i style="--value:${item.readiness}%"></i>
+              <b style="--value:${item.residualRisk}%"></b>
+            </div>
+          </button>
+        </article>
+      `).join("")}
+      <div class="forecast-timeline">
+        ${timeline.map((item) => `
+          <article class="is-${item.tone}">
+            <span>${item.horizon}</span>
+            <b>${item.readiness}%</b>
+            <p>${item.detail}</p>
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  if (bottleneckPanel) {
+    bottleneckPanel.innerHTML = `
+      <div class="panel-heading"><span>병목 신호</span><b>${bottlenecks.length}건</b></div>
+      ${bottlenecks.map((item) => `
+        <article class="forecast-bottleneck-card is-${item.tone}">
+          <span>${item.label} · 영향 ${item.impact}</span>
+          <b>${item.title}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-forecast-action="${item.action}" data-forecast-ref="${item.ref}">열기</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (gatePanel) {
+    gatePanel.innerHTML = `
+      <div class="panel-heading"><span>예측 게이트</span><b>${gates.filter((item) => item.ready).length}/${gates.length}</b></div>
+      ${gates.map((item) => `
+        <article class="forecast-gate-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${item.ready ? "완료" : "대기"}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <em>${item.value}</em>
+        </article>
+      `).join("")}
+      <div class="forecast-packet-actions">
+        <button type="button" data-forecast-action="stage" data-forecast-ref="queue">큐 조정</button>
+        <button type="button" data-forecast-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runForecastAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedForecastScenarioId = ref || state.selectedForecastScenarioId;
+    renderReadinessForecast();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || state.selectedFailureId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getReadinessForecastPacket(), "war-ground-readiness-forecast.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getReadinessForecastSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getBroadcastRecipientItems() {
+  const forecast = getSelectedForecastScenario();
+  const queueItems = getActionQueueItems();
+  const handoffRecipients = getHandoffRecipientItems();
+  const ownerAlias = {
+    "지휘관": ["지휘관"],
+    "통신참모": ["통신참모"],
+    "군수참모": ["군수참모"],
+    "훈련장교": ["훈련장교"],
+    "검증관": ["검증관", "작전참모"]
+  };
+  return handoffRecipients.map((item) => {
+    const aliases = ownerAlias[item.recipient] || [item.recipient];
+    const ownedQueue = queueItems.filter((queue) => aliases.includes(queue.owner));
+    const urgentCount = ownedQueue.filter((queue) => queue.priority === "urgent" || queue.priority === "high").length;
+    const id = item.id.replace("handoff", "broadcast");
+    return {
+      id,
+      sourceId: item.id,
+      recipient: item.recipient,
+      role: item.role,
+      channel: item.recipient === "지휘관" ? "지휘망" : item.recipient === "훈련장교" ? "훈련통제망" : item.recipient === "검증관" ? "검증망" : "참모망",
+      priority: urgentCount ? "즉시 전파" : item.priority,
+      title: `${item.recipient} ${item.packet}`,
+      detail: item.action,
+      proof: `${item.proof} · ${forecast?.label || "기준 처리"} ${forecast?.readiness || 0}%`,
+      message: `[WAR GROUND 전파] ${item.recipient}: ${item.packet}. ${item.action}. 예측 ${forecast?.label || "기준 처리"} 준비도 ${forecast?.readiness || 0}%, 잔여 위험 ${forecast?.residualRisk || 0}. 근거 ${evidenceById.get(item.evidenceId)?.title || item.evidenceId}.`,
+      evidenceId: item.evidenceId,
+      stage: item.stage,
+      queueCount: ownedQueue.length,
+      urgentCount,
+      readiness: clamp((forecast?.readiness || 70) - urgentCount * 4 + (item.tone === "support" ? 4 : 0), 42, 99),
+      tone: urgentCount ? "danger" : item.tone
+    };
+  });
+}
+
+function getSelectedBroadcastRecipient() {
+  const recipients = getBroadcastRecipientItems();
+  return recipients.find((item) => item.id === state.selectedBroadcastRecipientId) || recipients[0];
+}
+
+function getBroadcastMessageItems(recipientId = null) {
+  const recipients = getBroadcastRecipientItems();
+  const selected = recipientId ? recipients.find((item) => item.id === recipientId) : null;
+  const forecast = getSelectedForecastScenario();
+  const watchSignals = getWatchSignalItems();
+  const handoffSignals = getHandoffSignalItems();
+  const queueItems = getActionQueueItems();
+  const baseRecipients = selected ? [selected] : recipients;
+  return baseRecipients.flatMap((recipient) => {
+    const handoffSignal = handoffSignals.find((item) => item.recipient === recipient.recipient);
+    const queue = queueItems.find((item) => item.owner === recipient.recipient) || queueItems[0];
+    const watch = watchSignals.find((item) => item.channel === recipient.channel) || watchSignals[0];
+    return [
+      {
+        id: `broadcast-primary-${recipient.id}`,
+        recipientId: recipient.id,
+        label: "전파 본문",
+        title: recipient.title,
+        channel: recipient.channel,
+        message: recipient.message,
+        evidenceId: recipient.evidenceId,
+        stage: recipient.stage,
+        tone: recipient.tone
+      },
+      ...(selected ? [
+        {
+          id: `broadcast-forecast-${recipient.id}`,
+          recipientId: recipient.id,
+          label: "예측 요약",
+          title: `${forecast?.label || "기준 처리"} ${getReadinessForecastScore()}% 전망`,
+          channel: "지휘참모 공통",
+          message: `[WAR GROUND 예측] ${forecast?.label || "기준 처리"}: 준비도 ${forecast?.readiness || 0}%, 잔여 위험 ${forecast?.residualRisk || 0}, 큐 잔량 ${forecast?.queueOpen || 0}건. 병목 ${getForecastBottleneckItems()[0]?.title || "없음"}.`,
+          evidenceId: recipient.evidenceId,
+          stage: "forecast",
+          tone: "primary"
+        },
+        {
+          id: `broadcast-queue-${recipient.id}`,
+          recipientId: recipient.id,
+          label: "큐 영향",
+          title: queue?.title || "열린 조치 없음",
+          channel: recipient.channel,
+          message: queue ? `[WAR GROUND 큐] ${queue.owner}: ${queue.title}. 기한 ${queue.due}. 근거 ${evidenceById.get(queue.evidenceId)?.title || queue.evidenceId}.` : "[WAR GROUND 큐] 추가 조치 없음.",
+          evidenceId: queue?.evidenceId || recipient.evidenceId,
+          stage: queue?.stage || "queue",
+          tone: queue?.tone || "support"
+        },
+        {
+          id: `broadcast-signal-${recipient.id}`,
+          recipientId: recipient.id,
+          label: "감시 문안",
+          title: handoffSignal?.title || watch?.title || "감시 신호",
+          channel: handoffSignal?.channel || watch?.channel || recipient.channel,
+          message: handoffSignal?.message || watch?.message || recipient.message,
+          evidenceId: handoffSignal?.evidenceId || watch?.evidenceId || recipient.evidenceId,
+          stage: handoffSignal?.stage || "watch",
+          tone: handoffSignal?.tone || watch?.tone || recipient.tone
+        }
+      ] : [])
+    ];
+  });
+}
+
+function getBroadcastAckItems() {
+  const recipients = getBroadcastRecipientItems();
+  const messages = getBroadcastMessageItems();
+  const forecastScore = getReadinessForecastScore();
+  const urgentRecipients = recipients.filter((item) => item.urgentCount > 0);
+  return [
+    {
+      id: "broadcast-ack-forecast",
+      label: "예측 기준",
+      value: `${forecastScore}%`,
+      detail: "준비 예측 점수 80% 이상",
+      ready: forecastScore >= 80,
+      tone: "primary"
+    },
+    {
+      id: "broadcast-ack-recipients",
+      label: "수신자",
+      value: `${recipients.length}명`,
+      detail: "수신자별 패킷 생성",
+      ready: recipients.length >= 5,
+      tone: "support"
+    },
+    {
+      id: "broadcast-ack-messages",
+      label: "문안",
+      value: `${messages.length}건`,
+      detail: "수신자별 전파 문안 생성",
+      ready: messages.length >= recipients.length,
+      tone: "evidence"
+    },
+    {
+      id: "broadcast-ack-urgent",
+      label: "긴급 분리",
+      value: `${urgentRecipients.length}명`,
+      detail: "긴급 큐가 있는 수신자 표시",
+      ready: urgentRecipients.length <= 3,
+      tone: urgentRecipients.length ? "danger" : "support"
+    },
+    {
+      id: "broadcast-ack-evidence",
+      label: "근거 링크",
+      value: `${new Set(recipients.map((item) => item.evidenceId).filter(Boolean)).size}건`,
+      detail: "모든 문안에 근거 연결",
+      ready: recipients.every((item) => Boolean(item.evidenceId)),
+      tone: "primary"
+    }
+  ];
+}
+
+function getBroadcastReadinessScore() {
+  const gates = getBroadcastAckItems();
+  const readyScore = Math.round((gates.filter((item) => item.ready).length / Math.max(gates.length, 1)) * 100);
+  const recipientScore = Math.round(getBroadcastRecipientItems().reduce((sum, item) => sum + item.readiness, 0) / Math.max(getBroadcastRecipientItems().length, 1));
+  return clamp(Math.round((readyScore + recipientScore + getReadinessForecastScore()) / 3), 36, 99);
+}
+
+function getBroadcastPackage() {
+  const selected = getSelectedBroadcastRecipient();
+  return {
+    package_type: "war-ground-broadcast-package",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getBroadcastReadinessScore(),
+    selected_recipient: selected,
+    recipients: getBroadcastRecipientItems(),
+    messages: getBroadcastMessageItems(),
+    selected_messages: selected ? getBroadcastMessageItems(selected.id) : [],
+    acknowledgements: getBroadcastAckItems(),
+    forecast: getReadinessForecastPacket(),
+    queue: getActionQueuePacket()
+  };
+}
+
+function getBroadcastSummaryText() {
+  const packet = getBroadcastPackage();
+  return [
+    "WAR GROUND 전파 패키지",
+    `작전: ${packet.operation}`,
+    `준비도: ${packet.readiness_score}%`,
+    `선택 수신자: ${packet.selected_recipient?.recipient || "없음"}`,
+    `수신자: ${packet.recipients.map((item) => `${item.recipient}/${item.priority}`).join(" / ")}`,
+    `문안: ${packet.selected_messages.map((item) => `${item.label}-${item.channel}`).join(" / ")}`,
+    `확인: ${packet.acknowledgements.map((item) => `${item.label} ${item.ready ? "완료" : "대기"}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderBroadcastPackage() {
+  const page = byId("page-broadcast");
+  if (!page) return;
+  const recipients = getBroadcastRecipientItems();
+  const selected = recipients.find((item) => item.id === state.selectedBroadcastRecipientId) || recipients[0];
+  if (selected) state.selectedBroadcastRecipientId = selected.id;
+  const messages = selected ? getBroadcastMessageItems(selected.id) : [];
+  const acknowledgements = getBroadcastAckItems();
+  const overview = byId("broadcastOverviewPanel");
+  const recipientPanel = byId("broadcastRecipientPanel");
+  const messagePanel = byId("broadcastMessagePanel");
+  const ackPanel = byId("broadcastAckPanel");
+
+  if (overview) {
+    overview.innerHTML = `
+      <div class="panel-heading"><span>전파 패키지</span><b>${getBroadcastReadinessScore()}%</b></div>
+      <strong>${selected?.recipient || "수신자"} 우선 전파</strong>
+      <p>${selected?.detail || "예측과 조치 큐를 수신자별 문안으로 묶습니다."}</p>
+      <div class="broadcast-kpi-grid">
+        <article><span>수신자</span><b>${recipients.length}</b><em>전파 대상</em></article>
+        <article><span>문안</span><b>${getBroadcastMessageItems().length}</b><em>기본 문안</em></article>
+        <article><span>확인</span><b>${acknowledgements.filter((item) => item.ready).length}/${acknowledgements.length}</b><em>완료 게이트</em></article>
+      </div>
+      ${selected ? `
+        <div class="broadcast-selected-card is-${selected.tone}">
+          <span>${selected.channel} · ${selected.priority}</span>
+          <b>${selected.title}</b>
+          <p>${selected.proof}</p>
+          <button type="button" data-broadcast-action="copy">요약 복사</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (recipientPanel) {
+    recipientPanel.innerHTML = `
+      <div class="panel-heading"><span>수신자</span><b>${recipients.length}명</b></div>
+      ${recipients.map((item) => `
+        <article class="broadcast-recipient-card is-${item.tone} ${item.id === state.selectedBroadcastRecipientId ? "is-selected" : ""}">
+          <button type="button" data-broadcast-action="select" data-broadcast-ref="${item.id}" aria-pressed="${item.id === state.selectedBroadcastRecipientId ? "true" : "false"}">
+            <span>${item.priority} · ${item.channel}</span>
+            <b>${item.recipient}</b>
+            <p>${item.detail}</p>
+            <i style="--value:${item.readiness}%"><small></small></i>
+          </button>
+          <footer>
+            <em>큐 ${item.queueCount}건</em>
+            <button type="button" data-broadcast-action="stage" data-broadcast-ref="${item.stage}">열기</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (messagePanel) {
+    messagePanel.innerHTML = `
+      <div class="panel-heading"><span>수신자별 문안</span><b>${messages.length}건</b></div>
+      ${messages.map((item) => `
+        <article class="broadcast-message-card is-${item.tone}">
+          <span>${item.label} · ${item.channel}</span>
+          <b>${item.title}</b>
+          <p>${item.message}</p>
+          <footer>
+            <button type="button" data-broadcast-action="evidence" data-broadcast-ref="${item.evidenceId}">근거</button>
+            <button type="button" data-broadcast-action="copy-message" data-broadcast-ref="${item.id}">복사</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (ackPanel) {
+    ackPanel.innerHTML = `
+      <div class="panel-heading"><span>확인 게이트</span><b>${acknowledgements.filter((item) => item.ready).length}/${acknowledgements.length}</b></div>
+      ${acknowledgements.map((item) => `
+        <article class="broadcast-ack-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${item.ready ? "완료" : "대기"}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <em>${item.value}</em>
+        </article>
+      `).join("")}
+      <div class="broadcast-packet-actions">
+        <button type="button" data-broadcast-action="stage" data-broadcast-ref="forecast">예측 확인</button>
+        <button type="button" data-broadcast-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runBroadcastAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedBroadcastRecipientId = ref || state.selectedBroadcastRecipientId;
+    renderBroadcastPackage();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || getSelectedBroadcastRecipient()?.evidenceId || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getBroadcastPackage(), "war-ground-broadcast-package.json");
+    return;
+  }
+  if (action === "copy-message") {
+    const message = getBroadcastMessageItems(state.selectedBroadcastRecipientId).find((item) => item.id === ref);
+    copyTextToClipboard(message?.message || getBroadcastSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "복사";
+      }, 1200);
+    });
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getBroadcastSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getReceiptTrackItems() {
+  const statusByRecipient = {
+    "지휘관": { status: "확인", receivedAt: "D+0 18:03", issue: "조건부 시행 승인 확인", ready: true, tone: "primary" },
+    "통신참모": { status: "재전파", receivedAt: "대기", issue: "예비망 전환 권한 재확인", ready: false, tone: "danger" },
+    "군수참모": { status: "확인", receivedAt: "D+0 18:07", issue: "보급 대기점 변경 수신", ready: true, tone: "support" },
+    "훈련장교": { status: "확인", receivedAt: "D+0 18:11", issue: "재훈련 편성표 수신", ready: true, tone: "primary" },
+    "검증관": { status: "대기", receivedAt: "D+0 18:15 예정", issue: "근거 원장 대조 필요", ready: false, tone: "evidence" }
+  };
+  return getBroadcastRecipientItems().map((recipient) => {
+    const profile = statusByRecipient[recipient.recipient] || { status: "대기", receivedAt: "미확인", issue: "수신 확인 필요", ready: false, tone: "evidence" };
+    const messageCount = getBroadcastMessageItems(recipient.id).length;
+    const readiness = clamp(recipient.readiness + (profile.ready ? 6 : -14) - recipient.urgentCount * 4, 32, 99);
+    return {
+      id: `receipt-${recipient.id}`,
+      recipientId: recipient.id,
+      recipient: recipient.recipient,
+      role: recipient.role,
+      channel: recipient.channel,
+      status: profile.status,
+      receivedAt: profile.receivedAt,
+      issue: profile.issue,
+      ready: profile.ready,
+      title: `${recipient.recipient} ${profile.status}`,
+      detail: recipient.detail,
+      evidenceId: recipient.evidenceId,
+      stage: recipient.stage,
+      queueCount: recipient.queueCount,
+      urgentCount: recipient.urgentCount,
+      messageCount,
+      readiness,
+      tone: profile.tone
+    };
+  });
+}
+
+function getSelectedReceiptItem() {
+  const items = getReceiptTrackItems();
+  return items.find((item) => item.id === state.selectedReceiptItemId) || items[0];
+}
+
+function getReceiptEscalationItems() {
+  const selected = getSelectedReceiptItem();
+  if (!selected) return [];
+  return [
+    {
+      id: "receipt-rebroadcast",
+      label: "재전파 요청",
+      owner: selected.recipient,
+      detail: `${selected.channel}로 ${selected.issue} 문안 재전파`,
+      action: "broadcast",
+      ref: selected.recipientId,
+      tone: selected.ready ? "support" : "danger"
+    },
+    {
+      id: "receipt-evidence",
+      label: "근거 재첨부",
+      owner: "검증관",
+      detail: evidenceById.get(selected.evidenceId)?.title || selected.evidenceId,
+      action: "evidence",
+      ref: selected.evidenceId,
+      tone: "evidence"
+    },
+    {
+      id: "receipt-queue",
+      label: "큐 영향 확인",
+      owner: "작전참모",
+      detail: `${selected.queueCount}건 조치와 ${selected.urgentCount}건 긴급 항목 재확인`,
+      action: "stage",
+      ref: "queue",
+      tone: selected.urgentCount ? "danger" : "primary"
+    },
+    {
+      id: "receipt-log",
+      label: "일지 기록",
+      owner: "상황장교",
+      detail: `${selected.recipient} 수신 상태를 상황 일지에 남김`,
+      action: "stage",
+      ref: "log",
+      tone: "support"
+    }
+  ];
+}
+
+function getReceiptGateItems() {
+  const tracks = getReceiptTrackItems();
+  const readyCount = tracks.filter((item) => item.ready).length;
+  const openCount = tracks.length - readyCount;
+  const logReferenceCount = getDecisionWatchItems().length;
+  return [
+    {
+      id: "receipt-gate-recipients",
+      label: "수신 완료",
+      value: `${readyCount}/${tracks.length}`,
+      detail: "전체 수신자 확인 상태",
+      ready: readyCount >= tracks.length - 1,
+      tone: "primary"
+    },
+    {
+      id: "receipt-gate-open",
+      label: "미확인 대상",
+      value: `${openCount}명`,
+      detail: "미확인 수신자 1명 이하",
+      ready: openCount <= 1,
+      tone: openCount ? "danger" : "support"
+    },
+    {
+      id: "receipt-gate-evidence",
+      label: "근거 링크",
+      value: `${new Set(tracks.map((item) => item.evidenceId).filter(Boolean)).size}건`,
+      detail: "모든 수신 항목 근거 연결",
+      ready: tracks.every((item) => Boolean(item.evidenceId)),
+      tone: "evidence"
+    },
+    {
+      id: "receipt-gate-log",
+      label: "일지 연결",
+      value: `${logReferenceCount}건`,
+      detail: "상황 일지 참조 가능",
+      ready: logReferenceCount >= 4,
+      tone: "support"
+    },
+    {
+      id: "receipt-gate-package",
+      label: "전파 패키지",
+      value: `${getBroadcastReadinessScore()}%`,
+      detail: "전파 준비도 80% 이상",
+      ready: getBroadcastReadinessScore() >= 80,
+      tone: "primary"
+    }
+  ];
+}
+
+function getReceiptReadinessScore() {
+  const tracks = getReceiptTrackItems();
+  const gates = getReceiptGateItems();
+  const trackScore = Math.round(tracks.reduce((sum, item) => sum + item.readiness, 0) / Math.max(tracks.length, 1));
+  const gateScore = Math.round((gates.filter((item) => item.ready).length / Math.max(gates.length, 1)) * 100);
+  return clamp(Math.round((trackScore + gateScore + getBroadcastReadinessScore()) / 3), 28, 99);
+}
+
+function getReceiptPackage() {
+  return {
+    package_type: "war-ground-broadcast-receipt-tracker",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getReceiptReadinessScore(),
+    selected_receipt: getSelectedReceiptItem(),
+    receipts: getReceiptTrackItems(),
+    escalations: getReceiptEscalationItems(),
+    gates: getReceiptGateItems(),
+    broadcast_package: getBroadcastPackage()
+  };
+}
+
+function getReceiptSummaryText() {
+  const packet = getReceiptPackage();
+  return [
+    "WAR GROUND 수신 확인",
+    `작전: ${packet.operation}`,
+    `준비도: ${packet.readiness_score}%`,
+    `선택 수신자: ${packet.selected_receipt?.recipient || "없음"} / ${packet.selected_receipt?.status || "대기"}`,
+    `수신: ${packet.receipts.map((item) => `${item.recipient}-${item.status}`).join(" / ")}`,
+    `조치: ${packet.escalations.map((item) => `${item.label}-${item.owner}`).join(" / ")}`,
+    `게이트: ${packet.gates.map((item) => `${item.label} ${item.ready ? "완료" : "대기"}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderReceiptTracker() {
+  const page = byId("page-receipt");
+  if (!page) return;
+  const tracks = getReceiptTrackItems();
+  const selected = tracks.find((item) => item.id === state.selectedReceiptItemId) || tracks[0];
+  if (selected) state.selectedReceiptItemId = selected.id;
+  const escalations = getReceiptEscalationItems();
+  const gates = getReceiptGateItems();
+  const overview = byId("receiptOverviewPanel");
+  const trackPanel = byId("receiptTrackPanel");
+  const escalationPanel = byId("receiptEscalationPanel");
+  const gatePanel = byId("receiptGatePanel");
+
+  if (overview) {
+    const readyCount = tracks.filter((item) => item.ready).length;
+    overview.innerHTML = `
+      <div class="panel-heading"><span>수신 확인</span><b>${getReceiptReadinessScore()}%</b></div>
+      <strong>${selected?.recipient || "수신자"} ${selected?.status || "대기"}</strong>
+      <p>${selected?.issue || "전파 패키지 수신 상태를 확인합니다."}</p>
+      <div class="receipt-kpi-grid">
+        <article><span>확인</span><b>${readyCount}/${tracks.length}</b><em>수신자 상태</em></article>
+        <article><span>미확인</span><b>${tracks.length - readyCount}</b><em>재전파 대상</em></article>
+        <article><span>조치</span><b>${escalations.length}</b><em>선택 대상</em></article>
+      </div>
+      ${selected ? `
+        <div class="receipt-selected-card is-${selected.tone}">
+          <span>${selected.channel} · ${selected.receivedAt}</span>
+          <b>${selected.title}</b>
+          <p>${selected.detail}</p>
+          <button type="button" data-receipt-action="copy">요약 복사</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (trackPanel) {
+    trackPanel.innerHTML = `
+      <div class="panel-heading"><span>수신 추적</span><b>${tracks.length}명</b></div>
+      ${tracks.map((item) => `
+        <article class="receipt-track-card is-${item.tone} ${item.id === state.selectedReceiptItemId ? "is-selected" : ""}">
+          <button type="button" data-receipt-action="select" data-receipt-ref="${item.id}" aria-pressed="${item.id === state.selectedReceiptItemId ? "true" : "false"}">
+            <span>${item.status} · ${item.channel}</span>
+            <b>${item.recipient}</b>
+            <p>${item.issue}</p>
+            <i style="--value:${item.readiness}%"><small></small></i>
+          </button>
+          <footer>
+            <em>${item.messageCount}개 문안 · 큐 ${item.queueCount}건</em>
+            <button type="button" data-receipt-action="broadcast" data-receipt-ref="${item.recipientId}">전파</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (escalationPanel) {
+    escalationPanel.innerHTML = `
+      <div class="panel-heading"><span>미확인 대상</span><b>${tracks.filter((item) => !item.ready).length}명</b></div>
+      ${escalations.map((item, index) => `
+        <article class="receipt-escalation-card is-${item.tone}">
+          <span>${String(index + 1).padStart(2, "0")} · ${item.owner}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-receipt-action="${item.action}" data-receipt-ref="${item.ref}">열기</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (gatePanel) {
+    gatePanel.innerHTML = `
+      <div class="panel-heading"><span>완료 게이트</span><b>${gates.filter((item) => item.ready).length}/${gates.length}</b></div>
+      ${gates.map((item) => `
+        <article class="receipt-gate-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${item.ready ? "완료" : "대기"}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <em>${item.value}</em>
+        </article>
+      `).join("")}
+      <div class="receipt-packet-actions">
+        <button type="button" data-receipt-action="stage" data-receipt-ref="broadcast">전파 보기</button>
+        <button type="button" data-receipt-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runReceiptAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedReceiptItemId = ref || state.selectedReceiptItemId;
+    renderReceiptTracker();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "broadcast") {
+    state.selectedBroadcastRecipientId = ref || getSelectedReceiptItem()?.recipientId || state.selectedBroadcastRecipientId;
+    setStage("broadcast");
+    renderBroadcastPackage();
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || getSelectedReceiptItem()?.evidenceId || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getReceiptPackage(), "war-ground-receipt-tracker.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getReceiptSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getCloseoutSummaryItems() {
+  const receiptTracks = getCloseoutReceiptItems();
+  const receiptReady = receiptTracks.filter((item) => item.ready).length;
+  const receiptOpen = receiptTracks.length - receiptReady;
+  const auditSummary = getCloseoutAuditSummary();
+  const submissionScore = getCloseoutSubmissionScore();
+  return [
+    {
+      id: "closeout-final",
+      label: "최종 결심",
+      value: demoData.decision.recommended_coa,
+      detail: demoData.decision.conditional_coa,
+      ready: getActiveDecisionConditionIds().size >= getDecisionConditions().length,
+      action: "stage",
+      ref: "decision",
+      tone: "primary"
+    },
+    {
+      id: "closeout-receipt",
+      label: "수신 확인",
+      value: `${receiptReady}/${receiptTracks.length}`,
+      detail: receiptOpen ? `${receiptOpen}명 재확인 필요` : "전체 수신자 확인",
+      ready: receiptOpen <= 1,
+      action: "stage",
+      ref: "receipt",
+      tone: receiptOpen ? "danger" : "support"
+    },
+    {
+      id: "closeout-submit",
+      label: "제출 묶음",
+      value: `${submissionScore}%`,
+      detail: `${getCloseoutBundleCount()}개 산출물 잠금`,
+      ready: submissionScore >= 80,
+      action: "stage",
+      ref: "submit",
+      tone: "evidence"
+    },
+    {
+      id: "closeout-audit",
+      label: "감사 기록",
+      value: `${auditSummary.evidenceCount}건`,
+      detail: `검증 공백 ${auditSummary.gapCount}건`,
+      ready: auditSummary.gapCount <= 2,
+      action: "stage",
+      ref: "audit",
+      tone: auditSummary.gapCount ? "evidence" : "support"
+    }
+  ];
+}
+
+function getSelectedCloseoutItem() {
+  const items = getCloseoutSummaryItems();
+  return items.find((item) => item.id === state.selectedCloseoutItemId) || items[0];
+}
+
+function getCloseoutSubmissionScore() {
+  const auditSummary = getCloseoutAuditSummary();
+  const gates = [
+    true,
+    true,
+    getActiveDecisionConditionIds().size >= getDecisionConditions().length,
+    demoData.decision.evidence_ids.length >= 3,
+    getAarImprovementItems().length >= 6,
+    auditSummary.verifiedPercent >= 80,
+    getRetrainingScheduleItems().length >= 6
+  ];
+  return Math.round((gates.filter(Boolean).length / gates.length) * 100);
+}
+
+function getCloseoutReceiptItems() {
+  const recipients = [
+    { recipient: "지휘관", role: "최종 승인", channel: "지휘망", status: "확인", receivedAt: "D+0 18:03", issue: "조건부 시행 승인 확인", ready: true, tone: "primary" },
+    { recipient: "통신참모", role: "통신 보완", channel: "참모망", status: "재전파", receivedAt: "대기", issue: "예비망 전환 권한 재확인", ready: false, tone: "danger" },
+    { recipient: "군수참모", role: "보급 지속성", channel: "참모망", status: "확인", receivedAt: "D+0 18:07", issue: "보급 대기점 변경 수신", ready: true, tone: "support" },
+    { recipient: "훈련장교", role: "재훈련 통제", channel: "훈련통제망", status: "확인", receivedAt: "D+0 18:11", issue: "재훈련 편성표 수신", ready: true, tone: "primary" },
+    { recipient: "검증관", role: "근거 추적", channel: "검증망", status: "대기", receivedAt: "D+0 18:15 예정", issue: "근거 원장 대조 필요", ready: false, tone: "evidence" }
+  ];
+  return recipients.map((item, index) => ({
+    id: `closeout-receipt-${index + 1}`,
+    ...item,
+    readiness: item.ready ? 92 : item.status === "재전파" ? 54 : 64
+  }));
+}
+
+function getCloseoutReceiptReadinessScore(items = getCloseoutReceiptItems()) {
+  if (!items.length) return 0;
+  return Math.round(items.reduce((sum, item) => sum + item.readiness, 0) / items.length);
+}
+
+function getCloseoutAuditSummary() {
+  const usedEvidence = new Set([
+    ...demoData.failures.flatMap((failure) => failure.evidence),
+    ...demoData.events.flatMap((event) => event.evidence_ids || []),
+    ...demoData.decision.evidence_ids
+  ]);
+  const weakEvidence = demoData.evidence.filter((item) => item.status !== "근거 있음" || !usedEvidence.has(item.id));
+  const pendingCount = state.scenarioLoaded ? 0 : 1;
+  return {
+    trailCount: 8,
+    evidenceCount: demoData.evidence.length,
+    usedEvidenceCount: usedEvidence.size,
+    weakEvidenceCount: weakEvidence.length,
+    pendingCount,
+    gapCount: weakEvidence.length + pendingCount,
+    verifiedPercent: Math.round((usedEvidence.size / Math.max(demoData.evidence.length, 1)) * 100),
+    weakEvidence
+  };
+}
+
+function getCloseoutBundleCount() {
+  return 6;
+}
+
+function getCloseoutEvidenceDebtItems() {
+  const usedEvidence = new Set([
+    ...demoData.failures.flatMap((failure) => failure.evidence),
+    ...demoData.events.flatMap((event) => event.evidence_ids || []),
+    ...demoData.decision.evidence_ids
+  ]);
+  return demoData.evidence
+    .filter((item) => item.status !== "근거 있음" || !usedEvidence.has(item.id))
+    .map((item) => ({
+      id: item.id,
+      title: item.title,
+      source: item.source,
+      status: item.status,
+      owner: item.status === "추정" ? "검증관" : "작전참모",
+      tone: item.status === "추정" ? "danger" : "evidence"
+    }));
+}
+
+function getCloseoutUrgentQueueItems() {
+  const ownerByFailure = {
+    command_gap: "통신참모",
+    sustainment_drop: "군수참모",
+    accident_delay: "의무참모",
+    rejudge_delay: "지휘관"
+  };
+  return demoData.failures
+    .filter((failure) => failure.score >= 88)
+    .map((failure) => {
+      const event = demoData.events.find((item) => item.linked_risks.includes(failure.id));
+      return {
+        id: `closeout-queue-${failure.id}`,
+        title: `${failure.title} 후속 확인`,
+        owner: ownerByFailure[failure.id] || "작전참모",
+        due: event?.time || "즉시",
+        score: failure.score,
+        ref: failure.id,
+        tone: failure.score >= 90 ? "danger" : "evidence"
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+function getCloseoutRetrainingGateCount() {
+  const schedule = getRetrainingScheduleItems();
+  const gates = [
+    schedule.length >= 6,
+    new Set(schedule.map((item) => item.evidenceId).filter(Boolean)).size >= 4,
+    getActiveDecisionConditionIds().size >= getDecisionConditions().length,
+    schedule.filter((item) => item.priority === "high").length >= 2
+  ];
+  return gates.filter(Boolean).length;
+}
+
+function getCloseoutDecisionItems() {
+  const receiptTracks = getCloseoutReceiptItems();
+  const receiptScore = getCloseoutReceiptReadinessScore(receiptTracks);
+  return [
+    {
+      id: "closeout-decision-card",
+      label: "결심카드",
+      title: `${demoData.decision.recommended_coa} 조건부 시행`,
+      detail: demoData.decision.command_authority_notice,
+      value: `${getActiveDecisionConditionIds().size}/${getDecisionConditions().length} 조건`,
+      action: "stage",
+      ref: "decision",
+      tone: "primary"
+    },
+    {
+      id: "closeout-order",
+      label: "단편명령",
+      title: demoData.order.title,
+      detail: demoData.order.command_signal[0] || "지휘 및 통신 기준 확인",
+      value: `${demoData.order.execution.length}개 실행`,
+      action: "stage",
+      ref: "decision",
+      tone: "support"
+    },
+    {
+      id: "closeout-receipt-lock",
+      label: "수신 잠금",
+      title: `수신 확인 ${receiptScore}%`,
+      detail: `${receiptTracks.filter((item) => !item.ready).length}명 미확인 대상 추적`,
+      value: `${receiptTracks.filter((item) => item.ready).length}/${receiptTracks.length} 수신`,
+      action: "stage",
+      ref: "receipt",
+      tone: receiptScore >= 80 ? "evidence" : "danger"
+    }
+  ];
+}
+
+function getCloseoutExceptionItems() {
+  const openReceipt = getCloseoutReceiptItems().filter((item) => !item.ready);
+  const evidenceDebt = getCloseoutEvidenceDebtItems();
+  const urgentQueue = getCloseoutUrgentQueueItems();
+  const auditSummary = getCloseoutAuditSummary();
+  return [
+    {
+      id: "closeout-exception-receipt",
+      label: "미확인 수신",
+      owner: openReceipt[0]?.recipient || "상황장교",
+      detail: openReceipt.length ? `${openReceipt.map((item) => item.recipient).join(", ")} 재확인` : "수신자 확인 완료",
+      ready: openReceipt.length <= 1,
+      value: `${openReceipt.length}명`,
+      action: "stage",
+      ref: "receipt",
+      tone: openReceipt.length ? "danger" : "support"
+    },
+    {
+      id: "closeout-exception-evidence",
+      label: "근거 부채",
+      owner: "검증관",
+      detail: evidenceDebt[0]?.title || "추가 근거 부채 없음",
+      ready: evidenceDebt.length <= 3,
+      value: `${evidenceDebt.length}건`,
+      action: "stage",
+      ref: "metrics",
+      tone: evidenceDebt.length ? "evidence" : "support"
+    },
+    {
+      id: "closeout-exception-queue",
+      label: "긴급 큐",
+      owner: urgentQueue[0]?.owner || "작전참모",
+      detail: urgentQueue[0]?.title || "즉시 큐 없음",
+      ready: urgentQueue.length <= 2,
+      value: `${urgentQueue.length}건`,
+      action: "stage",
+      ref: "risk",
+      tone: urgentQueue.length ? "danger" : "support"
+    },
+    {
+      id: "closeout-exception-audit",
+      label: "검증 공백",
+      owner: "감사 담당",
+      detail: `근거 검증 ${auditSummary.verifiedPercent}% · 원장 ${auditSummary.evidenceCount}건`,
+      ready: auditSummary.gapCount <= 2,
+      value: `${auditSummary.gapCount}건`,
+      action: "stage",
+      ref: "audit",
+      tone: auditSummary.gapCount ? "evidence" : "support"
+    }
+  ];
+}
+
+function getCloseoutArchiveItems() {
+  const receiptTracks = getCloseoutReceiptItems();
+  const auditSummary = getCloseoutAuditSummary();
+  return [
+    {
+      id: "closeout-archive-submit",
+      label: "제출 패키지",
+      file: "war-ground-submission-packet.json",
+      detail: `${getCloseoutBundleCount()}개 제출 산출물`,
+      ready: getCloseoutSubmissionScore() >= 80,
+      action: "stage",
+      ref: "submit",
+      tone: "primary"
+    },
+    {
+      id: "closeout-archive-receipt",
+      label: "수신 확인",
+      file: "war-ground-receipt-tracker.json",
+      detail: `${receiptTracks.length}명 수신 상태`,
+      ready: getCloseoutReceiptReadinessScore(receiptTracks) >= 70,
+      action: "stage",
+      ref: "receipt",
+      tone: "evidence"
+    },
+    {
+      id: "closeout-archive-audit",
+      label: "감사 로그",
+      file: "war-ground-audit-logbook.json",
+      detail: `${auditSummary.trailCount}개 판단 이벤트`,
+      ready: auditSummary.gapCount <= 2,
+      action: "stage",
+      ref: "audit",
+      tone: "support"
+    },
+    {
+      id: "closeout-archive-retrain",
+      label: "재훈련 계획",
+      file: "war-ground-72h-retraining-plan.json",
+      detail: `${getRetrainingScheduleItems().length}개 훈련 과제`,
+      ready: getCloseoutRetrainingGateCount() >= 3,
+      action: "stage",
+      ref: "retrain",
+      tone: "primary"
+    },
+    {
+      id: "closeout-archive-closeout",
+      label: "종결 보고",
+      file: "war-ground-closeout-report.json",
+      detail: "결심·수신·예외·보관 통합 기록",
+      ready: true,
+      action: "download",
+      ref: "closeout",
+      tone: "evidence"
+    }
+  ];
+}
+
+function getCloseoutReadinessScore(
+  summaryItems = getCloseoutSummaryItems(),
+  exceptionItems = getCloseoutExceptionItems(),
+  archiveItems = getCloseoutArchiveItems(),
+  receiptScore = getCloseoutReceiptReadinessScore()
+) {
+  const summaryScore = Math.round((summaryItems.filter((item) => item.ready).length / Math.max(summaryItems.length, 1)) * 100);
+  const exceptionScore = Math.round((exceptionItems.filter((item) => item.ready).length / Math.max(exceptionItems.length, 1)) * 100);
+  const archiveScore = Math.round((archiveItems.filter((item) => item.ready).length / Math.max(archiveItems.length, 1)) * 100);
+  return clamp(Math.round((summaryScore + exceptionScore + archiveScore + receiptScore) / 4), 32, 99);
+}
+
+function getCloseoutPackage() {
+  return {
+    package_type: "war-ground-closeout-report",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getCloseoutReadinessScore(),
+    selected_item: getSelectedCloseoutItem(),
+    summary_items: getCloseoutSummaryItems(),
+    decision_items: getCloseoutDecisionItems(),
+    exceptions: getCloseoutExceptionItems(),
+    archive_items: getCloseoutArchiveItems(),
+    receipt_readiness: getCloseoutReceiptReadinessScore(),
+    submission_readiness: getCloseoutSubmissionScore(),
+    audit_gap_count: getCloseoutAuditSummary().gapCount
+  };
+}
+
+function getCloseoutSummaryText() {
+  const packet = getCloseoutPackage();
+  return [
+    "WAR GROUND 종결 보고",
+    `작전: ${packet.operation}`,
+    `종결 준비도: ${packet.readiness_score}%`,
+    `잠금: ${packet.summary_items.map((item) => `${item.label}-${item.ready ? "완료" : "대기"}`).join(" / ")}`,
+    `예외: ${packet.exceptions.map((item) => `${item.label} ${item.value}`).join(" / ")}`,
+    `보관: ${packet.archive_items.map((item) => item.file).join(" / ")}`
+  ].join("\n");
+}
+
+function renderCloseoutReport() {
+  const page = byId("page-closeout");
+  if (!page) return;
+  const summaryItems = getCloseoutSummaryItems();
+  const selected = summaryItems.find((item) => item.id === state.selectedCloseoutItemId) || summaryItems[0];
+  if (selected) state.selectedCloseoutItemId = selected.id;
+  const decisionItems = getCloseoutDecisionItems();
+  const exceptions = getCloseoutExceptionItems();
+  const archives = getCloseoutArchiveItems();
+  const readiness = getCloseoutReadinessScore(summaryItems, exceptions, archives);
+  const overview = byId("closeoutOverviewPanel");
+  const decisionPanel = byId("closeoutDecisionPanel");
+  const exceptionPanel = byId("closeoutExceptionPanel");
+  const archivePanel = byId("closeoutArchivePanel");
+
+  if (overview) {
+    const readyCount = summaryItems.filter((item) => item.ready).length;
+    overview.innerHTML = `
+      <div class="panel-heading"><span>종결 보고</span><b>${readiness}%</b></div>
+      <strong>${selected?.label || "종결"} ${selected?.value || "대기"}</strong>
+      <p>${selected?.detail || "최종 운용 기록을 잠급니다."}</p>
+      <div class="closeout-kpi-grid">
+        <article><span>잠금</span><b>${readyCount}/${summaryItems.length}</b><em>종결 조건</em></article>
+        <article><span>예외</span><b>${exceptions.filter((item) => !item.ready).length}</b><em>후속 책임</em></article>
+        <article><span>보관</span><b>${archives.length}</b><em>산출물</em></article>
+      </div>
+      ${selected ? `
+        <div class="closeout-selected-card is-${selected.tone}">
+          <span>${selected.ready ? "완료" : "대기"} · ${selected.label}</span>
+          <b>${selected.value}</b>
+          <p>${selected.detail}</p>
+          <button type="button" data-closeout-action="${selected.action}" data-closeout-ref="${selected.ref}">열기</button>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  if (decisionPanel) {
+    decisionPanel.innerHTML = `
+      <div class="panel-heading"><span>최종 판단</span><b>${decisionItems.length}개</b></div>
+      ${decisionItems.map((item) => `
+        <article class="closeout-decision-card is-${item.tone}">
+          <span>${item.label} · ${item.value}</span>
+          <b>${item.title}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-closeout-action="${item.action}" data-closeout-ref="${item.ref}">열기</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (exceptionPanel) {
+    exceptionPanel.innerHTML = `
+      <div class="panel-heading"><span>예외 처리</span><b>${exceptions.filter((item) => !item.ready).length}건</b></div>
+      ${exceptions.map((item, index) => `
+        <article class="closeout-exception-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${String(index + 1).padStart(2, "0")} · ${item.owner}</span>
+          <b>${item.label}</b>
+          <p>${item.detail}</p>
+          <footer>
+            <em>${item.value}</em>
+            <button type="button" data-closeout-action="${item.action}" data-closeout-ref="${item.ref}">열기</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (archivePanel) {
+    archivePanel.innerHTML = `
+      <div class="panel-heading"><span>보관 산출물</span><b>${archives.filter((item) => item.ready).length}/${archives.length}</b></div>
+      ${archives.map((item) => `
+        <article class="closeout-archive-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${item.ready ? "잠금" : "확인"} · ${item.label}</span>
+          <b>${item.file}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-closeout-action="${item.action}" data-closeout-ref="${item.ref}">${item.action === "download" ? "저장" : "열기"}</button>
+        </article>
+      `).join("")}
+      <div class="closeout-packet-actions">
+        <button type="button" data-closeout-action="stage" data-closeout-ref="receipt">수신 확인</button>
+        <button type="button" data-closeout-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runCloseoutAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedCloseoutItemId = ref || state.selectedCloseoutItemId;
+    renderCloseoutReport();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getCloseoutPackage(), "war-ground-closeout-report.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getCloseoutSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getLessonSummaryItems() {
+  const patterns = getLessonPatternItems();
+  const checks = getLessonChecklistItems();
+  const closeoutScore = getCloseoutReadinessScore();
+  return [
+    {
+      id: "lesson-command-gap",
+      label: "우선 교훈",
+      value: "통신 공백",
+      detail: "예비망 전환 권한과 미확인 수신 추적을 다음 작전 체크로 고정",
+      ready: true,
+      action: "risk",
+      ref: "command_gap",
+      tone: "danger"
+    },
+    {
+      id: "lesson-conditional-decision",
+      label: "결심 재사용",
+      value: demoData.decision.recommended_coa,
+      detail: demoData.decision.conditional_coa,
+      ready: getActiveDecisionConditionIds().size >= getDecisionConditions().length,
+      action: "stage",
+      ref: "decision",
+      tone: "primary"
+    },
+    {
+      id: "lesson-checklist",
+      label: "재사용 체크",
+      value: `${checks.filter((item) => item.ready).length}/${checks.length}`,
+      detail: "다음 작전 투입 전 확인할 조건",
+      ready: checks.filter((item) => item.ready).length >= Math.ceil(checks.length * 0.7),
+      action: "stage",
+      ref: "lessons",
+      tone: "support"
+    },
+    {
+      id: "lesson-package",
+      label: "교훈 패킷",
+      value: `${patterns.length}개 패턴`,
+      detail: `종결 준비도 ${closeoutScore}% 기반`,
+      ready: closeoutScore >= 60,
+      action: "download",
+      ref: "lessons",
+      tone: "evidence"
+    }
+  ];
+}
+
+function getLessonPatternItems() {
+  const exceptionItems = getCloseoutExceptionItems();
+  const receiptOpen = getCloseoutReceiptItems().filter((item) => !item.ready).length;
+  return [
+    {
+      id: "lesson-pattern-command",
+      label: "반복 위험",
+      title: "통신 두절 전 예비망 권한을 먼저 확정",
+      detail: `미확인 수신 ${receiptOpen}명과 긴급 큐를 동시에 닫아야 지휘공백이 줄어듭니다.`,
+      reuse: "작전 접수 시 통신참모 권한·대체망·수신 확인자를 같은 줄에 배치",
+      owner: "통신참모",
+      stage: "risk",
+      ref: "command_gap",
+      evidenceId: "ev_comm_gap",
+      ready: receiptOpen <= 2,
+      tone: "danger"
+    },
+    {
+      id: "lesson-pattern-decision",
+      label: "결심 조건",
+      title: `${demoData.decision.recommended_coa} 우선, A안 조건부 유지`,
+      detail: demoData.decision.conditional_coa,
+      reuse: "방책 추천은 통신·군수·재판단·후송 조건이 잠긴 뒤에만 승격",
+      owner: "지휘관",
+      stage: "decision",
+      ref: "decision",
+      evidenceId: demoData.decision.evidence_ids[0],
+      ready: true,
+      tone: "primary"
+    },
+    {
+      id: "lesson-pattern-evidence",
+      label: "근거 부채",
+      title: "추정 근거는 종결 전 책임자를 붙여 보관",
+      detail: exceptionItems.find((item) => item.id === "closeout-exception-evidence")?.detail || "근거 원장 공백 추적",
+      reuse: "검증관이 약한 근거를 원장, 실패경로, 재훈련 체크에 동시에 연결",
+      owner: "검증관",
+      stage: "audit",
+      ref: "audit",
+      evidenceId: "ev_comm_gap",
+      ready: getCloseoutEvidenceDebtItems().length <= 3,
+      tone: "evidence"
+    },
+    {
+      id: "lesson-pattern-retrain",
+      label: "재훈련 전환",
+      title: "AAR 조치는 72시간 훈련 과제로 즉시 전환",
+      detail: `${getRetrainingScheduleItems().length}개 훈련 과제와 ${getCloseoutRetrainingGateCount()}/4 검증 게이트`,
+      reuse: "훈련장교가 고위험 실패경로부터 드릴, 측정 기준, 근거를 묶어 배치",
+      owner: "훈련장교",
+      stage: "retrain",
+      ref: "retrain",
+      evidenceId: "ev_redteam_delay",
+      ready: getCloseoutRetrainingGateCount() >= 3,
+      tone: "support"
+    }
+  ];
+}
+
+function getLessonChecklistItems() {
+  const receiptItems = getCloseoutReceiptItems();
+  const audit = getCloseoutAuditSummary();
+  const archives = getCloseoutArchiveItems();
+  return [
+    {
+      id: "lesson-check-intake",
+      label: "자료 접수",
+      title: "작전계획 접수 전 결심 산출 잠금",
+      detail: `${demoData.operationPlan.documents.length}종 자료와 ${demoData.coas.length}개 방책 비교 기준`,
+      ready: true,
+      stage: "data",
+      tone: "primary"
+    },
+    {
+      id: "lesson-check-comms",
+      label: "통신",
+      title: "예비망 전환 권한과 수신 확인자를 같은 체크에 둠",
+      detail: `${receiptItems.filter((item) => !item.ready).length}명 미확인 수신 추적`,
+      ready: receiptItems.filter((item) => !item.ready).length <= 2,
+      stage: "receipt",
+      tone: "danger"
+    },
+    {
+      id: "lesson-check-evidence",
+      label: "근거",
+      title: "추정·약한 근거는 검증관 책임으로 재분류",
+      detail: `검증 공백 ${audit.gapCount}건 / 근거 사용률 ${audit.verifiedPercent}%`,
+      ready: audit.verifiedPercent >= 70,
+      stage: "audit",
+      tone: "evidence"
+    },
+    {
+      id: "lesson-check-retrain",
+      label: "훈련",
+      title: "AAR 조치가 재훈련 과제로 전환됐는지 확인",
+      detail: `${getRetrainingScheduleItems().length}개 과제 / 게이트 ${getCloseoutRetrainingGateCount()}/4`,
+      ready: getCloseoutRetrainingGateCount() >= 3,
+      stage: "retrain",
+      tone: "support"
+    },
+    {
+      id: "lesson-check-archive",
+      label: "보관",
+      title: "종결 보고와 교훈 패킷을 함께 저장",
+      detail: `${archives.filter((item) => item.ready).length}/${archives.length} 종결 산출물 잠금`,
+      ready: archives.filter((item) => item.ready).length >= 4,
+      stage: "closeout",
+      tone: "primary"
+    }
+  ];
+}
+
+function getLessonArchiveItems() {
+  const patterns = getLessonPatternItems();
+  const checks = getLessonChecklistItems();
+  return [
+    {
+      id: "lesson-archive-library",
+      label: "교훈 라이브러리",
+      file: "war-ground-lessons-library.json",
+      detail: `${patterns.length}개 판단 패턴과 ${checks.length}개 재사용 체크`,
+      ready: true,
+      action: "download",
+      ref: "lessons",
+      tone: "primary"
+    },
+    {
+      id: "lesson-archive-checklist",
+      label: "재사용 체크",
+      file: "war-ground-reuse-checklist.json",
+      detail: `${checks.filter((item) => item.ready).length}/${checks.length} 조건 준비`,
+      ready: checks.filter((item) => item.ready).length >= 4,
+      action: "stage",
+      ref: "lessons",
+      tone: "support"
+    },
+    {
+      id: "lesson-archive-closeout",
+      label: "종결 연결",
+      file: "war-ground-closeout-report.json",
+      detail: "결심·수신·예외·보관 기록 참조",
+      ready: getCloseoutReadinessScore() >= 60,
+      action: "stage",
+      ref: "closeout",
+      tone: "evidence"
+    },
+    {
+      id: "lesson-archive-training",
+      label: "훈련 반영",
+      file: "war-ground-training-insert.json",
+      detail: "72시간 재훈련 계획에 교훈 체크 삽입",
+      ready: getCloseoutRetrainingGateCount() >= 3,
+      action: "stage",
+      ref: "retrain",
+      tone: "primary"
+    }
+  ];
+}
+
+function getLessonReadinessScore(
+  summaryItems = getLessonSummaryItems(),
+  patternItems = getLessonPatternItems(),
+  checklistItems = getLessonChecklistItems(),
+  archiveItems = getLessonArchiveItems()
+) {
+  const summaryScore = Math.round((summaryItems.filter((item) => item.ready).length / Math.max(summaryItems.length, 1)) * 100);
+  const patternScore = Math.round((patternItems.filter((item) => item.ready).length / Math.max(patternItems.length, 1)) * 100);
+  const checklistScore = Math.round((checklistItems.filter((item) => item.ready).length / Math.max(checklistItems.length, 1)) * 100);
+  const archiveScore = Math.round((archiveItems.filter((item) => item.ready).length / Math.max(archiveItems.length, 1)) * 100);
+  return clamp(Math.round((summaryScore + patternScore + checklistScore + archiveScore) / 4), 36, 99);
+}
+
+function getLessonPackage() {
+  return {
+    package_type: "war-ground-lessons-library",
+    generated_at: new Date().toISOString(),
+    operation: demoData.operationPlan.operation_name,
+    readiness_score: getLessonReadinessScore(),
+    selected_lesson: state.selectedLessonItemId,
+    summary_items: getLessonSummaryItems(),
+    pattern_items: getLessonPatternItems(),
+    reuse_checklist: getLessonChecklistItems(),
+    archive_items: getLessonArchiveItems(),
+    source_closeout: {
+      readiness_score: getCloseoutReadinessScore(),
+      receipt_readiness: getCloseoutReceiptReadinessScore(),
+      audit_gap_count: getCloseoutAuditSummary().gapCount
+    }
+  };
+}
+
+function getLessonSummaryText() {
+  const packet = getLessonPackage();
+  return [
+    "WAR GROUND 교훈 라이브러리",
+    `작전: ${packet.operation}`,
+    `재사용 준비도: ${packet.readiness_score}%`,
+    `패턴: ${packet.pattern_items.map((item) => item.title).join(" / ")}`,
+    `체크: ${packet.reuse_checklist.map((item) => `${item.label}-${item.ready ? "완료" : "확인"}`).join(" / ")}`,
+    `보관: ${packet.archive_items.map((item) => item.file).join(" / ")}`
+  ].join("\n");
+}
+
+function renderLessonsLibrary() {
+  const page = byId("page-lessons");
+  if (!page) return;
+  const summaryItems = getLessonSummaryItems();
+  const patterns = getLessonPatternItems();
+  const checks = getLessonChecklistItems();
+  const archives = getLessonArchiveItems();
+  const readiness = getLessonReadinessScore(summaryItems, patterns, checks, archives);
+  const selected = [...summaryItems, ...patterns].find((item) => item.id === state.selectedLessonItemId) || summaryItems[0];
+  if (selected) state.selectedLessonItemId = selected.id;
+  const selectedAction = selected?.action || (selected?.stage === "risk" ? "risk" : selected?.stage ? "stage" : "select");
+  const selectedRef = selected?.action ? selected.ref : selected?.stage === "risk" ? selected.ref : selected?.stage || selected?.id;
+  const overview = byId("lessonsOverviewPanel");
+  const patternPanel = byId("lessonsPatternPanel");
+  const checklistPanel = byId("lessonsChecklistPanel");
+  const archivePanel = byId("lessonsArchivePanel");
+
+  if (overview) {
+    overview.innerHTML = `
+      <div class="panel-heading"><span>교훈 라이브러리</span><b>${readiness}%</b></div>
+      <strong>${selected?.value || selected?.title || "교훈"} 재사용</strong>
+      <p>${selected?.detail || "종결 산출물을 다음 작전 체크로 전환합니다."}</p>
+      <div class="lessons-kpi-grid">
+        <article><span>패턴</span><b>${patterns.length}</b><em>판단 조건</em></article>
+        <article><span>체크</span><b>${checks.filter((item) => item.ready).length}/${checks.length}</b><em>재사용 준비</em></article>
+        <article><span>보관</span><b>${archives.filter((item) => item.ready).length}/${archives.length}</b><em>패킷</em></article>
+      </div>
+      <div class="lessons-selected-card is-${selected?.tone || "primary"}">
+        <span>${selected?.label || "선택 교훈"}</span>
+        <b>${selected?.title || selected?.value || "재사용 교훈"}</b>
+        <p>${selected?.reuse || selected?.detail || "다음 작전 적용 기준을 확인합니다."}</p>
+        <button type="button" data-lesson-action="${selectedAction}" data-lesson-ref="${selectedRef}">열기</button>
+      </div>
+    `;
+  }
+
+  if (patternPanel) {
+    patternPanel.innerHTML = `
+      <div class="panel-heading"><span>판단 패턴</span><b>${patterns.length}개</b></div>
+      ${patterns.map((item) => `
+        <article class="lessons-pattern-card is-${item.tone} ${item.id === state.selectedLessonItemId ? "is-selected" : ""}">
+          <button type="button" data-lesson-action="select" data-lesson-ref="${item.id}" aria-pressed="${item.id === state.selectedLessonItemId ? "true" : "false"}">
+            <span>${item.label} · ${item.owner}</span>
+            <b>${item.title}</b>
+            <p>${item.detail}</p>
+          </button>
+          <footer>
+            <em>${item.reuse}</em>
+            <button type="button" data-lesson-action="${item.stage === "risk" ? "risk" : "stage"}" data-lesson-ref="${item.stage === "risk" ? item.ref : item.stage}">출처</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (checklistPanel) {
+    checklistPanel.innerHTML = `
+      <div class="panel-heading"><span>재사용 체크</span><b>${checks.filter((item) => item.ready).length}/${checks.length}</b></div>
+      ${checks.map((item, index) => `
+        <article class="lessons-check-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${String(index + 1).padStart(2, "0")} · ${item.ready ? "완료" : "확인"}</span>
+          <b>${item.title}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-lesson-action="stage" data-lesson-ref="${item.stage}">${item.label}</button>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (archivePanel) {
+    archivePanel.innerHTML = `
+      <div class="panel-heading"><span>교훈 보관</span><b>${archives.filter((item) => item.ready).length}/${archives.length}</b></div>
+      ${archives.map((item) => `
+        <article class="lessons-archive-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${item.ready ? "잠금" : "확인"} · ${item.label}</span>
+          <b>${item.file}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-lesson-action="${item.action}" data-lesson-ref="${item.ref}">${item.action === "download" ? "저장" : "열기"}</button>
+        </article>
+      `).join("")}
+      <div class="lessons-packet-actions">
+        <button type="button" data-lesson-action="stage" data-lesson-ref="closeout">종결 보고</button>
+        <button type="button" data-lesson-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runLessonAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedLessonItemId = ref || state.selectedLessonItemId;
+    renderLessonsLibrary();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getLessonPackage(), "war-ground-lessons-library.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getLessonSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getNextOperationSummaryItems() {
+  const patterns = getLessonPatternItems();
+  const constraints = getNextOperationConstraintItems();
+  const packets = getNextOperationPacketItems();
+  const lessonScore = getLessonReadinessScore();
+  return [
+    {
+      id: "nextop-summary-source",
+      label: "교훈 원본",
+      value: `${patterns.length}개 패턴`,
+      detail: `교훈 준비도 ${lessonScore}% 기반`,
+      ready: lessonScore >= 60,
+      action: "stage",
+      ref: "lessons",
+      tone: "primary"
+    },
+    {
+      id: "nextop-summary-comms",
+      label: "우선 시드",
+      value: "통신 예비망",
+      detail: "예비망 권한, 수신 확인자, 지휘공백 감시를 접수 템플릿 첫 줄에 배치",
+      ready: true,
+      action: "select",
+      ref: "nextop-seed-comms",
+      tone: "danger"
+    },
+    {
+      id: "nextop-summary-constraints",
+      label: "초기 제약",
+      value: `${constraints.filter((item) => item.ready).length}/${constraints.length}`,
+      detail: "다음 작전 첫 검토에서 잠글 조건",
+      ready: constraints.filter((item) => item.ready).length >= Math.ceil(constraints.length * 0.7),
+      action: "select",
+      ref: constraints.find((item) => !item.ready)?.id || constraints[0]?.id,
+      tone: "support"
+    },
+    {
+      id: "nextop-summary-packet",
+      label: "템플릿 패킷",
+      value: `${packets.length}개 파일`,
+      detail: "접수 프리필, 위험 감시, 훈련 삽입 자료",
+      ready: packets.every((item) => item.ready),
+      action: "download",
+      ref: "nextop",
+      tone: "evidence"
+    }
+  ];
+}
+
+function getNextOperationSeedItems() {
+  const commandPattern = getLessonPatternItems().find((item) => item.id === "lesson-pattern-command");
+  return [
+    {
+      id: "nextop-seed-mission",
+      label: "임무 시드",
+      value: demoData.operationPlan.operation_name,
+      detail: `${demoData.operationPlan.mission} / ${demoData.operationPlan.start_time}-${demoData.operationPlan.deadline}`,
+      ready: true,
+      action: "stage",
+      ref: "data",
+      tone: "primary"
+    },
+    {
+      id: "nextop-seed-comms",
+      label: "통신 시드",
+      value: "예비망 권한 먼저 확정",
+      detail: commandPattern?.reuse || "통신참모 권한, 대체망, 수신 확인자를 접수 단계에서 묶습니다.",
+      ready: Boolean(commandPattern?.ready),
+      action: "risk",
+      ref: "command_gap",
+      tone: "danger"
+    },
+    {
+      id: "nextop-seed-decision",
+      label: "결심 시드",
+      value: demoData.decision.recommended_coa,
+      detail: `${demoData.decision.conditional_coa} 조건을 새 방책 비교표 기본 검토 항목으로 둡니다.`,
+      ready: getActiveDecisionConditionIds().size >= getDecisionConditions().length,
+      action: "stage",
+      ref: "decision",
+      tone: "evidence"
+    },
+    {
+      id: "nextop-seed-training",
+      label: "훈련 삽입",
+      value: `${getRetrainingScheduleItems().length}개 드릴`,
+      detail: "AAR 조치와 재훈련 게이트를 새 작전 전 점검 항목으로 불러옵니다.",
+      ready: getRetrainingScheduleItems().length >= 3,
+      action: "stage",
+      ref: "retrain",
+      tone: "support"
+    }
+  ];
+}
+
+function getNextOperationConstraintItems() {
+  return getLessonChecklistItems().map((item, index) => ({
+    id: `nextop-constraint-${item.id.replace(/^lesson-check-/, "")}`,
+    label: item.label,
+    title: item.title,
+    detail: item.detail,
+    ready: item.ready,
+    stage: item.stage,
+    tone: item.tone,
+    sourceId: item.id,
+    order: index + 1
+  }));
+}
+
+function getNextOperationPacketItems() {
+  const checks = getNextOperationConstraintItems();
+  const patterns = getLessonPatternItems();
+  return [
+    {
+      id: "nextop-packet-template",
+      label: "기본 템플릿",
+      file: "war-ground-next-operation-template.json",
+      detail: "임무 시드, 제약, 교훈 연결을 한 번에 저장",
+      ready: true,
+      action: "download",
+      ref: "nextop",
+      tone: "primary"
+    },
+    {
+      id: "nextop-packet-intake",
+      label: "접수 프리필",
+      file: "war-ground-intake-prefill.json",
+      detail: `${demoData.operationPlan.documents.length}종 자료 구조와 ${demoData.coas.length}개 방책 비교 틀`,
+      ready: true,
+      action: "stage",
+      ref: "data",
+      tone: "support"
+    },
+    {
+      id: "nextop-packet-risk",
+      label: "위험 감시",
+      file: "war-ground-risk-watchlist.json",
+      detail: `${patterns.filter((item) => item.tone === "danger").length}개 고위험 패턴을 초기 감시 대상으로 보관`,
+      ready: patterns.some((item) => item.tone === "danger"),
+      action: "risk",
+      ref: "command_gap",
+      tone: "danger"
+    },
+    {
+      id: "nextop-packet-training",
+      label: "훈련 삽입",
+      file: "war-ground-training-inserts.json",
+      detail: `${checks.filter((item) => item.ready).length}/${checks.length}개 제약을 재훈련 확인표와 연결`,
+      ready: getRetrainingScheduleItems().length >= 3,
+      action: "stage",
+      ref: "retrain",
+      tone: "evidence"
+    }
+  ];
+}
+
+function getNextOperationReadinessScore(
+  summaryItems = getNextOperationSummaryItems(),
+  seedItems = getNextOperationSeedItems(),
+  constraintItems = getNextOperationConstraintItems(),
+  packetItems = getNextOperationPacketItems()
+) {
+  const summaryScore = Math.round((summaryItems.filter((item) => item.ready).length / Math.max(summaryItems.length, 1)) * 100);
+  const seedScore = Math.round((seedItems.filter((item) => item.ready).length / Math.max(seedItems.length, 1)) * 100);
+  const constraintScore = Math.round((constraintItems.filter((item) => item.ready).length / Math.max(constraintItems.length, 1)) * 100);
+  const packetScore = Math.round((packetItems.filter((item) => item.ready).length / Math.max(packetItems.length, 1)) * 100);
+  return clamp(Math.round((summaryScore + seedScore + constraintScore + packetScore) / 4), 38, 99);
+}
+
+function getNextOperationPackage() {
+  return {
+    package_type: "war-ground-next-operation-template",
+    generated_at: new Date().toISOString(),
+    source_operation: demoData.operationPlan.operation_name,
+    readiness_score: getNextOperationReadinessScore(),
+    selected_template_item: state.selectedNextOpItemId,
+    summary_items: getNextOperationSummaryItems(),
+    operation_seed: getNextOperationSeedItems(),
+    initial_constraints: getNextOperationConstraintItems(),
+    packet_items: getNextOperationPacketItems(),
+    source_lessons: {
+      readiness_score: getLessonReadinessScore(),
+      pattern_count: getLessonPatternItems().length,
+      checklist_count: getLessonChecklistItems().length
+    }
+  };
+}
+
+function getNextOperationSummaryText() {
+  const packet = getNextOperationPackage();
+  return [
+    "WAR GROUND 다음 작전 템플릿",
+    `원본 작전: ${packet.source_operation}`,
+    `접수 준비도: ${packet.readiness_score}%`,
+    `작전 시드: ${packet.operation_seed.map((item) => `${item.label}-${item.value}`).join(" / ")}`,
+    `초기 제약: ${packet.initial_constraints.map((item) => `${item.label}-${item.ready ? "잠금" : "확인"}`).join(" / ")}`,
+    `패킷: ${packet.packet_items.map((item) => item.file).join(" / ")}`
+  ].join("\n");
+}
+
+function renderNextOperationTemplate() {
+  const page = byId("page-nextop");
+  if (!page) return;
+  const summaryItems = getNextOperationSummaryItems();
+  const seedItems = getNextOperationSeedItems();
+  const constraints = getNextOperationConstraintItems();
+  const packets = getNextOperationPacketItems();
+  const readiness = getNextOperationReadinessScore(summaryItems, seedItems, constraints, packets);
+  const selected = [...summaryItems, ...seedItems, ...constraints].find((item) => item.id === state.selectedNextOpItemId) || seedItems[1] || summaryItems[0];
+  if (selected) state.selectedNextOpItemId = selected.id;
+  const selectedAction = selected?.action || (selected?.stage ? "stage" : "select");
+  const selectedRef = selected?.action ? selected.ref : selected?.stage || selected?.id;
+  const overview = byId("nextopOverviewPanel");
+  const seedPanel = byId("nextopSeedPanel");
+  const constraintPanel = byId("nextopConstraintPanel");
+  const packetPanel = byId("nextopPacketPanel");
+
+  if (overview) {
+    overview.innerHTML = `
+      <div class="panel-heading"><span>다음 작전 템플릿</span><b>${readiness}%</b></div>
+      <strong>${selected?.value || selected?.title || "작전 시드"} 준비</strong>
+      <p>${selected?.detail || "교훈을 다음 작전 접수 기준으로 변환합니다."}</p>
+      <div class="nextop-kpi-grid">
+        <article><span>시드</span><b>${seedItems.filter((item) => item.ready).length}/${seedItems.length}</b><em>접수값</em></article>
+        <article><span>제약</span><b>${constraints.filter((item) => item.ready).length}/${constraints.length}</b><em>초기 확인</em></article>
+        <article><span>패킷</span><b>${packets.filter((item) => item.ready).length}/${packets.length}</b><em>파일</em></article>
+      </div>
+      <div class="nextop-selected-card is-${selected?.tone || "primary"}">
+        <span>${selected?.label || "선택 시드"}</span>
+        <b>${selected?.title || selected?.value || "다음 작전 입력값"}</b>
+        <p>${selected?.detail || "다음 작전 접수 전에 확인합니다."}</p>
+        <button type="button" data-nextop-action="${selectedAction}" data-nextop-ref="${selectedRef}">열기</button>
+      </div>
+    `;
+  }
+
+  if (seedPanel) {
+    seedPanel.innerHTML = `
+      <div class="panel-heading"><span>작전 시드</span><b>${seedItems.length}개</b></div>
+      ${seedItems.map((item) => `
+        <article class="nextop-seed-card is-${item.tone} ${item.id === state.selectedNextOpItemId ? "is-selected" : ""}">
+          <button type="button" data-nextop-action="select" data-nextop-ref="${item.id}" aria-pressed="${item.id === state.selectedNextOpItemId ? "true" : "false"}">
+            <span>${item.label} · ${item.ready ? "잠금" : "확인"}</span>
+            <b>${item.value}</b>
+            <p>${item.detail}</p>
+          </button>
+          <footer>
+            <em>${item.ready ? "다음 접수에 바로 반영" : "출처 확인 필요"}</em>
+            <button type="button" data-nextop-action="${item.action}" data-nextop-ref="${item.ref}">출처</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (constraintPanel) {
+    constraintPanel.innerHTML = `
+      <div class="panel-heading"><span>초기 제약</span><b>${constraints.filter((item) => item.ready).length}/${constraints.length}</b></div>
+      ${constraints.map((item) => `
+        <article class="nextop-constraint-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"} ${item.id === state.selectedNextOpItemId ? "is-selected" : ""}">
+          <button type="button" data-nextop-action="select" data-nextop-ref="${item.id}" aria-pressed="${item.id === state.selectedNextOpItemId ? "true" : "false"}">
+            <span>${String(item.order).padStart(2, "0")} · ${item.ready ? "잠금" : "확인"}</span>
+            <b>${item.title}</b>
+            <p>${item.detail}</p>
+          </button>
+          <footer>
+            <em>${item.label}</em>
+            <button type="button" data-nextop-action="stage" data-nextop-ref="${item.stage}">열기</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (packetPanel) {
+    packetPanel.innerHTML = `
+      <div class="panel-heading"><span>템플릿 패킷</span><b>${packets.filter((item) => item.ready).length}/${packets.length}</b></div>
+      ${packets.map((item) => `
+        <article class="nextop-packet-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"}">
+          <span>${item.ready ? "준비" : "확인"} · ${item.label}</span>
+          <b>${item.file}</b>
+          <p>${item.detail}</p>
+          <button type="button" data-nextop-action="${item.action}" data-nextop-ref="${item.ref}">${item.action === "download" ? "저장" : "열기"}</button>
+        </article>
+      `).join("")}
+      <div class="nextop-packet-actions">
+        <button type="button" data-nextop-action="stage" data-nextop-ref="data">접수 화면</button>
+        <button type="button" data-nextop-action="copy">요약 복사</button>
+        <button type="button" data-nextop-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runNextOperationAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedNextOpItemId = ref || state.selectedNextOpItemId;
+    renderNextOperationTemplate();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getNextOperationPackage(), "war-ground-next-operation-template.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getNextOperationSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
+}
+
+function getPrefillOverviewItems() {
+  const manifests = getPrefillManifestItems();
+  const fields = getPrefillFieldItems();
+  const gates = getPrefillGateItems();
+  return [
+    {
+      id: "prefill-overview-template",
+      label: "템플릿 원본",
+      value: `${getNextOperationReadinessScore()}%`,
+      detail: "다음 작전 템플릿에서 접수값 회수",
+      ready: getNextOperationReadinessScore() >= 60,
+      action: "stage",
+      ref: "nextop",
+      tone: "primary"
+    },
+    {
+      id: "prefill-overview-manifest",
+      label: "자료 매니페스트",
+      value: `${manifests.filter((item) => item.ready).length}/${manifests.length}`,
+      detail: "새 작전 접수 전 준비할 파일",
+      ready: manifests.every((item) => item.ready),
+      action: "select",
+      ref: manifests[0]?.id,
+      tone: "evidence"
+    },
+    {
+      id: "prefill-overview-fields",
+      label: "접수 필드",
+      value: `${fields.filter((item) => item.ready).length}/${fields.length}`,
+      detail: "첫 화면에 채울 작전 값",
+      ready: fields.filter((item) => item.ready).length >= Math.ceil(fields.length * 0.8),
+      action: "select",
+      ref: fields[0]?.id,
+      tone: "support"
+    },
+    {
+      id: "prefill-overview-gates",
+      label: "초기 게이트",
+      value: `${gates.filter((item) => item.ready).length}/${gates.length}`,
+      detail: "새 결심 산출 전 확인 조건",
+      ready: gates.filter((item) => item.ready).length >= Math.ceil(gates.length * 0.75),
+      action: "select",
+      ref: gates.find((item) => !item.ready)?.id || gates[0]?.id,
+      tone: "primary"
+    }
+  ];
+}
+
+function getPrefillManifestItems() {
+  return [
+    {
+      id: "prefill-manifest-template",
+      label: "템플릿",
+      file: "war-ground-next-operation-template.json",
+      detail: "작전 시드, 초기 제약, 패킷 연결",
+      ready: getNextOperationReadinessScore() >= 60,
+      action: "stage",
+      ref: "nextop",
+      tone: "primary"
+    },
+    {
+      id: "prefill-manifest-source",
+      label: "원천 자료",
+      file: "operation_plan_mock.pdf",
+      detail: `${demoData.operationPlan.documents.length}종 자료 구조와 ${demoData.operationPlan.constraints.length}개 제약`,
+      ready: true,
+      action: "stage",
+      ref: "data",
+      tone: "support"
+    },
+    {
+      id: "prefill-manifest-risk",
+      label: "위험 감시",
+      file: "war-ground-risk-watchlist.json",
+      detail: "지휘공백과 예비망 확인을 접수 전 감시 목록에 포함",
+      ready: true,
+      action: "risk",
+      ref: "command_gap",
+      tone: "danger"
+    },
+    {
+      id: "prefill-manifest-training",
+      label: "훈련 삽입",
+      file: "war-ground-training-inserts.json",
+      detail: `${getRetrainingScheduleItems().length}개 재훈련 과제를 새 작전 전 점검으로 첨부`,
+      ready: getRetrainingScheduleItems().length >= 3,
+      action: "stage",
+      ref: "retrain",
+      tone: "evidence"
+    }
+  ];
+}
+
+function getPrefillFieldItems() {
+  const seedItems = getNextOperationSeedItems();
+  return [
+    {
+      id: "prefill-field-mission",
+      label: "임무",
+      value: demoData.operationPlan.operation_name,
+      detail: "야간 제한시계 기동 · 예비대 전개태세 유지",
+      ready: Boolean(seedItems.find((item) => item.id === "nextop-seed-mission")?.ready),
+      action: "stage",
+      ref: "data",
+      tone: "primary"
+    },
+    {
+      id: "prefill-field-time",
+      label: "시간",
+      value: `${demoData.operationPlan.start_time}-${demoData.operationPlan.deadline}`,
+      detail: "지정 집결지까지 기동 후 예비대 전개태세 유지",
+      ready: true,
+      action: "stage",
+      ref: "rehearsal",
+      tone: "support"
+    },
+    {
+      id: "prefill-field-comms",
+      label: "통신",
+      value: "예비망 권한",
+      detail: "통신참모 권한, 대체망, 수신 확인자를 같은 입력 행으로 묶음",
+      ready: getNextOperationSeedItems().find((item) => item.id === "nextop-seed-comms")?.ready || false,
+      action: "risk",
+      ref: "command_gap",
+      tone: "danger"
+    },
+    {
+      id: "prefill-field-decision",
+      label: "방책",
+      value: demoData.decision.recommended_coa,
+      detail: demoData.decision.conditional_coa,
+      ready: getActiveDecisionConditionIds().size >= getDecisionConditions().length,
+      action: "stage",
+      ref: "decision",
+      tone: "evidence"
+    },
+    {
+      id: "prefill-field-evidence",
+      label: "근거 책임",
+      value: "검증관",
+      detail: "약한 근거와 추정 근거를 접수 단계에서 책임자 필드로 분리",
+      ready: getCloseoutAuditSummary().verifiedPercent >= 70,
+      action: "stage",
+      ref: "audit",
+      tone: "support"
+    }
+  ];
+}
+
+function getPrefillGateItems() {
+  const fields = getPrefillFieldItems();
+  return [
+    {
+      id: "prefill-gate-no-decision",
+      label: "산출 잠금",
+      title: "자료 접수 전 결심 산출 잠금",
+      detail: "프리필은 입력값만 채우고 새 방책 추천은 자료 확인 뒤에 실행",
+      ready: true,
+      stage: "data",
+      tone: "primary"
+    },
+    {
+      id: "prefill-gate-comms",
+      label: "통신",
+      title: "예비망 권한과 수신 확인자 필수",
+      detail: fields.find((item) => item.id === "prefill-field-comms")?.detail || "통신 필드 확인",
+      ready: fields.find((item) => item.id === "prefill-field-comms")?.ready || false,
+      stage: "risk",
+      ref: "command_gap",
+      tone: "danger"
+    },
+    {
+      id: "prefill-gate-evidence",
+      label: "근거",
+      title: "약한 근거 책임자 분리",
+      detail: `근거 사용률 ${getCloseoutAuditSummary().verifiedPercent}% 기준`,
+      ready: getCloseoutAuditSummary().verifiedPercent >= 70,
+      stage: "audit",
+      tone: "evidence"
+    },
+    {
+      id: "prefill-gate-training",
+      label: "훈련",
+      title: "재훈련 삽입 항목 첨부",
+      detail: `${getRetrainingScheduleItems().length}개 드릴을 새 작전 사전 점검으로 연결`,
+      ready: getRetrainingScheduleItems().length >= 3,
+      stage: "retrain",
+      tone: "support"
+    },
+    {
+      id: "prefill-gate-return",
+      label: "접수",
+      title: "자료 화면에서 새 접수 루프 시작",
+      detail: "프리필 패킷 저장 후 자료 투입 화면으로 돌아가 새 작전 접수를 시작",
+      ready: true,
+      stage: "data",
+      tone: "primary"
+    }
+  ];
+}
+
+function getPrefillReadinessScore(
+  overviewItems = getPrefillOverviewItems(),
+  manifestItems = getPrefillManifestItems(),
+  fieldItems = getPrefillFieldItems(),
+  gateItems = getPrefillGateItems()
+) {
+  const overviewScore = Math.round((overviewItems.filter((item) => item.ready).length / Math.max(overviewItems.length, 1)) * 100);
+  const manifestScore = Math.round((manifestItems.filter((item) => item.ready).length / Math.max(manifestItems.length, 1)) * 100);
+  const fieldScore = Math.round((fieldItems.filter((item) => item.ready).length / Math.max(fieldItems.length, 1)) * 100);
+  const gateScore = Math.round((gateItems.filter((item) => item.ready).length / Math.max(gateItems.length, 1)) * 100);
+  return clamp(Math.round((overviewScore + manifestScore + fieldScore + gateScore) / 4), 40, 99);
+}
+
+function getPrefillPackage() {
+  return {
+    package_type: "war-ground-intake-prefill",
+    generated_at: new Date().toISOString(),
+    source_operation: demoData.operationPlan.operation_name,
+    readiness_score: getPrefillReadinessScore(),
+    selected_prefill_item: state.selectedPrefillItemId,
+    overview_items: getPrefillOverviewItems(),
+    manifest_items: getPrefillManifestItems(),
+    intake_fields: getPrefillFieldItems(),
+    intake_gates: getPrefillGateItems(),
+    source_template: getNextOperationPackage()
+  };
+}
+
+function getPrefillSummaryText() {
+  const packet = getPrefillPackage();
+  return [
+    "WAR GROUND 초기 접수 프리필",
+    `원본 작전: ${packet.source_operation}`,
+    `프리필 준비도: ${packet.readiness_score}%`,
+    `자료: ${packet.manifest_items.map((item) => item.file).join(" / ")}`,
+    `접수 필드: ${packet.intake_fields.map((item) => `${item.label}-${item.ready ? "잠금" : "확인"}`).join(" / ")}`,
+    `게이트: ${packet.intake_gates.map((item) => `${item.label}-${item.ready ? "통과" : "확인"}`).join(" / ")}`
+  ].join("\n");
+}
+
+function renderIntakePrefill() {
+  const page = byId("page-prefill");
+  if (!page) return;
+  const overviewItems = getPrefillOverviewItems();
+  const manifests = getPrefillManifestItems();
+  const fields = getPrefillFieldItems();
+  const gates = getPrefillGateItems();
+  const readiness = getPrefillReadinessScore(overviewItems, manifests, fields, gates);
+  const selected = [...overviewItems, ...manifests, ...fields, ...gates].find((item) => item.id === state.selectedPrefillItemId) || fields[0] || overviewItems[0];
+  if (selected) state.selectedPrefillItemId = selected.id;
+  const selectedAction = selected?.action || (selected?.stage ? "stage" : "select");
+  const selectedRef = selected?.action ? selected.ref : selected?.stage || selected?.id;
+  const overview = byId("prefillOverviewPanel");
+  const manifestPanel = byId("prefillManifestPanel");
+  const fieldPanel = byId("prefillFieldPanel");
+  const gatePanel = byId("prefillGatePanel");
+
+  if (overview) {
+    overview.innerHTML = `
+      <div class="panel-heading"><span>초기 접수 프리필</span><b>${readiness}%</b></div>
+      <strong>${selected?.value || selected?.title || "접수 필드"} 잠금</strong>
+      <p>${selected?.detail || "다음 작전 템플릿을 새 접수값으로 변환합니다."}</p>
+      <div class="prefill-kpi-grid">
+        <article><span>자료</span><b>${manifests.filter((item) => item.ready).length}/${manifests.length}</b><em>매니페스트</em></article>
+        <article><span>필드</span><b>${fields.filter((item) => item.ready).length}/${fields.length}</b><em>사전 입력</em></article>
+        <article><span>게이트</span><b>${gates.filter((item) => item.ready).length}/${gates.length}</b><em>초기 확인</em></article>
+      </div>
+      <div class="prefill-selected-card is-${selected?.tone || "primary"}">
+        <span>${selected?.label || "선택 프리필"}</span>
+        <b>${selected?.title || selected?.value || "초기 접수값"}</b>
+        <p>${selected?.detail || "새 접수 전에 확인합니다."}</p>
+        <button type="button" data-prefill-action="${selectedAction}" data-prefill-ref="${selectedRef}">열기</button>
+      </div>
+    `;
+  }
+
+  if (manifestPanel) {
+    manifestPanel.innerHTML = `
+      <div class="panel-heading"><span>자료 매니페스트</span><b>${manifests.length}개</b></div>
+      ${manifests.map((item) => `
+        <article class="prefill-manifest-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"} ${item.id === state.selectedPrefillItemId ? "is-selected" : ""}">
+          <button type="button" data-prefill-action="select" data-prefill-ref="${item.id}" aria-pressed="${item.id === state.selectedPrefillItemId ? "true" : "false"}">
+            <span>${item.ready ? "준비" : "확인"} · ${item.label}</span>
+            <b>${item.file}</b>
+            <p>${item.detail}</p>
+          </button>
+          <footer>
+            <em>새 접수 첨부</em>
+            <button type="button" data-prefill-action="${item.action}" data-prefill-ref="${item.ref}">${item.action === "download" ? "저장" : "열기"}</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (fieldPanel) {
+    fieldPanel.innerHTML = `
+      <div class="panel-heading"><span>접수 필드</span><b>${fields.filter((item) => item.ready).length}/${fields.length}</b></div>
+      ${fields.map((item) => `
+        <article class="prefill-field-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"} ${item.id === state.selectedPrefillItemId ? "is-selected" : ""}">
+          <button type="button" data-prefill-action="select" data-prefill-ref="${item.id}" aria-pressed="${item.id === state.selectedPrefillItemId ? "true" : "false"}">
+            <span>${item.label} · ${item.ready ? "잠금" : "확인"}</span>
+            <b>${item.value}</b>
+            <p>${item.detail}</p>
+          </button>
+          <footer>
+            <em>프리필 입력값</em>
+            <button type="button" data-prefill-action="${item.action}" data-prefill-ref="${item.ref}">출처</button>
+          </footer>
+        </article>
+      `).join("")}
+    `;
+  }
+
+  if (gatePanel) {
+    gatePanel.innerHTML = `
+      <div class="panel-heading"><span>접수 게이트</span><b>${gates.filter((item) => item.ready).length}/${gates.length}</b></div>
+      ${gates.map((item, index) => `
+        <article class="prefill-gate-card is-${item.tone} ${item.ready ? "is-ready" : "is-open"} ${item.id === state.selectedPrefillItemId ? "is-selected" : ""}">
+          <button type="button" data-prefill-action="select" data-prefill-ref="${item.id}" aria-pressed="${item.id === state.selectedPrefillItemId ? "true" : "false"}">
+            <span>${String(index + 1).padStart(2, "0")} · ${item.ready ? "통과" : "확인"}</span>
+            <b>${item.title}</b>
+            <p>${item.detail}</p>
+          </button>
+          <footer>
+            <em>${item.label}</em>
+            <button type="button" data-prefill-action="${item.stage === "risk" ? "risk" : "stage"}" data-prefill-ref="${item.ref || item.stage}">열기</button>
+          </footer>
+        </article>
+      `).join("")}
+      <div class="prefill-packet-actions">
+        <button type="button" data-prefill-action="stage" data-prefill-ref="data">자료 접수</button>
+        <button type="button" data-prefill-action="copy">요약 복사</button>
+        <button type="button" data-prefill-action="download">JSON 저장</button>
+      </div>
+    `;
+  }
+  refreshIcons();
+}
+
+function runPrefillAction(action, ref, trigger) {
+  if (action === "select") {
+    state.selectedPrefillItemId = ref || state.selectedPrefillItemId;
+    renderIntakePrefill();
+    return;
+  }
+  if (action === "stage" && stageMeta[ref]) {
+    setStage(ref);
+    return;
+  }
+  if (action === "risk") {
+    setStage("risk");
+    selectFailurePath(ref || state.selectedFailureId);
+    return;
+  }
+  if (action === "evidence") {
+    selectEvidence(ref || state.selectedEvidenceId);
+    return;
+  }
+  if (action === "download") {
+    downloadJson(getPrefillPackage(), "war-ground-intake-prefill.json");
+    return;
+  }
+  if (action === "copy") {
+    copyTextToClipboard(getPrefillSummaryText()).then((ok) => {
+      if (!trigger) return;
+      const original = trigger.textContent;
+      trigger.textContent = ok ? "복사 완료" : "복사 실패";
+      window.setTimeout(() => {
+        trigger.textContent = original || "요약 복사";
+      }, 1200);
+    });
+  }
 }
 
 function openBriefingSheet() {
@@ -3303,9 +10175,44 @@ function loadScenario() {
     updateStats();
     byId("generateAgentsButton").disabled = false;
     byId("loadScenarioButton").disabled = false;
+    setRehearsalRunButtonDisabled(!state.agentsGenerated);
     updateFlow("scenario");
     setText("alertLabel", "작전계획 접수 완료");
   }, 650);
+}
+
+function setRehearsalRunButtonDisabled(disabled) {
+  ["runRehearsalButton", "rehearsalRunInlineButton"].forEach((id) => {
+    const button = byId(id);
+    if (button) button.disabled = Boolean(disabled);
+  });
+}
+
+function prepareRehearsalPrerequisites() {
+  clearTimer("autoTimer");
+  if (!state.scenarioLoaded) {
+    state.scenarioLoaded = true;
+    renderScenarioData();
+    updateStats();
+    byId("generateAgentsButton").disabled = false;
+    byId("loadScenarioButton").disabled = false;
+  }
+  if (!state.agentsGenerated) {
+    state.generatedAgentCount = demoData.agents.length;
+    state.agentsGenerated = true;
+    demoData.agents.forEach((agent) => {
+      agent.status = "준비";
+    });
+    setText("agentFactoryState", "가상부대 23개 역할 생성 완료");
+    setText("agentLayerState", "준비 완료");
+    setText("staffState", "합의 완료");
+    byId("generateAgentsButton").disabled = false;
+    setRehearsalRunButtonDisabled(false);
+    renderAgentLayers();
+    renderDebate();
+    updateAgentProgress();
+    updateFlow("agents");
+  }
 }
 
 function renderAgentLayers() {
@@ -3593,7 +10500,7 @@ function generateAgents() {
   setText("agentLayerState", "역할 매핑");
   setText("staffState", "토론 준비");
   byId("generateAgentsButton").disabled = true;
-  byId("runRehearsalButton").disabled = true;
+  setRehearsalRunButtonDisabled(true);
   renderAgentLayers();
   updateAgentProgress();
 
@@ -3620,7 +10527,7 @@ function generateAgents() {
     setText("agentLayerState", "준비 완료");
     setText("staffState", "합의 완료");
     byId("generateAgentsButton").disabled = false;
-    byId("runRehearsalButton").disabled = false;
+    setRehearsalRunButtonDisabled(false);
     renderAgentLayers();
     renderDebate();
     updateAgentProgress();
@@ -4124,8 +11031,7 @@ function scheduleNextEvent() {
 
 function runRehearsal() {
   if (!state.agentsGenerated) {
-    generateAgents();
-    return;
+    prepareRehearsalPrerequisites();
   }
   setStage("rehearsal");
   state.rehearsalStarted = true;
@@ -4140,15 +11046,12 @@ function runRehearsal() {
 }
 
 function restartRehearsalFromStart() {
-  if (!state.agentsGenerated) {
-    runRehearsal();
-    return;
-  }
+  prepareRehearsalPrerequisites();
   clearTimer("rehearsalTimer");
   state.rehearsalStarted = true;
   state.rehearsalPaused = false;
   state.rehearsalIndex = -1;
-  setStage("rehearsal");
+  setStage("rehearsal", { skipTransition: true });
   setText("rehearsalPauseButton", "일시정지");
   clearRadioTraffic();
   window.WarGround3D?.focusEvent?.("start");
@@ -5122,6 +12025,25 @@ function resetDemo() {
   state.agentFilter = "all";
   state.selectedFailureId = "command_gap";
   state.selectedEvidenceId = "ev_comm_gap";
+  state.selectedBriefingStepId = "decision";
+  state.selectedBriefingQuestionId = "why-b";
+  state.selectedAarActionId = "aar-command_gap-0";
+  state.selectedAuditItemId = "audit-decision";
+  state.selectedSubmitBundleId = "submit-briefing";
+  state.selectedRetrainItemId = "retrain-command_gap-0";
+  state.selectedHandoffRecipientId = "handoff-commander";
+  state.selectedMetricId = "metric-readiness";
+  state.selectedWatchItemId = "watch-command_gap";
+  state.selectedLogItemId = "log-command_gap";
+  state.selectedChallengeItemId = "challenge-command_gap";
+  state.selectedQueueItemId = "queue-challenge-command_gap";
+  state.selectedForecastScenarioId = "forecast-paced";
+  state.selectedBroadcastRecipientId = "broadcast-commander";
+  state.selectedReceiptItemId = "receipt-broadcast-commander";
+  state.selectedCloseoutItemId = "closeout-final";
+  state.selectedLessonItemId = "lesson-command-gap";
+  state.selectedNextOpItemId = "nextop-seed-comms";
+  state.selectedPrefillItemId = "prefill-field-mission";
   setFocusMode(false);
   state.decisionConditionState = {
     comms: true,
@@ -5151,7 +12073,7 @@ function resetDemo() {
   byId("constraintGrid").innerHTML = "";
   byId("coaTable").innerHTML = "";
   byId("generateAgentsButton").disabled = true;
-  byId("runRehearsalButton").disabled = true;
+  setRehearsalRunButtonDisabled(true);
   renderScenarioShell();
   renderAgentLayers();
   renderDebate();
@@ -5241,6 +12163,204 @@ const autoDemoSteps = [
     run: () => {
       setDecisionTab("card");
     }
+  },
+  {
+    id: "briefing",
+    stage: "briefing",
+    flow: "decision",
+    label: "심사 브리핑 구성",
+    detail: "1분 설명, 예상 질문, 근거 잠금을 발표 화면으로 정리합니다.",
+    duration: 900,
+    run: () => {
+      renderBriefingRunway();
+    }
+  },
+  {
+    id: "aar",
+    stage: "aar",
+    flow: "decision",
+    label: "AAR 개선안 생성",
+    detail: "리허설 마찰을 책임자, 기한, 근거가 있는 보완 과제로 전환합니다.",
+    duration: 900,
+    run: () => {
+      renderAarImprovementPlan();
+    }
+  },
+  {
+    id: "audit",
+    stage: "audit",
+    flow: "decision",
+    label: "감사 로그 작성",
+    detail: "자료 접수부터 AAR 조치까지 판단 이벤트와 근거 원장을 검증합니다.",
+    duration: 900,
+    run: () => {
+      renderAuditLogbook();
+    }
+  },
+  {
+    id: "submit",
+    stage: "submit",
+    flow: "decision",
+    label: "제출 패키지 잠금",
+    detail: "최종 산출물 묶음과 제출 전 게이트를 생성합니다.",
+    duration: 900,
+    run: () => {
+      renderSubmissionPackage();
+    }
+  },
+  {
+    id: "retrain",
+    stage: "retrain",
+    flow: "decision",
+    label: "재훈련 계획 편성",
+    detail: "AAR 조치와 감사 공백을 72시간 훈련 일정으로 다시 묶습니다.",
+    duration: 900,
+    run: () => {
+      renderRetrainingPlan();
+    }
+  },
+  {
+    id: "handoff",
+    stage: "handoff",
+    flow: "decision",
+    label: "인수인계 패킷 생성",
+    detail: "수신자별 조치, 근거, 교신 문안을 다음 운용자에게 전달합니다.",
+    duration: 900,
+    run: () => {
+      renderHandoffCenter();
+    }
+  },
+  {
+    id: "metrics",
+    stage: "metrics",
+    flow: "decision",
+    label: "운영 지표 갱신",
+    detail: "인계 이후 위험 추세, 근거 부채, 재훈련 준비도를 상태판으로 정리합니다.",
+    duration: 900,
+    run: () => {
+      renderOperationsMetrics();
+    }
+  },
+  {
+    id: "watch",
+    stage: "watch",
+    flow: "decision",
+    label: "상황 감시 시작",
+    detail: "현장 재판단 트리거와 전파 문안을 감시 화면으로 묶습니다.",
+    duration: 900,
+    run: () => {
+      renderDecisionWatch();
+    }
+  },
+  {
+    id: "log",
+    stage: "log",
+    flow: "decision",
+    label: "상황 일지 기록",
+    detail: "감시 보고를 시간순 일지와 교대 확인 기록으로 남깁니다.",
+    duration: 900,
+    run: () => {
+      renderOperationsLog();
+    }
+  },
+  {
+    id: "challenge",
+    stage: "challenge",
+    flow: "decision",
+    label: "반증 검증",
+    detail: "최종 결심의 핵심 가정과 반대 신호를 다시 점검합니다.",
+    duration: 900,
+    run: () => {
+      renderChallengeReview();
+    }
+  },
+  {
+    id: "queue",
+    stage: "queue",
+    flow: "decision",
+    label: "조치 큐 정렬",
+    detail: "남은 산출물을 담당자와 우선순위가 있는 실행 항목으로 묶습니다.",
+    duration: 900,
+    run: () => {
+      renderActionQueue();
+    }
+  },
+  {
+    id: "forecast",
+    stage: "forecast",
+    flow: "decision",
+    label: "준비 예측 산출",
+    detail: "큐 처리 속도별 준비도와 잔여 위험 변화를 예측합니다.",
+    duration: 900,
+    run: () => {
+      renderReadinessForecast();
+    }
+  },
+  {
+    id: "broadcast",
+    stage: "broadcast",
+    flow: "decision",
+    label: "전파 패키지 생성",
+    detail: "예측과 조치 큐를 수신자별 문안과 확인 게이트로 변환합니다.",
+    duration: 900,
+    run: () => {
+      renderBroadcastPackage();
+    }
+  },
+  {
+    id: "receipt",
+    stage: "receipt",
+    flow: "decision",
+    label: "수신 확인 추적",
+    detail: "전파 이후 확인·대기·재전파 상태와 완료 게이트를 추적합니다.",
+    duration: 900,
+    run: () => {
+      renderReceiptTracker();
+    }
+  },
+  {
+    id: "closeout",
+    stage: "closeout",
+    flow: "decision",
+    label: "종결 보고 잠금",
+    detail: "결심, 수신 확인, 예외 처리, 보관 산출물을 최종 기록으로 묶습니다.",
+    duration: 900,
+    run: () => {
+      renderCloseoutReport();
+    }
+  },
+  {
+    id: "lessons",
+    stage: "lessons",
+    flow: "decision",
+    label: "교훈 라이브러리 생성",
+    detail: "종결 산출물을 다음 작전에서 재사용할 판단 패턴과 체크로 전환합니다.",
+    duration: 900,
+    run: () => {
+      renderLessonsLibrary();
+    }
+  },
+  {
+    id: "nextop",
+    stage: "nextop",
+    flow: "decision",
+    label: "다음 작전 템플릿 생성",
+    detail: "교훈 패턴과 체크를 다음 작전 접수 시드와 초기 제약으로 변환합니다.",
+    duration: 900,
+    run: () => {
+      renderNextOperationTemplate();
+    }
+  },
+  {
+    id: "prefill",
+    stage: "prefill",
+    flow: "scenario",
+    label: "초기 접수 프리필",
+    detail: "다음 작전 템플릿을 새 자료 접수값과 확인 게이트로 되돌립니다.",
+    duration: 900,
+    run: () => {
+      renderIntakePrefill();
+    }
   }
 ];
 
@@ -5306,11 +12426,11 @@ function runAutoDemoStep(index) {
   if (!step) {
     const overlay = byId("autoDemoOverlay");
     if (overlay) overlay.classList.add("is-complete");
-    setText("autoDemoStepLabel", "결심카드 준비 완료");
-    setText("autoDemoStepDetail", "검토안, 근거, 단편명령 작성안까지 자동 생성되었습니다.");
+    setText("autoDemoStepLabel", "초기 접수 프리필 완료");
+    setText("autoDemoStepDetail", "검토안, 근거, 단편명령, 심사 브리핑, 후속 조치, 검증 장부, 제출 묶음, 재훈련, 인수인계, 운영 지표, 상황 감시, 상황 일지, 반증 검증, 조치 큐, 준비 예측, 전파 패키지, 수신 확인, 종결 보고, 교훈 라이브러리, 다음 작전 템플릿, 초기 접수 프리필까지 자동 생성되었습니다.");
     document.body.classList.remove("is-auto-demo-running");
-    updateFlow("decision");
-    setStage("decision");
+    updateFlow("scenario");
+    setStage("prefill");
     return;
   }
 
@@ -5459,7 +12579,7 @@ function applyRouteStateFromUrl() {
   if (initialEvidence && evidenceById.has(initialEvidence)) {
     state.selectedEvidenceId = initialEvidence;
   }
-  if (initialStage && stageMeta[initialStage]) setStage(initialStage);
+  if (initialStage && stageMeta[initialStage]) setStage(initialStage, { skipTransition: true });
   if (initialNode && graph.nodeMap.has(initialNode)) selectNode(initialNode);
   if (initialEvidence && evidenceById.has(initialEvidence)) {
     renderEvidencePreview([initialEvidence]);
@@ -5488,6 +12608,114 @@ function bindEvents() {
   document.querySelectorAll(".workspace-tab").forEach((button) => {
     button.addEventListener("click", () => setStage(button.dataset.stage));
     button.addEventListener("keydown", handleWorkspaceTabKeydown);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-briefing-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runBriefingAction(trigger.dataset.briefingAction, trigger.dataset.briefingRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-aar-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runAarAction(trigger.dataset.aarAction, trigger.dataset.aarRef);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-audit-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runAuditAction(trigger.dataset.auditAction, trigger.dataset.auditRef);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-submit-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runSubmissionAction(trigger.dataset.submitAction, trigger.dataset.submitRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-retrain-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runRetrainingAction(trigger.dataset.retrainAction, trigger.dataset.retrainRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-handoff-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runHandoffAction(trigger.dataset.handoffAction, trigger.dataset.handoffRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-metrics-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runMetricsAction(trigger.dataset.metricsAction, trigger.dataset.metricsRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-watch-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runWatchAction(trigger.dataset.watchAction, trigger.dataset.watchRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-log-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runLogAction(trigger.dataset.logAction, trigger.dataset.logRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-challenge-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runChallengeAction(trigger.dataset.challengeAction, trigger.dataset.challengeRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-queue-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runActionQueueAction(trigger.dataset.queueAction, trigger.dataset.queueRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-forecast-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runForecastAction(trigger.dataset.forecastAction, trigger.dataset.forecastRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-broadcast-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runBroadcastAction(trigger.dataset.broadcastAction, trigger.dataset.broadcastRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-receipt-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runReceiptAction(trigger.dataset.receiptAction, trigger.dataset.receiptRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-closeout-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runCloseoutAction(trigger.dataset.closeoutAction, trigger.dataset.closeoutRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-lesson-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runLessonAction(trigger.dataset.lessonAction, trigger.dataset.lessonRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-nextop-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runNextOperationAction(trigger.dataset.nextopAction, trigger.dataset.nextopRef, trigger);
+  });
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest?.("[data-prefill-action]");
+    if (!trigger) return;
+    event.preventDefault();
+    runPrefillAction(trigger.dataset.prefillAction, trigger.dataset.prefillRef, trigger);
   });
   document.querySelectorAll(".mode-button[data-graph-mode]").forEach((button) => {
     button.addEventListener("click", () => setGraphMode(button.dataset.graphMode));
@@ -5553,6 +12781,7 @@ function bindEvents() {
   byId("loadScenarioButton").addEventListener("click", loadScenario);
   byId("generateAgentsButton").addEventListener("click", generateAgents);
   byId("runRehearsalButton").addEventListener("click", runRehearsal);
+  byId("rehearsalRunInlineButton")?.addEventListener("click", runRehearsal);
   byId("autoDemoButton").addEventListener("click", runAutoDemo);
   byId("resetDemoButton").addEventListener("click", resetDemo);
   byId("runCycle").addEventListener("click", runStaffCycle);
@@ -5683,7 +12912,25 @@ const workspacePageFiles = [
   "pages/03-agents.html",
   "pages/04-rehearsal.html",
   "pages/05-risk.html",
-  "pages/06-decision.html"
+  "pages/06-decision.html",
+  "pages/07-briefing.html",
+  "pages/08-aar.html",
+  "pages/09-audit.html",
+  "pages/10-submit.html",
+  "pages/11-retrain.html",
+  "pages/12-handoff.html",
+  "pages/13-metrics.html",
+  "pages/14-watch.html",
+  "pages/15-log.html",
+  "pages/16-challenge.html",
+  "pages/17-queue.html",
+  "pages/18-forecast.html",
+  "pages/19-broadcast.html",
+  "pages/20-receipt.html",
+  "pages/21-closeout.html",
+  "pages/22-lessons.html",
+  "pages/23-nextop.html",
+  "pages/24-prefill.html"
 ];
 
 async function loadWorkspacePages() {

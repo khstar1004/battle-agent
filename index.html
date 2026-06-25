@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WAR GROUND | 작전 리허설 콘솔</title>
     <link rel="icon" href="assets/bpk-logo.png?v=war-ground-direct-logo" />
-    <link rel="stylesheet" href="styles.css?v=clear-command-v6" />
+    <link rel="stylesheet" href="styles.css?v=prefill-loop-v1" />
     <script type="importmap">
       {
         "imports": {
@@ -30,12 +30,30 @@
         </div>
 
         <nav class="workspace-tabs" aria-label="작업 화면" role="tablist">
-          <button class="workspace-tab is-active" id="tab-data" data-stage="data" type="button" role="tab" aria-selected="true" aria-current="page" aria-controls="page-data" tabindex="0"><span>01</span><b>자료 투입</b></button>
-          <button class="workspace-tab" id="tab-ontology" data-stage="ontology" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-ontology" tabindex="-1"><span>02</span><b>그래프 구축</b></button>
-          <button class="workspace-tab" id="tab-agents" data-stage="agents" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-agents" tabindex="-1"><span>03</span><b>가상부대</b></button>
-          <button class="workspace-tab" id="tab-rehearsal" data-stage="rehearsal" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-rehearsal" tabindex="-1"><span>04</span><b>수행 리허설</b></button>
-          <button class="workspace-tab" id="tab-risk" data-stage="risk" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-risk" tabindex="-1"><span>05</span><b>실패경로</b></button>
-          <button class="workspace-tab" id="tab-decision" data-stage="decision" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-decision" tabindex="-1"><span>06</span><b>결심카드</b></button>
+          <button class="workspace-tab is-active" id="tab-data" data-stage="data" type="button" role="tab" aria-selected="true" aria-current="page" aria-controls="page-data" tabindex="0" title="자료 투입"><span>01</span><b>자료</b></button>
+          <button class="workspace-tab" id="tab-ontology" data-stage="ontology" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-ontology" tabindex="-1" title="그래프 구축"><span>02</span><b>그래프</b></button>
+          <button class="workspace-tab" id="tab-agents" data-stage="agents" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-agents" tabindex="-1" title="가상부대 생성"><span>03</span><b>부대</b></button>
+          <button class="workspace-tab" id="tab-rehearsal" data-stage="rehearsal" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-rehearsal" tabindex="-1" title="수행 리허설"><span>04</span><b>리허설</b></button>
+          <button class="workspace-tab" id="tab-risk" data-stage="risk" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-risk" tabindex="-1" title="실패경로"><span>05</span><b>실패</b></button>
+          <button class="workspace-tab" id="tab-decision" data-stage="decision" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-decision" tabindex="-1" title="결심카드"><span>06</span><b>결심</b></button>
+          <button class="workspace-tab" id="tab-briefing" data-stage="briefing" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-briefing" tabindex="-1" title="브리핑"><span>07</span><b>브리핑</b></button>
+          <button class="workspace-tab" id="tab-aar" data-stage="aar" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-aar" tabindex="-1" title="AAR 개선안"><span>08</span><b>AAR</b></button>
+          <button class="workspace-tab" id="tab-audit" data-stage="audit" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-audit" tabindex="-1" title="감사 로그"><span>09</span><b>감사</b></button>
+          <button class="workspace-tab" id="tab-submit" data-stage="submit" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-submit" tabindex="-1" title="제출 패키지"><span>10</span><b>제출</b></button>
+          <button class="workspace-tab" id="tab-retrain" data-stage="retrain" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-retrain" tabindex="-1" title="재훈련 계획"><span>11</span><b>훈련</b></button>
+          <button class="workspace-tab" id="tab-handoff" data-stage="handoff" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-handoff" tabindex="-1" title="인수인계 센터"><span>12</span><b>인계</b></button>
+          <button class="workspace-tab" id="tab-metrics" data-stage="metrics" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-metrics" tabindex="-1" title="운영 지표"><span>13</span><b>지표</b></button>
+          <button class="workspace-tab" id="tab-watch" data-stage="watch" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-watch" tabindex="-1" title="상황 감시"><span>14</span><b>감시</b></button>
+          <button class="workspace-tab" id="tab-log" data-stage="log" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-log" tabindex="-1" title="상황 일지"><span>15</span><b>일지</b></button>
+          <button class="workspace-tab" id="tab-challenge" data-stage="challenge" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-challenge" tabindex="-1" title="반증 검증"><span>16</span><b>검증</b></button>
+          <button class="workspace-tab" id="tab-queue" data-stage="queue" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-queue" tabindex="-1" title="조치 큐"><span>17</span><b>큐</b></button>
+          <button class="workspace-tab" id="tab-forecast" data-stage="forecast" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-forecast" tabindex="-1" title="준비 예측"><span>18</span><b>예측</b></button>
+          <button class="workspace-tab" id="tab-broadcast" data-stage="broadcast" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-broadcast" tabindex="-1" title="전파 패키지"><span>19</span><b>전파</b></button>
+          <button class="workspace-tab" id="tab-receipt" data-stage="receipt" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-receipt" tabindex="-1" title="수신 확인"><span>20</span><b>확인</b></button>
+          <button class="workspace-tab" id="tab-closeout" data-stage="closeout" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-closeout" tabindex="-1" title="종결 보고"><span>21</span><b>종결</b></button>
+          <button class="workspace-tab" id="tab-lessons" data-stage="lessons" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-lessons" tabindex="-1" title="교훈 라이브러리"><span>22</span><b>교훈</b></button>
+          <button class="workspace-tab" id="tab-nextop" data-stage="nextop" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-nextop" tabindex="-1" title="다음 작전 템플릿"><span>23</span><b>다음</b></button>
+          <button class="workspace-tab" id="tab-prefill" data-stage="prefill" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-prefill" tabindex="-1" title="초기 접수 프리필"><span>24</span><b>초기</b></button>
         </nav>
 
         <div class="system-actions compact-tools" aria-label="빠른 도구">
@@ -272,6 +290,7 @@
               <h2>수행 리허설</h2>
             </div>
             <div class="rehearsal-controls" aria-label="리허설 제어">
+              <button class="mode-button rehearsal-run-button" id="rehearsalRunInlineButton" type="button"><i data-lucide="play" aria-hidden="true"></i>수행 리허설 실행</button>
               <button class="mode-button" id="rehearsalPauseButton" type="button">일시정지</button>
               <button class="mode-button" id="rehearsalRestartButton" type="button">처음부터 재생</button>
               <button class="mode-button" id="rehearsalSpeedButton" type="button">속도 1x</button>
@@ -443,6 +462,389 @@
             </section>
           </div>
         </section>
+
+        <section class="page-view briefing-mode-page" id="page-briefing" data-page="briefing" role="tabpanel" aria-labelledby="tab-briefing" hidden>
+          <div class="page-heading briefing-mode-heading">
+            <div>
+              <p class="eyebrow">심사위원 앞에서 바로 설명할 흐름만 남깁니다.</p>
+              <h2>브리핑 모드</h2>
+            </div>
+            <div class="briefing-mode-actions" aria-label="브리핑 작업">
+              <button class="mode-button" type="button" data-briefing-action="sheet">검토 패킷</button>
+              <button class="mode-button" type="button" data-briefing-action="copy">1분 브리핑 복사</button>
+              <button class="combat-button inverse" type="button" data-briefing-action="auto"><i data-lucide="play" aria-hidden="true"></i>시연 자동 구성</button>
+            </div>
+          </div>
+
+          <div class="briefing-mode-workspace">
+            <section class="hard-panel briefing-script-panel" id="briefingOneLineScript" aria-live="polite"></section>
+            <section class="hard-panel briefing-runway-panel">
+              <div class="panel-heading"><span>브리핑 런웨이</span><b>1분 브리핑</b></div>
+              <div class="briefing-runway-timeline" id="briefingRunwayTimeline" aria-label="브리핑 진행 순서"></div>
+            </section>
+            <section class="hard-panel briefing-question-queue" id="briefingQuestionQueue" aria-label="심사 질문"></section>
+            <section class="hard-panel briefing-drill-card" id="briefingDrillCard" aria-live="polite" aria-label="답변 드릴"></section>
+            <section class="hard-panel briefing-evidence-lock" id="briefingEvidenceLock" aria-label="근거 잠금"></section>
+            <section class="hard-panel briefing-readiness-panel" id="briefingReadinessPanel" aria-label="브리핑 준비 상태"></section>
+          </div>
+        </section>
+
+        <section class="page-view aar-page" id="page-aar" data-page="aar" role="tabpanel" aria-labelledby="tab-aar" hidden>
+          <div class="page-heading aar-heading">
+            <div>
+              <p class="eyebrow">리허설에서 발견한 문제를 책임 있는 보완 과제로 바꿉니다.</p>
+              <h2>AAR 개선안</h2>
+            </div>
+            <div class="aar-actions" aria-label="AAR 작업">
+              <button class="mode-button" type="button" data-aar-action="rehearsal">리허설 보기</button>
+              <button class="mode-button" type="button" data-aar-action="decision">결심카드</button>
+              <button class="combat-button inverse" type="button" data-aar-action="packet"><i data-lucide="download" aria-hidden="true"></i>AAR 패킷</button>
+            </div>
+          </div>
+
+          <div class="aar-workspace">
+            <section class="hard-panel aar-summary-panel" id="aarSummaryPanel" aria-live="polite"></section>
+            <section class="hard-panel aar-action-board" id="aarActionBoard" aria-label="AAR 조치 보드"></section>
+            <section class="hard-panel aar-owner-matrix" id="aarOwnerMatrix" aria-label="책임자 매트릭스"></section>
+            <section class="hard-panel aar-evidence-replay" id="aarEvidenceReplay" aria-label="근거 리플레이"></section>
+          </div>
+        </section>
+
+        <section class="page-view audit-page" id="page-audit" data-page="audit" role="tabpanel" aria-labelledby="tab-audit" hidden>
+          <div class="page-heading audit-heading">
+            <div>
+              <p class="eyebrow">소스 투입부터 AAR까지 검증합니다.</p>
+              <h2>감사 로그</h2>
+            </div>
+            <div class="audit-actions" aria-label="감사 로그 실행">
+              <button class="mode-button" type="button" data-audit-action="stage" data-audit-ref="data">자료</button>
+              <button class="mode-button" type="button" data-audit-action="stage" data-audit-ref="decision">결심</button>
+              <button class="mode-button" type="button" data-audit-action="stage" data-audit-ref="aar">AAR</button>
+            </div>
+          </div>
+
+          <div class="audit-workspace">
+            <section class="hard-panel audit-summary-panel" id="auditSummaryPanel" aria-label="감사 요약"></section>
+            <section class="hard-panel audit-timeline-panel" id="auditTimelinePanel" aria-label="감사 타임라인"></section>
+            <section class="hard-panel audit-evidence-panel" id="auditEvidencePanel" aria-label="근거 원장"></section>
+            <section class="hard-panel audit-gap-panel" id="auditGapPanel" aria-label="검증 공백"></section>
+          </div>
+        </section>
+
+        <section class="page-view submit-page" id="page-submit" data-page="submit" role="tabpanel" aria-labelledby="tab-submit" hidden>
+          <div class="page-heading submit-heading">
+            <div>
+              <p class="eyebrow">최종 제출 패키지를 잠급니다.</p>
+              <h2>제출 패키지</h2>
+            </div>
+            <div class="submit-actions" aria-label="제출 패키지 실행">
+              <button class="mode-button" type="button" data-submit-action="stage" data-submit-ref="briefing">브리핑</button>
+              <button class="mode-button" type="button" data-submit-action="stage" data-submit-ref="audit">감사</button>
+              <button class="combat-button inverse" type="button" data-submit-action="download"><i data-lucide="download" aria-hidden="true"></i>패키지</button>
+            </div>
+          </div>
+
+          <div class="submit-workspace">
+            <section class="hard-panel submit-readiness-panel" id="submitReadinessPanel" aria-label="제출 준비도"></section>
+            <section class="hard-panel submit-bundle-panel" id="submitBundlePanel" aria-label="산출물 묶음"></section>
+            <section class="hard-panel submit-checklist-panel" id="submitChecklistPanel" aria-label="제출 체크리스트"></section>
+            <section class="hard-panel submit-manifest-panel" id="submitManifestPanel" aria-label="제출 매니페스트"></section>
+          </div>
+        </section>
+
+        <section class="page-view retrain-page" id="page-retrain" data-page="retrain" role="tabpanel" aria-labelledby="tab-retrain" hidden>
+          <div class="page-heading retrain-heading">
+            <div>
+              <p class="eyebrow">AAR 조치를 72시간 재훈련으로 바꿉니다.</p>
+              <h2>재훈련 계획</h2>
+            </div>
+            <div class="retrain-actions" aria-label="재훈련 계획 실행">
+              <button class="mode-button" type="button" data-retrain-action="stage" data-retrain-ref="aar">AAR</button>
+              <button class="mode-button" type="button" data-retrain-action="stage" data-retrain-ref="audit">감사</button>
+              <button class="combat-button inverse" type="button" data-retrain-action="download"><i data-lucide="download" aria-hidden="true"></i>계획</button>
+            </div>
+          </div>
+
+          <div class="retrain-workspace">
+            <section class="hard-panel retrain-schedule-panel" id="retrainSchedulePanel" aria-label="72시간 재훈련 일정"></section>
+            <section class="hard-panel retrain-owner-panel" id="retrainOwnerPanel" aria-label="훈련 과제와 담당자"></section>
+            <section class="hard-panel retrain-validation-panel" id="retrainValidationPanel" aria-label="검증 게이트"></section>
+            <section class="hard-panel retrain-drill-panel" id="retrainDrillPanel" aria-label="선택 훈련 과제"></section>
+          </div>
+        </section>
+
+        <section class="page-view handoff-page" id="page-handoff" data-page="handoff" role="tabpanel" aria-labelledby="tab-handoff" hidden>
+          <div class="page-heading handoff-heading">
+            <div>
+              <p class="eyebrow">최종 결심을 다음 운용자가 바로 이어받게 합니다.</p>
+              <h2>인수인계 센터</h2>
+            </div>
+            <div class="handoff-actions" aria-label="인수인계 실행">
+              <button class="mode-button" type="button" data-handoff-action="stage" data-handoff-ref="submit">제출</button>
+              <button class="mode-button" type="button" data-handoff-action="stage" data-handoff-ref="retrain">훈련</button>
+              <button class="combat-button inverse" type="button" data-handoff-action="download"><i data-lucide="download" aria-hidden="true"></i>인계</button>
+            </div>
+          </div>
+
+          <div class="handoff-workspace">
+            <section class="hard-panel handoff-summary-panel" id="handoffSummaryPanel" aria-label="인수인계 요약"></section>
+            <section class="hard-panel handoff-recipient-panel" id="handoffRecipientPanel" aria-label="수신자별 인계"></section>
+            <section class="hard-panel handoff-signal-panel" id="handoffSignalPanel" aria-label="교신 문안"></section>
+            <section class="hard-panel handoff-packet-panel" id="handoffPacketPanel" aria-label="인수인계 패킷"></section>
+          </div>
+        </section>
+
+        <section class="page-view metrics-page" id="page-metrics" data-page="metrics" role="tabpanel" aria-labelledby="tab-metrics" hidden>
+          <div class="page-heading metrics-heading">
+            <div>
+              <p class="eyebrow">인수인계 이후 운용 상태를 추적합니다.</p>
+              <h2>운영 지표</h2>
+            </div>
+            <div class="metrics-actions" aria-label="운영 지표 실행">
+              <button class="mode-button" type="button" data-metrics-action="stage" data-metrics-ref="handoff">인계</button>
+              <button class="mode-button" type="button" data-metrics-action="stage" data-metrics-ref="retrain">훈련</button>
+              <button class="combat-button inverse" type="button" data-metrics-action="download"><i data-lucide="download" aria-hidden="true"></i>지표</button>
+            </div>
+          </div>
+
+          <div class="metrics-workspace">
+            <section class="hard-panel metrics-overview-panel" id="metricsOverviewPanel" aria-label="운영 지표 요약"></section>
+            <section class="hard-panel metrics-risk-panel" id="metricsRiskPanel" aria-label="위험 추세"></section>
+            <section class="hard-panel metrics-evidence-panel" id="metricsEvidencePanel" aria-label="근거 부채"></section>
+            <section class="hard-panel metrics-cadence-panel" id="metricsCadencePanel" aria-label="운영 리듬"></section>
+          </div>
+        </section>
+
+        <section class="page-view watch-page" id="page-watch" data-page="watch" role="tabpanel" aria-labelledby="tab-watch" hidden>
+          <div class="page-heading watch-heading">
+            <div>
+              <p class="eyebrow">결심 이후 재판단 신호를 감시합니다.</p>
+              <h2>상황 감시</h2>
+            </div>
+            <div class="watch-actions" aria-label="상황 감시 실행">
+              <button class="mode-button" type="button" data-watch-action="stage" data-watch-ref="risk">위험</button>
+              <button class="mode-button" type="button" data-watch-action="stage" data-watch-ref="decision">결심</button>
+              <button class="combat-button inverse" type="button" data-watch-action="download"><i data-lucide="download" aria-hidden="true"></i>감시</button>
+            </div>
+          </div>
+
+          <div class="watch-workspace">
+            <section class="hard-panel watch-overview-panel" id="watchOverviewPanel" aria-label="재판단 감시 요약"></section>
+            <section class="hard-panel watch-trigger-panel" id="watchTriggerPanel" aria-label="트리거 보드"></section>
+            <section class="hard-panel watch-signal-panel" id="watchSignalPanel" aria-label="전파 문안"></section>
+            <section class="hard-panel watch-action-panel" id="watchActionPanel" aria-label="재판단 조치"></section>
+          </div>
+        </section>
+
+        <section class="page-view log-page" id="page-log" data-page="log" role="tabpanel" aria-labelledby="tab-log" hidden>
+          <div class="page-heading log-heading">
+            <div>
+              <p class="eyebrow">감시 보고를 교대 가능한 운용 기록으로 남깁니다.</p>
+              <h2>상황 일지</h2>
+            </div>
+            <div class="log-actions" aria-label="상황 일지 실행">
+              <button class="mode-button" type="button" data-log-action="stage" data-log-ref="watch">감시</button>
+              <button class="mode-button" type="button" data-log-action="stage" data-log-ref="handoff">인계</button>
+              <button class="combat-button inverse" type="button" data-log-action="download"><i data-lucide="download" aria-hidden="true"></i>일지</button>
+            </div>
+          </div>
+
+          <div class="log-workspace">
+            <section class="hard-panel log-overview-panel" id="logOverviewPanel" aria-label="상황 일지 요약"></section>
+            <section class="hard-panel log-timeline-panel" id="logTimelinePanel" aria-label="보고 타임라인"></section>
+            <section class="hard-panel log-report-panel" id="logReportPanel" aria-label="보고 상세"></section>
+            <section class="hard-panel log-acknowledge-panel" id="logAcknowledgePanel" aria-label="확인 기록"></section>
+          </div>
+        </section>
+
+        <section class="page-view challenge-page" id="page-challenge" data-page="challenge" role="tabpanel" aria-labelledby="tab-challenge" hidden>
+          <div class="page-heading challenge-heading">
+            <div>
+              <p class="eyebrow">최종 결심을 다시 흔들어 반증 가능성을 확인합니다.</p>
+              <h2>반증 검증</h2>
+            </div>
+            <div class="challenge-actions" aria-label="반증 검증 실행">
+              <button class="mode-button" type="button" data-challenge-action="stage" data-challenge-ref="decision">결심</button>
+              <button class="mode-button" type="button" data-challenge-action="stage" data-challenge-ref="risk">위험</button>
+              <button class="combat-button inverse" type="button" data-challenge-action="download"><i data-lucide="download" aria-hidden="true"></i>검증</button>
+            </div>
+          </div>
+
+          <div class="challenge-workspace">
+            <section class="hard-panel challenge-overview-panel" id="challengeOverviewPanel" aria-label="반증 검증 요약"></section>
+            <section class="hard-panel challenge-assumption-panel" id="challengeAssumptionPanel" aria-label="가정 보드"></section>
+            <section class="hard-panel challenge-counter-panel" id="challengeCounterPanel" aria-label="반증 신호"></section>
+            <section class="hard-panel challenge-action-panel" id="challengeActionPanel" aria-label="검증 조치"></section>
+          </div>
+        </section>
+
+        <section class="page-view queue-page" id="page-queue" data-page="queue" role="tabpanel" aria-labelledby="tab-queue" hidden>
+          <div class="page-heading queue-heading">
+            <div>
+              <p class="eyebrow">남은 검토 산출물을 담당자와 우선순위가 있는 작업으로 정리합니다.</p>
+              <h2>조치 큐</h2>
+            </div>
+            <div class="queue-actions" aria-label="조치 큐 실행">
+              <button class="mode-button" type="button" data-queue-action="stage" data-queue-ref="challenge">검증</button>
+              <button class="mode-button" type="button" data-queue-action="stage" data-queue-ref="handoff">인계</button>
+              <button class="combat-button inverse" type="button" data-queue-action="download"><i data-lucide="download" aria-hidden="true"></i>큐</button>
+            </div>
+          </div>
+
+          <div class="queue-workspace">
+            <section class="hard-panel queue-overview-panel" id="queueOverviewPanel" aria-label="조치 큐 요약"></section>
+            <section class="hard-panel queue-priority-panel" id="queuePriorityPanel" aria-label="우선순위 큐"></section>
+            <section class="hard-panel queue-owner-panel" id="queueOwnerPanel" aria-label="담당자 부하"></section>
+            <section class="hard-panel queue-gate-panel" id="queueGatePanel" aria-label="완료 게이트"></section>
+          </div>
+        </section>
+
+        <section class="page-view forecast-page" id="page-forecast" data-page="forecast" role="tabpanel" aria-labelledby="tab-forecast" hidden>
+          <div class="page-heading forecast-heading">
+            <div>
+              <p class="eyebrow">조치 큐 처리 속도별 준비도와 잔여 위험 변화를 예측합니다.</p>
+              <h2>준비 예측</h2>
+            </div>
+            <div class="forecast-actions" aria-label="준비 예측 실행">
+              <button class="mode-button" type="button" data-forecast-action="stage" data-forecast-ref="queue">큐</button>
+              <button class="mode-button" type="button" data-forecast-action="stage" data-forecast-ref="metrics">지표</button>
+              <button class="combat-button inverse" type="button" data-forecast-action="download"><i data-lucide="download" aria-hidden="true"></i>예측</button>
+            </div>
+          </div>
+
+          <div class="forecast-workspace">
+            <section class="hard-panel forecast-overview-panel" id="forecastOverviewPanel" aria-label="준비 예측 요약"></section>
+            <section class="hard-panel forecast-scenario-panel" id="forecastScenarioPanel" aria-label="예측 시나리오"></section>
+            <section class="hard-panel forecast-bottleneck-panel" id="forecastBottleneckPanel" aria-label="병목 신호"></section>
+            <section class="hard-panel forecast-gate-panel" id="forecastGatePanel" aria-label="예측 완료 게이트"></section>
+          </div>
+        </section>
+
+        <section class="page-view broadcast-page" id="page-broadcast" data-page="broadcast" role="tabpanel" aria-labelledby="tab-broadcast" hidden>
+          <div class="page-heading broadcast-heading">
+            <div>
+              <p class="eyebrow">예측과 조치 큐를 수신자별 전파 문안과 확인 상태로 묶습니다.</p>
+              <h2>전파 패키지</h2>
+            </div>
+            <div class="broadcast-actions" aria-label="전파 패키지 실행">
+              <button class="mode-button" type="button" data-broadcast-action="stage" data-broadcast-ref="forecast">예측</button>
+              <button class="mode-button" type="button" data-broadcast-action="stage" data-broadcast-ref="handoff">인계</button>
+              <button class="combat-button inverse" type="button" data-broadcast-action="download"><i data-lucide="download" aria-hidden="true"></i>전파</button>
+            </div>
+          </div>
+
+          <div class="broadcast-workspace">
+            <section class="hard-panel broadcast-overview-panel" id="broadcastOverviewPanel" aria-label="전파 패키지 요약"></section>
+            <section class="hard-panel broadcast-recipient-panel" id="broadcastRecipientPanel" aria-label="전파 수신자"></section>
+            <section class="hard-panel broadcast-message-panel" id="broadcastMessagePanel" aria-label="수신자별 문안"></section>
+            <section class="hard-panel broadcast-ack-panel" id="broadcastAckPanel" aria-label="전파 확인 상태"></section>
+          </div>
+        </section>
+
+        <section class="page-view receipt-page" id="page-receipt" data-page="receipt" role="tabpanel" aria-labelledby="tab-receipt" hidden>
+          <div class="page-heading receipt-heading">
+            <div>
+              <p class="eyebrow">전파 이후 수신 확인, 미확인 대상, 재전파 조치와 완료 게이트를 추적합니다.</p>
+              <h2>수신 확인</h2>
+            </div>
+            <div class="receipt-actions" aria-label="수신 확인 실행">
+              <button class="mode-button" type="button" data-receipt-action="stage" data-receipt-ref="broadcast">전파</button>
+              <button class="mode-button" type="button" data-receipt-action="stage" data-receipt-ref="log">일지</button>
+              <button class="combat-button inverse" type="button" data-receipt-action="download"><i data-lucide="download" aria-hidden="true"></i>확인</button>
+            </div>
+          </div>
+
+          <div class="receipt-workspace">
+            <section class="hard-panel receipt-overview-panel" id="receiptOverviewPanel" aria-label="수신 확인 요약"></section>
+            <section class="hard-panel receipt-track-panel" id="receiptTrackPanel" aria-label="수신 추적"></section>
+            <section class="hard-panel receipt-escalation-panel" id="receiptEscalationPanel" aria-label="재전파 조치"></section>
+            <section class="hard-panel receipt-gate-panel" id="receiptGatePanel" aria-label="수신 완료 게이트"></section>
+          </div>
+        </section>
+
+        <section class="page-view closeout-page" id="page-closeout" data-page="closeout" role="tabpanel" aria-labelledby="tab-closeout" hidden>
+          <div class="page-heading closeout-heading">
+            <div>
+              <p class="eyebrow">결심, 수신 확인, 예외 처리, 보관 산출물을 종결 보고로 잠급니다.</p>
+              <h2>종결 보고</h2>
+            </div>
+            <div class="closeout-actions" aria-label="종결 보고 실행">
+              <button class="mode-button" type="button" data-closeout-action="stage" data-closeout-ref="receipt">확인</button>
+              <button class="mode-button" type="button" data-closeout-action="stage" data-closeout-ref="submit">제출</button>
+              <button class="combat-button inverse" type="button" data-closeout-action="download"><i data-lucide="download" aria-hidden="true"></i>보고</button>
+            </div>
+          </div>
+
+          <div class="closeout-workspace">
+            <section class="hard-panel closeout-overview-panel" id="closeoutOverviewPanel" aria-label="종결 보고 요약"></section>
+            <section class="hard-panel closeout-decision-panel" id="closeoutDecisionPanel" aria-label="종결 판단 항목"></section>
+            <section class="hard-panel closeout-exception-panel" id="closeoutExceptionPanel" aria-label="예외 처리"></section>
+            <section class="hard-panel closeout-archive-panel" id="closeoutArchivePanel" aria-label="보관 산출물"></section>
+          </div>
+        </section>
+
+        <section class="page-view lessons-page" id="page-lessons" data-page="lessons" role="tabpanel" aria-labelledby="tab-lessons" hidden>
+          <div class="page-heading lessons-heading">
+            <div>
+              <p class="eyebrow">종결 보고에서 반복 가능한 판단 패턴, 재사용 체크, 다음 작전 보관 항목을 추출합니다.</p>
+              <h2>교훈 라이브러리</h2>
+            </div>
+            <div class="lessons-actions" aria-label="교훈 라이브러리 실행">
+              <button class="mode-button" type="button" data-lesson-action="stage" data-lesson-ref="closeout">종결</button>
+              <button class="mode-button" type="button" data-lesson-action="stage" data-lesson-ref="retrain">훈련</button>
+              <button class="combat-button inverse" type="button" data-lesson-action="download"><i data-lucide="download" aria-hidden="true"></i>교훈</button>
+            </div>
+          </div>
+
+          <div class="lessons-workspace">
+            <section class="hard-panel lessons-overview-panel" id="lessonsOverviewPanel" aria-label="교훈 라이브러리 요약"></section>
+            <section class="hard-panel lessons-pattern-panel" id="lessonsPatternPanel" aria-label="판단 패턴"></section>
+            <section class="hard-panel lessons-checklist-panel" id="lessonsChecklistPanel" aria-label="재사용 체크"></section>
+            <section class="hard-panel lessons-archive-panel" id="lessonsArchivePanel" aria-label="교훈 보관"></section>
+          </div>
+        </section>
+
+        <section class="page-view nextop-page" id="page-nextop" data-page="nextop" role="tabpanel" aria-labelledby="tab-nextop" hidden>
+          <div class="page-heading nextop-heading">
+            <div>
+              <p class="eyebrow">교훈 라이브러리를 다음 작전 접수 템플릿과 초기 확인 기준으로 변환합니다.</p>
+              <h2>다음 작전 템플릿</h2>
+            </div>
+            <div class="nextop-actions" aria-label="다음 작전 템플릿 실행">
+              <button class="mode-button" type="button" data-nextop-action="stage" data-nextop-ref="lessons">교훈</button>
+              <button class="mode-button" type="button" data-nextop-action="stage" data-nextop-ref="data">접수</button>
+              <button class="combat-button inverse" type="button" data-nextop-action="download"><i data-lucide="download" aria-hidden="true"></i>템플릿</button>
+            </div>
+          </div>
+
+          <div class="nextop-workspace">
+            <section class="hard-panel nextop-overview-panel" id="nextopOverviewPanel" aria-label="다음 작전 템플릿 요약"></section>
+            <section class="hard-panel nextop-seed-panel" id="nextopSeedPanel" aria-label="작전 시드"></section>
+            <section class="hard-panel nextop-constraint-panel" id="nextopConstraintPanel" aria-label="초기 제약 조건"></section>
+            <section class="hard-panel nextop-packet-panel" id="nextopPacketPanel" aria-label="템플릿 패킷"></section>
+          </div>
+        </section>
+
+        <section class="page-view prefill-page" id="page-prefill" data-page="prefill" role="tabpanel" aria-labelledby="tab-prefill" hidden>
+          <div class="page-heading prefill-heading">
+            <div>
+              <p class="eyebrow">다음 작전 템플릿을 새 자료 접수 화면의 사전 입력값과 확인 게이트로 되돌립니다.</p>
+              <h2>초기 접수 프리필</h2>
+            </div>
+            <div class="prefill-actions" aria-label="초기 접수 프리필 실행">
+              <button class="mode-button" type="button" data-prefill-action="stage" data-prefill-ref="nextop">템플릿</button>
+              <button class="mode-button" type="button" data-prefill-action="stage" data-prefill-ref="data">자료</button>
+              <button class="combat-button inverse" type="button" data-prefill-action="download"><i data-lucide="download" aria-hidden="true"></i>프리필</button>
+            </div>
+          </div>
+
+          <div class="prefill-workspace">
+            <section class="hard-panel prefill-overview-panel" id="prefillOverviewPanel" aria-label="초기 접수 프리필 요약"></section>
+            <section class="hard-panel prefill-manifest-panel" id="prefillManifestPanel" aria-label="자료 매니페스트"></section>
+            <section class="hard-panel prefill-field-panel" id="prefillFieldPanel" aria-label="접수 필드"></section>
+            <section class="hard-panel prefill-gate-panel" id="prefillGatePanel" aria-label="접수 게이트"></section>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -513,7 +915,7 @@
 
     <div class="stage-transition-overlay" id="stageTransitionOverlay" hidden aria-live="polite" aria-label="단계 처리 상태"></div>
 
-    <script src="node_modules/lucide/dist/umd/lucide.min.js"></script>
+    <script src="vendor/lucide/lucide.min.js"></script>
     <script src="app.js"></script>
     <script type="module" src="war-ground-3d.js"></script>
   </body>

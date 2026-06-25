@@ -1,0 +1,20 @@
+<section class="page-view broadcast-page" id="page-broadcast" data-page="broadcast" role="tabpanel" aria-labelledby="tab-broadcast" hidden>
+  <div class="page-heading broadcast-heading">
+    <div>
+      <p class="eyebrow">예측과 조치 큐를 수신자별 전파 문안과 확인 상태로 묶습니다.</p>
+      <h2>전파 패키지</h2>
+    </div>
+    <div class="broadcast-actions" aria-label="전파 패키지 실행">
+      <button class="mode-button" type="button" data-broadcast-action="stage" data-broadcast-ref="forecast">예측</button>
+      <button class="mode-button" type="button" data-broadcast-action="stage" data-broadcast-ref="handoff">인계</button>
+      <button class="combat-button inverse" type="button" data-broadcast-action="download"><i data-lucide="download" aria-hidden="true"></i>전파</button>
+    </div>
+  </div>
+
+  <div class="broadcast-workspace">
+    <section class="hard-panel broadcast-overview-panel" id="broadcastOverviewPanel" aria-label="전파 패키지 요약"></section>
+    <section class="hard-panel broadcast-recipient-panel" id="broadcastRecipientPanel" aria-label="전파 수신자"></section>
+    <section class="hard-panel broadcast-message-panel" id="broadcastMessagePanel" aria-label="수신자별 문안"></section>
+    <section class="hard-panel broadcast-ack-panel" id="broadcastAckPanel" aria-label="전파 확인 상태"></section>
+  </div>
+</section>

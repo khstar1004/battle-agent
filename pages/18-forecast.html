@@ -1,0 +1,20 @@
+<section class="page-view forecast-page" id="page-forecast" data-page="forecast" role="tabpanel" aria-labelledby="tab-forecast" hidden>
+  <div class="page-heading forecast-heading">
+    <div>
+      <p class="eyebrow">조치 큐 처리 속도별 준비도와 잔여 위험 변화를 예측합니다.</p>
+      <h2>준비 예측</h2>
+    </div>
+    <div class="forecast-actions" aria-label="준비 예측 실행">
+      <button class="mode-button" type="button" data-forecast-action="stage" data-forecast-ref="queue">큐</button>
+      <button class="mode-button" type="button" data-forecast-action="stage" data-forecast-ref="metrics">지표</button>
+      <button class="combat-button inverse" type="button" data-forecast-action="download"><i data-lucide="download" aria-hidden="true"></i>예측</button>
+    </div>
+  </div>
+
+  <div class="forecast-workspace">
+    <section class="hard-panel forecast-overview-panel" id="forecastOverviewPanel" aria-label="준비 예측 요약"></section>
+    <section class="hard-panel forecast-scenario-panel" id="forecastScenarioPanel" aria-label="예측 시나리오"></section>
+    <section class="hard-panel forecast-bottleneck-panel" id="forecastBottleneckPanel" aria-label="병목 신호"></section>
+    <section class="hard-panel forecast-gate-panel" id="forecastGatePanel" aria-label="예측 완료 게이트"></section>
+  </div>
+</section>

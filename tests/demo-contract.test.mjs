@@ -60,6 +60,14 @@ describe("WAR GROUND demo contract", () => {
     assert.doesNotMatch(app, /fetch\(|XMLHttpRequest|navigator\.sendBeacon/);
   });
 
+  it("ships the Lucide runtime from committed vendor assets for Cloudtype", () => {
+    const html = readText("index.html");
+
+    assert.equal(existsSync(join(root, "vendor/lucide/lucide.min.js")), true, "vendor/lucide/lucide.min.js is missing");
+    assert.ok(html.includes("src=\"vendor/lucide/lucide.min.js\""), "index.html must load the vendored Lucide bundle");
+    assert.doesNotMatch(html, /node_modules\/lucide/, "deployed HTML must not reference node_modules");
+  });
+
   it("supports selectable game-unit style agent profiles", () => {
     const html = readText("index.html");
     const app = readText("app.js");
@@ -458,6 +466,97 @@ describe("WAR GROUND demo contract", () => {
       ".hard-panel",
       "background: rgba(8, 13, 12, 0.74)"
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("trims the global command bar to brand, stage tabs, and essential tools only", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "function shouldShowStartOnlyCue",
+      "state.currentStage === \"data\"",
+      "target.hidden = !visible",
+      "target.setAttribute(\"aria-hidden\", String(!visible))"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      "/* Final command trim: keep only brand, stage tabs, and essential global tools. */",
+      "grid-template-columns: minmax(204px, 226px) minmax(0, 1fr) auto",
+      ".compact-tools #openBriefingSheet",
+      ".compact-tools #togglePresenterModeButton",
+      ".compact-tools #focusGraph",
+      ".compact-tools #runCycle",
+      "/* Stage rail resilience: keep growing page tabs from squeezing the command bar. */",
+      "grid-auto-columns: minmax(58px, max-content)",
+      ".compact-command-bar .workspace-tabs::-webkit-scrollbar",
+      "body:not([data-stage=\"data\"]) .demo-judge-cue",
+      "height: calc(100vh - 66px)"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("keeps mobile stage navigation in one compact scrolling row", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "function scrollActiveWorkspaceTabIntoView",
+      "activeTab.scrollIntoView",
+      "inline: \"center\"",
+      "block: \"nearest\""
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      "/* Mobile command compression: keep stage tabs to one scrolling row. */",
+      "grid-auto-flow: column",
+      "grid-auto-columns: minmax(72px, 1fr)",
+      "overflow-x: auto",
+      "scrollbar-width: none",
+      "-webkit-overflow-scrolling: touch"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("compresses the desktop stage rail to the current context instead of every historical page", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "function syncCompactStageContext",
+      "const anchorStages = new Set([\"data\", \"decision\", \"receipt\", \"closeout\"])",
+      "Math.abs(index - activeIndex) <= 1",
+      "button.classList.toggle(\"is-context-tab\", visible)",
+      "nav.dataset.visibleTabs"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      "/* Command stage focus: keep the top rail to current context instead of every historical page. */",
+      ".compact-command-bar .workspace-tabs[data-visible-tabs] .workspace-tab:not(.is-context-tab)",
+      ".compact-command-bar .workspace-tab.is-context-tab",
+      ".compact-command-bar .workspace-tab.is-context-tab.is-active",
+      ".compact-command-bar .workspace-tabs[data-visible-tabs]"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("renders only the active heavy workspace during stage changes", () => {
+    const app = readText("app.js");
+
+    [
+      "const activePage = document.querySelector(\".page-view.is-active[data-page]\")",
+      "const pages = activePage ? [activePage] : []",
+      "const pageRenderers = {",
+      "broadcast: renderBroadcastPackage",
+      "receipt: renderReceiptTracker",
+      "pageRenderers[state.currentStage]?.()"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+  });
+
+  it("skips the stage transition overlay when restoring a stage from the URL", () => {
+    const app = readText("app.js");
+
+    [
+      "function setStage(stage, options = {})",
+      "previousStage !== stage && !options.skipTransition",
+      "setStage(initialStage, { skipTransition: true })"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
   });
 
   it("gives each page a single premium focal surface instead of equal-weight panels", () => {
@@ -1200,7 +1299,8 @@ describe("WAR GROUND demo contract", () => {
     [
       "function renderAgentPortrait",
       "personIcon",
-      "data-lucide=\"${profile.personIcon}\"",
+      "const iconName = profile.personIcon || getAgentPersonIcon(profile)",
+      "data-lucide=\"${iconName}\"",
       "user-round",
       "shield-user",
       "user-cog",
@@ -1210,6 +1310,7 @@ describe("WAR GROUND demo contract", () => {
     [
       ".agent-portrait i",
       ".agent-portrait i svg",
+      ".agent-portrait > svg",
       ".agent-portrait b",
       ".agent-portrait::before",
       "content: none"
@@ -1652,6 +1753,8 @@ describe("WAR GROUND demo contract", () => {
     const app = readText("app.js");
 
     [
+      "id=\"rehearsalRunInlineButton\"",
+      "수행 리허설 실행",
       "id=\"rehearsalRestartButton\"",
       "처음부터 재생"
     ].forEach((signature) => {
@@ -1660,9 +1763,13 @@ describe("WAR GROUND demo contract", () => {
     });
 
     [
+      "function setRehearsalRunButtonDisabled",
+      "function prepareRehearsalPrerequisites",
       "function restartRehearsalFromStart",
+      "byId(\"rehearsalRunInlineButton\")?.addEventListener(\"click\", runRehearsal)",
       "byId(\"rehearsalRestartButton\").addEventListener(\"click\", restartRehearsalFromStart)",
       "state.rehearsalIndex = -1",
+      "setStage(\"rehearsal\", { skipTransition: true })",
       "window.WarGround3D?.focusEvent?.(\"start\")",
       "showEvent(0)",
       "scheduleNextEvent()"
@@ -2064,5 +2171,743 @@ describe("WAR GROUND demo contract", () => {
       ".briefing-evidence-lock",
       ".briefing-script-panel"
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a briefing answer drill so judging questions become executable talking points", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"briefingDrillCard\"",
+      "답변 드릴"
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "selectedBriefingQuestionId",
+      "data-briefing-question-id",
+      "function renderBriefingDrillCard",
+      "function selectBriefingQuestion",
+      "20초 답변",
+      "보여줄 화면",
+      "근거 열기"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".briefing-drill-card",
+      ".briefing-question-queue article.is-selected",
+      ".briefing-drill-actions"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate AAR improvement page that turns rehearsal findings into owned follow-up actions", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-aar\"",
+      "data-stage=\"aar\"",
+      "id=\"page-aar\"",
+      "id=\"aarSummaryPanel\"",
+      "id=\"aarActionBoard\"",
+      "id=\"aarOwnerMatrix\"",
+      "id=\"aarEvidenceReplay\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "aar: { phase: \"AAR 개선안\"",
+      "function getAarImprovementItems",
+      "function getAarOwnerMatrix",
+      "function getAarEvidenceReplayItems",
+      "function renderAarImprovementPlan",
+      "function runAarAction",
+      "data-aar-action",
+      "AAR 개선안",
+      "책임자 매트릭스",
+      "근거 리플레이"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".aar-page",
+      ".aar-workspace",
+      ".aar-summary-panel",
+      ".aar-action-board",
+      ".aar-owner-matrix",
+      ".aar-evidence-replay"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate audit log page that proves the scenario from source intake to AAR actions", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-audit\"",
+      "data-stage=\"audit\"",
+      "id=\"page-audit\"",
+      "id=\"auditSummaryPanel\"",
+      "id=\"auditTimelinePanel\"",
+      "id=\"auditEvidencePanel\"",
+      "id=\"auditGapPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "audit: { phase: \"감사 로그\"",
+      "function getAuditTrailItems",
+      "function getAuditCoverageSummary",
+      "function getAuditEvidenceLedger",
+      "function renderAuditLogbook",
+      "function runAuditAction",
+      "data-audit-action",
+      "소스 투입부터 AAR까지",
+      "근거 원장",
+      "검증 공백"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".audit-page",
+      ".audit-workspace",
+      ".audit-summary-panel",
+      ".audit-timeline-panel",
+      ".audit-evidence-panel",
+      ".audit-gap-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate submission package page that bundles final outputs and readiness gates", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-submit\"",
+      "data-stage=\"submit\"",
+      "id=\"page-submit\"",
+      "id=\"submitReadinessPanel\"",
+      "id=\"submitBundlePanel\"",
+      "id=\"submitChecklistPanel\"",
+      "id=\"submitManifestPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "submit: { phase: \"제출 패키지\"",
+      "function getSubmissionReadinessItems",
+      "function getSubmissionBundleItems",
+      "function getSubmissionManifest",
+      "function renderSubmissionPackage",
+      "function runSubmissionAction",
+      "data-submit-action",
+      "최종 제출 패키지",
+      "제출 준비도",
+      "산출물 묶음"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".submit-page",
+      ".submit-workspace",
+      ".submit-readiness-panel",
+      ".submit-bundle-panel",
+      ".submit-checklist-panel",
+      ".submit-manifest-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate retraining plan page that converts AAR findings into 72-hour drills", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-retrain\"",
+      "data-stage=\"retrain\"",
+      "id=\"page-retrain\"",
+      "id=\"retrainSchedulePanel\"",
+      "id=\"retrainOwnerPanel\"",
+      "id=\"retrainValidationPanel\"",
+      "id=\"retrainDrillPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "retrain: { phase: \"재훈련 계획\"",
+      "function getRetrainingScheduleItems",
+      "function getRetrainingOwnerLoads",
+      "function getRetrainingValidationGates",
+      "function renderRetrainingPlan",
+      "function runRetrainingAction",
+      "data-retrain-action",
+      "72시간 재훈련",
+      "검증 게이트",
+      "훈련 과제"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".retrain-page",
+      ".retrain-workspace",
+      ".retrain-schedule-panel",
+      ".retrain-owner-panel",
+      ".retrain-validation-panel",
+      ".retrain-drill-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate handoff center page that packages the final decision for next operators", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-handoff\"",
+      "data-stage=\"handoff\"",
+      "id=\"page-handoff\"",
+      "id=\"handoffSummaryPanel\"",
+      "id=\"handoffRecipientPanel\"",
+      "id=\"handoffSignalPanel\"",
+      "id=\"handoffPacketPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "handoff: { phase: \"인수인계 센터\"",
+      "function getHandoffRecipientItems",
+      "function getHandoffChecklistItems",
+      "function getHandoffSignalItems",
+      "function renderHandoffCenter",
+      "function runHandoffAction",
+      "data-handoff-action",
+      "인수인계 패킷",
+      "수신자별 인계",
+      "교신 문안"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".handoff-page",
+      ".handoff-workspace",
+      ".handoff-summary-panel",
+      ".handoff-recipient-panel",
+      ".handoff-signal-panel",
+      ".handoff-packet-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate operations metrics page that tracks readiness after handoff", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-metrics\"",
+      "data-stage=\"metrics\"",
+      "id=\"page-metrics\"",
+      "id=\"metricsOverviewPanel\"",
+      "id=\"metricsRiskPanel\"",
+      "id=\"metricsEvidencePanel\"",
+      "id=\"metricsCadencePanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "metrics: { phase: \"운영 지표\"",
+      "function getOperationsMetricItems",
+      "function getOperationsRiskTrend",
+      "function getOperationsEvidenceCoverageSummary",
+      "function getOperationsEvidenceDebt",
+      "function renderOperationsMetrics",
+      "function runMetricsAction",
+      "data-metrics-action",
+      "운영 지표판",
+      "위험 추세",
+      "근거 부채"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".metrics-page",
+      ".metrics-workspace",
+      ".metrics-overview-panel",
+      ".metrics-risk-panel",
+      ".metrics-evidence-panel",
+      ".metrics-cadence-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+
+    const metricBody = app.match(/function getOperationsMetricItems\(\) \{[\s\S]*?\n\}/)?.[0] || "";
+    [
+      "getHandoffChecklistItems",
+      "getRetrainingValidationGates",
+      "getSubmissionReadinessScore",
+      "getHandoffRecipientItems",
+      "getRetrainingScheduleItems"
+    ].forEach((signature) => assert.ok(!metricBody.includes(signature), `metrics should not call ${signature} during boot`));
+
+    const snapshotBody = app.match(/function getBriefingSnapshot\(\) \{[\s\S]*?\n\}/)?.[0] || "";
+    assert.ok(!snapshotBody.includes("syncRouteState();"), "getBriefingSnapshot should not mutate browser history while rendering");
+  });
+
+  it("adds a separate decision watch page that tracks redecision triggers after metrics", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-watch\"",
+      "data-stage=\"watch\"",
+      "id=\"page-watch\"",
+      "id=\"watchOverviewPanel\"",
+      "id=\"watchTriggerPanel\"",
+      "id=\"watchSignalPanel\"",
+      "id=\"watchActionPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "watch: { phase: \"상황 감시\"",
+      "function getDecisionWatchItems",
+      "function getWatchEscalationItems",
+      "function getWatchSignalItems",
+      "function renderDecisionWatch",
+      "function runWatchAction",
+      "data-watch-action",
+      "재판단 감시",
+      "트리거 보드",
+      "전파 문안",
+      "const action = item.failureId ? \"risk\" : item.stage ? \"stage\" : \"evidence\""
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".watch-page",
+      ".watch-workspace",
+      ".watch-overview-panel",
+      ".watch-trigger-panel",
+      ".watch-signal-panel",
+      ".watch-action-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate operations log page that preserves watch reports as a handoff record", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-log\"",
+      "data-stage=\"log\"",
+      "id=\"page-log\"",
+      "id=\"logOverviewPanel\"",
+      "id=\"logTimelinePanel\"",
+      "id=\"logReportPanel\"",
+      "id=\"logAcknowledgePanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "log: { phase: \"상황 일지\"",
+      "function getOperationsLogItems",
+      "function getLogAcknowledgementItems",
+      "function getLogReportPacket",
+      "function renderOperationsLog",
+      "function runLogAction",
+      "data-log-action",
+      "상황 일지",
+      "보고 타임라인",
+      "확인 기록"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".log-page",
+      ".log-workspace",
+      ".log-overview-panel",
+      ".log-timeline-panel",
+      ".log-report-panel",
+      ".log-acknowledge-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate challenge review page that stress-tests the final decision before reuse", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-challenge\"",
+      "data-stage=\"challenge\"",
+      "id=\"page-challenge\"",
+      "id=\"challengeOverviewPanel\"",
+      "id=\"challengeAssumptionPanel\"",
+      "id=\"challengeCounterPanel\"",
+      "id=\"challengeActionPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "challenge: { phase: \"반증 검증\"",
+      "function getChallengeAssumptionItems",
+      "function getChallengeCounterItems",
+      "function getChallengeActionItems",
+      "function getChallengeReadinessScore",
+      "function renderChallengeReview",
+      "function runChallengeAction",
+      "data-challenge-action",
+      "반증 검증",
+      "가정 보드",
+      "반증 신호",
+      "pages/16-challenge.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".challenge-page",
+      ".challenge-workspace",
+      ".challenge-overview-panel",
+      ".challenge-assumption-panel",
+      ".challenge-counter-panel",
+      ".challenge-action-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate action queue page that turns all open review outputs into ordered work", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-queue\"",
+      "data-stage=\"queue\"",
+      "id=\"page-queue\"",
+      "id=\"queueOverviewPanel\"",
+      "id=\"queuePriorityPanel\"",
+      "id=\"queueOwnerPanel\"",
+      "id=\"queueGatePanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "queue: { phase: \"조치 큐\"",
+      "function getActionQueueItems",
+      "function getActionQueueOwnerItems",
+      "function getActionQueueGateItems",
+      "function getActionQueueReadinessScore",
+      "function renderActionQueue",
+      "function runActionQueueAction",
+      "data-queue-action",
+      "조치 큐",
+      "우선순위 큐",
+      "담당자 부하",
+      "pages/17-queue.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".queue-page",
+      ".queue-workspace",
+      ".queue-overview-panel",
+      ".queue-priority-panel",
+      ".queue-owner-panel",
+      ".queue-gate-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate readiness forecast page that projects queue impact over the next operating window", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-forecast\"",
+      "data-stage=\"forecast\"",
+      "id=\"page-forecast\"",
+      "id=\"forecastOverviewPanel\"",
+      "id=\"forecastScenarioPanel\"",
+      "id=\"forecastBottleneckPanel\"",
+      "id=\"forecastGatePanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "forecast: { phase: \"준비 예측\"",
+      "function getReadinessForecastItems",
+      "function getForecastScenarioItems",
+      "function getForecastBottleneckItems",
+      "function getForecastGateItems",
+      "function getReadinessForecastScore",
+      "function renderReadinessForecast",
+      "function runForecastAction",
+      "data-forecast-action",
+      "준비 예측",
+      "예측 시나리오",
+      "병목 신호",
+      "pages/18-forecast.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".forecast-page",
+      ".forecast-workspace",
+      ".forecast-overview-panel",
+      ".forecast-scenario-panel",
+      ".forecast-bottleneck-panel",
+      ".forecast-gate-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate broadcast package page that turns forecast and queue outputs into recipient messages", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-broadcast\"",
+      "data-stage=\"broadcast\"",
+      "id=\"page-broadcast\"",
+      "id=\"broadcastOverviewPanel\"",
+      "id=\"broadcastRecipientPanel\"",
+      "id=\"broadcastMessagePanel\"",
+      "id=\"broadcastAckPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "broadcast: { phase: \"전파 패키지\"",
+      "selectedBroadcastRecipientId",
+      "function getBroadcastRecipientItems",
+      "function getBroadcastMessageItems",
+      "function getBroadcastAckItems",
+      "function getBroadcastReadinessScore",
+      "function getBroadcastPackage",
+      "function renderBroadcastPackage",
+      "function runBroadcastAction",
+      "data-broadcast-action",
+      "전파 패키지",
+      "수신자별 문안",
+      "pages/19-broadcast.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".broadcast-page",
+      ".broadcast-workspace",
+      ".broadcast-overview-panel",
+      ".broadcast-recipient-panel",
+      ".broadcast-message-panel",
+      ".broadcast-ack-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate receipt tracking page that follows broadcast acknowledgements and escalation gates", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-receipt\"",
+      "data-stage=\"receipt\"",
+      "id=\"page-receipt\"",
+      "id=\"receiptOverviewPanel\"",
+      "id=\"receiptTrackPanel\"",
+      "id=\"receiptEscalationPanel\"",
+      "id=\"receiptGatePanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "receipt: { phase: \"수신 확인\"",
+      "selectedReceiptItemId",
+      "function getReceiptTrackItems",
+      "function getReceiptEscalationItems",
+      "function getReceiptGateItems",
+      "function getReceiptReadinessScore",
+      "function getReceiptPackage",
+      "function renderReceiptTracker",
+      "function runReceiptAction",
+      "data-receipt-action",
+      "수신 확인",
+      "미확인 대상",
+      "pages/20-receipt.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".receipt-page",
+      ".receipt-workspace",
+      ".receipt-overview-panel",
+      ".receipt-track-panel",
+      ".receipt-escalation-panel",
+      ".receipt-gate-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds a separate closeout report page that locks receipt, exceptions, and archive outputs", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-closeout\"",
+      "data-stage=\"closeout\"",
+      "id=\"page-closeout\"",
+      "id=\"closeoutOverviewPanel\"",
+      "id=\"closeoutDecisionPanel\"",
+      "id=\"closeoutExceptionPanel\"",
+      "id=\"closeoutArchivePanel\"",
+      "styles.css?v=prefill-loop-v1"
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "closeout: { phase: \"종결 보고\"",
+      "selectedCloseoutItemId",
+      "function getCloseoutSummaryItems",
+      "function getCloseoutDecisionItems",
+      "function getCloseoutExceptionItems",
+      "function getCloseoutArchiveItems",
+      "function getCloseoutReadinessScore",
+      "function getCloseoutPackage",
+      "function renderCloseoutReport",
+      "function runCloseoutAction",
+      "data-closeout-action",
+      "종결 보고",
+      "예외 처리",
+      "pages/21-closeout.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".closeout-page",
+      ".closeout-page .panel-popout-button",
+      ".closeout-workspace",
+      ".closeout-overview-panel",
+      ".closeout-decision-panel",
+      ".closeout-exception-panel",
+      ".closeout-archive-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+
+    assert.ok(
+      app.includes("if (page === \"data\")") && app.includes("if (state.currentStage === \"data\")"),
+      "data stage should bypass eager all-page briefing and judge cue calculation"
+    );
+  });
+
+  it("adds a separate lessons library page that turns closeout output into reusable next-operation checks", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-lessons\"",
+      "data-stage=\"lessons\"",
+      "id=\"page-lessons\"",
+      "id=\"lessonsOverviewPanel\"",
+      "id=\"lessonsPatternPanel\"",
+      "id=\"lessonsChecklistPanel\"",
+      "id=\"lessonsArchivePanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "lessons: { phase: \"교훈 라이브러리\"",
+      "selectedLessonItemId",
+      "function getLessonSummaryItems",
+      "function getLessonPatternItems",
+      "function getLessonChecklistItems",
+      "function getLessonArchiveItems",
+      "function getLessonReadinessScore",
+      "function getLessonPackage",
+      "function renderLessonsLibrary",
+      "function runLessonAction",
+      "data-lesson-action",
+      "교훈 라이브러리",
+      "재사용 체크",
+      "pages/22-lessons.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".lessons-page",
+      ".lessons-workspace",
+      ".lessons-overview-panel",
+      ".lessons-pattern-panel",
+      ".lessons-checklist-panel",
+      ".lessons-archive-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+
+    assert.ok(
+      app.includes("if (page === \"lessons\")") && app.includes("if (state.currentStage === \"lessons\")"),
+      "lessons page should avoid eager all-page briefing and judge cue calculation"
+    );
+  });
+
+  it("adds a next operation template page that converts lessons into a new intake starter", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-nextop\"",
+      "data-stage=\"nextop\"",
+      "id=\"page-nextop\"",
+      "id=\"nextopOverviewPanel\"",
+      "id=\"nextopSeedPanel\"",
+      "id=\"nextopConstraintPanel\"",
+      "id=\"nextopPacketPanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "nextop: { phase: \"다음 작전 템플릿\"",
+      "selectedNextOpItemId",
+      "function getNextOperationSummaryItems",
+      "function getNextOperationSeedItems",
+      "function getNextOperationConstraintItems",
+      "function getNextOperationPacketItems",
+      "function getNextOperationReadinessScore",
+      "function getNextOperationPackage",
+      "function renderNextOperationTemplate",
+      "function runNextOperationAction",
+      "data-nextop-action",
+      "다음 작전 템플릿",
+      "작전 시드",
+      "pages/23-nextop.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".nextop-page",
+      ".nextop-workspace",
+      ".nextop-overview-panel",
+      ".nextop-seed-panel",
+      ".nextop-constraint-panel",
+      ".nextop-packet-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+
+    assert.ok(
+      app.includes("if (page === \"nextop\")") && app.includes("if (state.currentStage === \"nextop\")"),
+      "next operation page should avoid eager all-page briefing and judge cue calculation"
+    );
+  });
+
+  it("adds an intake prefill page that loops the next operation template back into source intake", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"tab-prefill\"",
+      "data-stage=\"prefill\"",
+      "id=\"page-prefill\"",
+      "id=\"prefillOverviewPanel\"",
+      "id=\"prefillManifestPanel\"",
+      "id=\"prefillFieldPanel\"",
+      "id=\"prefillGatePanel\""
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "prefill: { phase: \"초기 접수 프리필\"",
+      "selectedPrefillItemId",
+      "function getPrefillOverviewItems",
+      "function getPrefillManifestItems",
+      "function getPrefillFieldItems",
+      "function getPrefillGateItems",
+      "function getPrefillReadinessScore",
+      "function getPrefillPackage",
+      "function renderIntakePrefill",
+      "function runPrefillAction",
+      "data-prefill-action",
+      "초기 접수 프리필",
+      "접수 필드",
+      "pages/24-prefill.html"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".prefill-page",
+      ".prefill-workspace",
+      ".prefill-overview-panel",
+      ".prefill-manifest-panel",
+      ".prefill-field-panel",
+      ".prefill-gate-panel"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+
+    assert.ok(
+      app.includes("if (page === \"prefill\")") && app.includes("if (state.currentStage === \"prefill\")"),
+      "prefill page should avoid eager all-page briefing and judge cue calculation"
+    );
   });
 });
