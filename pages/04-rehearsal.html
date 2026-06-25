@@ -45,10 +45,10 @@
           <button class="mode-button" type="button" data-camera-mode="objective_focus">목표중심</button>
           <button class="mode-button" type="button" data-camera-mode="ground_move">지상이동</button>
         </div>
-        <div class="war-ground-zoom-controls" id="warGroundZoomControls" aria-label="3D 지도 확대 축소">
+        <div class="war-ground-zoom-controls" id="warGroundZoomControls" aria-label="3D 지도 확대 축소 및 리허설 배속">
           <button class="mode-button" type="button" data-camera-zoom="in" aria-label="3D 지도 확대" title="확대">+</button>
           <button class="mode-button" type="button" data-camera-zoom="out" aria-label="3D 지도 축소" title="축소">-</button>
-          <button class="mode-button" type="button" data-camera-zoom="reset" aria-label="3D 지도 줌 기준 복귀" title="줌 기준">1x</button>
+          <button class="mode-button" id="rehearsalMapSpeedButton" type="button" data-rehearsal-speed-toggle aria-label="리허설 배속 전환" title="리허설 배속">1x</button>
         </div>
         <div class="layer-control-stack" id="layerControlStack" aria-label="3D 지도 레이어 제어">
           <button class="mode-button is-active" type="button" data-layer-toggle="routes">경로</button>
@@ -82,7 +82,18 @@
     <section class="hard-panel">
       <div class="panel-heading"><span>관련 에이전트 점등</span><b id="activeAgentCount">0명</b></div>
       <div id="activeAgentChips" class="active-agent-chips"></div>
-      <div id="agentRadioLog" class="agent-radio-log" aria-live="polite" aria-label="멀티에이전트 무전 대화 로그"></div>
+      <div class="agent-community-panel" aria-label="에이전트 커뮤니티 대화">
+        <div class="agent-community-header">
+          <div>
+            <span>AGENT COMMUNITY</span>
+            <b>리허설 대화 스레드</b>
+          </div>
+          <strong id="agentConversationCount">대기</strong>
+        </div>
+        <div id="agentConversationTabs" class="agent-conversation-tabs" role="tablist" aria-label="에이전트 대화 채널"></div>
+        <div id="agentTypingIndicator" class="agent-typing-indicator" aria-live="polite"></div>
+        <div id="agentRadioLog" class="agent-radio-log" aria-live="polite" aria-label="멀티에이전트 무전 대화 로그"></div>
+      </div>
       <div class="terrain-analysis-panel" id="terrainAnalysisPanel"><div class="panel-heading compact-heading"><span>지형분석</span><b>실 DEM 적용</b></div><div id="terrainMetricGrid" class="terrain-metric-grid"></div><ul id="terrainBriefList" class="terrain-brief-list"></ul></div>
       <div class="commander-visualization-panel" id="commanderVisualizationPanel"><div class="panel-heading compact-heading"><span>지휘관 결과 시각화</span><b id="commanderConfidenceLabel">--</b></div><strong id="commanderRecommendation">결과 대기</strong><p id="commanderMessage">리허설 완료 후 지형·통신·군수 종합 결과가 표시됩니다.</p><div id="commanderOverlayList" class="commander-overlay-list"></div></div>
     </section>

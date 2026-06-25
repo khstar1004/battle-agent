@@ -468,30 +468,40 @@ describe("WAR GROUND demo contract", () => {
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
   });
 
-  it("trims the global command bar to brand, stage tabs, and essential tools only", () => {
+  it("trims the global command bar down to the six primary workflow tabs only", () => {
     const app = readText("app.js");
     const css = readText("styles.css");
+    const html = readText("index.html");
 
     [
       "function shouldShowStartOnlyCue",
       "state.currentStage === \"data\"",
       "target.hidden = !visible",
-      "target.setAttribute(\"aria-hidden\", String(!visible))"
+      "target.setAttribute(\"aria-hidden\", String(!visible))",
+      "const primaryStageRail = [\"data\", \"ontology\", \"agents\", \"rehearsal\", \"risk\", \"decision\"]",
+      "const visible = primaryStageRail.includes(button.dataset.stage)"
     ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
 
     [
-      "/* Final command trim: keep only brand, stage tabs, and essential global tools. */",
-      "grid-template-columns: minmax(204px, 226px) minmax(0, 1fr) auto",
-      ".compact-tools #openBriefingSheet",
-      ".compact-tools #togglePresenterModeButton",
-      ".compact-tools #focusGraph",
-      ".compact-tools #runCycle",
-      "/* Stage rail resilience: keep growing page tabs from squeezing the command bar. */",
-      "grid-auto-columns: minmax(58px, max-content)",
+      "/* Primary workflow rail: keep only the six operational stages visible. */",
+      ".compact-command-bar .command-identity",
+      ".compact-command-bar .system-actions",
+      "display: none !important",
+      "grid-template-columns: minmax(0, 1fr)",
+      "grid-template-columns: repeat(6, minmax(128px, 1fr))",
       ".compact-command-bar .workspace-tabs::-webkit-scrollbar",
       "body:not([data-stage=\"data\"]) .demo-judge-cue",
       "height: calc(100vh - 66px)"
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+
+    [
+      "<span>01</span><b>자료 투입</b>",
+      "<span>02</span><b>그래프 구축</b>",
+      "<span>03</span><b>가상부대</b>",
+      "<span>04</span><b>수행 리허설</b>",
+      "<span>05</span><b>실패경로</b>",
+      "<span>06</span><b>결심카드</b>"
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
   });
 
   it("keeps mobile stage navigation in one compact scrolling row", () => {
@@ -515,24 +525,60 @@ describe("WAR GROUND demo contract", () => {
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
   });
 
-  it("compresses the desktop stage rail to the current context instead of every historical page", () => {
+  it("keeps the desktop stage rail fixed to the six primary workflow stages", () => {
     const app = readText("app.js");
     const css = readText("styles.css");
 
     [
       "function syncCompactStageContext",
-      "const anchorStages = new Set([\"data\", \"decision\", \"receipt\", \"closeout\"])",
-      "Math.abs(index - activeIndex) <= 1",
+      "const primaryStageRail = [\"data\", \"ontology\", \"agents\", \"rehearsal\", \"risk\", \"decision\"]",
+      "const visible = primaryStageRail.includes(button.dataset.stage)",
       "button.classList.toggle(\"is-context-tab\", visible)",
       "nav.dataset.visibleTabs"
     ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
 
     [
-      "/* Command stage focus: keep the top rail to current context instead of every historical page. */",
+      "/* Primary workflow rail: keep only the six operational stages visible. */",
       ".compact-command-bar .workspace-tabs[data-visible-tabs] .workspace-tab:not(.is-context-tab)",
       ".compact-command-bar .workspace-tab.is-context-tab",
       ".compact-command-bar .workspace-tab.is-context-tab.is-active",
       ".compact-command-bar .workspace-tabs[data-visible-tabs]"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("loads and navigates from both the stage rail and the top-right next button", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "id=\"nextStageButton\"",
+      "id=\"nextStageLabel\"",
+      "data-stage-next",
+      "<span>다음 단계</span>"
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
+
+    [
+      "function getNextPrimaryStage",
+      "function updateNextStageButton",
+      "function goToNextStage",
+      "function runStageNavigationTransition",
+      "await waitForStageTransitionPaint()",
+      "beginStageTransition(stage, { autoComplete: false })",
+      "runStageNavigationTransition(button.dataset.stage)",
+      "byId(\"nextStageButton\")?.addEventListener(\"click\", goToNextStage)",
+      "button.setAttribute(\"aria-disabled\", visible ? \"false\" : \"true\")"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    assert.ok(!app.includes("button.addEventListener(\"click\", () => setStage(button.dataset.stage))"), "stage rail clicks should not bypass the loading transition");
+
+    [
+      ".stage-progress-actions",
+      ".stage-next-button",
+      ".compact-command-bar .stage-progress-actions",
+      ".stage-next-button:disabled",
+      ".compact-command-bar .workspace-tab",
+      "cursor: pointer"
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
   });
 
@@ -554,7 +600,7 @@ describe("WAR GROUND demo contract", () => {
 
     [
       "function setStage(stage, options = {})",
-      "previousStage !== stage && !options.skipTransition",
+      "previousStage !== stage && options.showTransition",
       "setStage(initialStage, { skipTransition: true })"
     ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
   });
@@ -1581,6 +1627,8 @@ describe("WAR GROUND demo contract", () => {
       "warGroundZoomControls",
       "data-camera-zoom=\"in\"",
       "data-camera-zoom=\"out\"",
+      "id=\"rehearsalMapSpeedButton\"",
+      "data-rehearsal-speed-toggle",
       "agentRadioOverlay",
       "agentRadioLog"
     ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
@@ -1783,8 +1831,23 @@ describe("WAR GROUND demo contract", () => {
 
     [
       "const REHEARSAL_EVENT_DURATION_MS = 4200",
-      "REHEARSAL_EVENT_DURATION_MS / state.rehearsalSpeed"
+      "function captureRehearsalEventProgress",
+      "function getRehearsalEventDelay",
+      "const REHEARSAL_SPEED_STEPS = [1, 2, 4]",
+      "function setRehearsalSpeed",
+      "function renderRehearsalSpeedControls",
+      "byId(\"rehearsalMapSpeedButton\")?.addEventListener(\"click\", toggleRehearsalSpeed)",
+      "state.rehearsalEventElapsedMs",
+      "state.rehearsalEventStartedAt",
+      "captureRehearsalEventProgress();"
     ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    assert.ok(css.includes("#rehearsalSpeedButton"), "#rehearsalSpeedButton mobile override is missing");
+    assert.doesNotMatch(
+      css,
+      /#rehearsalSpeedButton\s*\{\s*display:\s*none;\s*\}/,
+      "speed control must stay visible on narrow rehearsal screens"
+    );
 
     [
       "const STRIKE_REPLAY_DURATION_SECONDS = 36",
@@ -2008,8 +2071,68 @@ describe("WAR GROUND demo contract", () => {
       ".edge.is-evidence",
       ".edge.is-failure",
       ".semantic-confidence",
-      "@keyframes ontology-flow"
+      "animation: none"
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+
+    assert.ok(!css.includes("@keyframes ontology-flow"), "ontology graph should not keep flow animation keyframes");
+  });
+
+  it("frames the ontology graph as source data, schema, agent debate, and graph expansion", () => {
+    const html = readText("index.html");
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "viewBox=\"0 0 1000 620\"",
+      "아군 장비, 지형, 작전계획 요소를 온톨로지화하고 에이전트 토론으로 확장하는 지식 그래프.",
+      "id=\"ontologyInspectorOverlay\"",
+      "ontology-constellation-shell"
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from ontology HTML`));
+
+    [
+      "const ONTOLOGY_SAFE_MAX_Y = 560",
+      "작전 지식 그래프",
+      "아군 장비 제원",
+      "지형·통신권역",
+      "토론 확장",
+      "function getOntologyNeighborIds",
+      "function makeOntologyHexPoints",
+      "function renderOntologyInspectorOverlay",
+      "function isOntologySupportNodeVisible",
+      "function shouldRenderOntologyEdge",
+      "function getOntologyEntityNames",
+      "function getOntologyNodeLabelTier",
+      "ontology-micro-label",
+      "K2 전차",
+      "한강 이남",
+      "H-Hour",
+      "control_status",
+      "source_evidence",
+      "relation_type",
+      "function getOntologyLabelAnchor",
+      "ontology-node-stem"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from ontology graph model`));
+
+    const keyNodeYMatches = [...app.matchAll(/tier: "key"[^}]*?y: (\d+)/g)].map((match) => Number(match[1]));
+    assert.ok(keyNodeYMatches.length > 0, "ontology graph should define key nodes");
+    assert.ok(Math.max(...keyNodeYMatches) <= 560, "key ontology nodes should stay inside the visible graph safe area");
+
+    [
+      ".ontology-constellation-shell",
+      ".ontology-node-polygon",
+      ".ontology-micro-label",
+      ".node.is-support",
+      ".ontology-neighbor-ring",
+      ".ontology-inspector-overlay",
+      ".ontology-inspector-field",
+      ".ontology-link-label",
+      "animation: none",
+      "overflow: hidden",
+      ".node.is-ontology-core",
+      ".ontology-node-stem",
+      ".ontology-label-block",
+      ".graph-theater.is-ontology .edge.is-expansion"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from ontology graph CSS`));
   });
 
   it("shows stage transition processing so every demo step feels live", () => {
@@ -2096,6 +2219,20 @@ describe("WAR GROUND demo contract", () => {
       "@keyframes interaction-spin",
       "@keyframes generation-skeleton"
     ].forEach((signature) => assert.ok(!css.includes(signature), `${signature} should not remain in styles.css`));
+  });
+
+  it("keeps stage transitions responsive instead of blanking the active workspace", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    assert.ok(app.includes("void overlay.offsetWidth"), "stage overlay should be forced visible before reuse");
+    assert.ok(app.includes("if (overrides.autoComplete !== false)"), "stage transitions should support manual completion after paint");
+    assert.ok(app.includes("function waitForStageTransitionPaint"), "stage transition should wait for the loader to paint");
+    assert.ok(app.includes("await waitForStageTransitionPaint()"), "stage transition should yield before heavy page switching");
+    assert.match(css, /body\.is-stage-transitioning \.workspace-pages\s*{\s*opacity:\s*1;/);
+    assert.doesNotMatch(css, /body\.is-stage-transitioning \.workspace-pages\s*{[^}]*opacity:\s*0;/);
+    assert.ok(css.includes("place-items: center"), "stage transition should render a visible centered loader");
+    assert.ok(css.includes("width: min(520px, calc(100vw - 40px))"), "stage transition panel should stay readable without blanking the page");
   });
 
   it("adds 3D decision narration and commander approval gates for judge-facing demos", () => {
@@ -2734,7 +2871,7 @@ describe("WAR GROUND demo contract", () => {
       "id=\"closeoutDecisionPanel\"",
       "id=\"closeoutExceptionPanel\"",
       "id=\"closeoutArchivePanel\"",
-      "styles.css?v=prefill-loop-v1"
+      "styles.css?v=primary-rail-v1"
     ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
 
     [

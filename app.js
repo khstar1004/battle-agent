@@ -771,6 +771,8 @@ const stageMeta = {
   prefill: { phase: "초기 접수 프리필", alert: "접수값 잠금" }
 };
 
+const primaryStageRail = ["data", "ontology", "agents", "rehearsal", "risk", "decision"];
+
 const stageTransitionCopy = {
   data: {
     kicker: "INTAKE PIPELINE",
@@ -919,6 +921,7 @@ const stageTransitionCopy = {
 };
 
 const REHEARSAL_EVENT_DURATION_MS = 4200;
+const REHEARSAL_SPEED_STEPS = [1, 2, 4];
 
 const state = {
   scenarioLoaded: false,
@@ -932,8 +935,11 @@ const state = {
   rehearsalTimer: null,
   rehearsalPaused: false,
   rehearsalSpeed: 1,
+  rehearsalEventElapsedMs: 0,
+  rehearsalEventStartedAt: 0,
   autoTimer: null,
   transitionTimer: null,
+  stageTransitioning: false,
   compareLlm: false,
   demoRemaining: 210,
   selectedAgentId: "red_team_agent",
@@ -968,6 +974,7 @@ const state = {
     rejudge: true,
     evac: true
   },
+  agentConversationTab: "live",
   radioLog: [],
   radioTimers: [],
   radioSerial: 0,
@@ -996,6 +1003,65 @@ function clearTimer(timerName) {
 function setText(id, text) {
   const target = byId(id);
   if (target) target.textContent = text;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function waitForStageTransitionPaint() {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(resolve);
+    });
+  });
+}
+
+function getRehearsalNow() {
+  return window.performance?.now?.() || Date.now();
+}
+
+function resetRehearsalEventClock() {
+  state.rehearsalEventElapsedMs = 0;
+  state.rehearsalEventStartedAt = getRehearsalNow();
+}
+
+function getRehearsalEventProgress() {
+  if (state.rehearsalIndex < 0) return 0;
+  const runningWallTime = !state.rehearsalPaused && state.rehearsalEventStartedAt
+    ? (getRehearsalNow() - state.rehearsalEventStartedAt) * state.rehearsalSpeed
+    : 0;
+  return clamp(state.rehearsalEventElapsedMs + runningWallTime, 0, REHEARSAL_EVENT_DURATION_MS);
+}
+
+function captureRehearsalEventProgress() {
+  state.rehearsalEventElapsedMs = getRehearsalEventProgress();
+  state.rehearsalEventStartedAt = getRehearsalNow();
+}
+
+function getRehearsalEventDelay() {
+  const remaining = Math.max(0, REHEARSAL_EVENT_DURATION_MS - getRehearsalEventProgress());
+  return Math.max(90, Math.round(remaining / Math.max(0.5, state.rehearsalSpeed)));
+}
+
+function renderRehearsalSpeedControls() {
+  const label = `속도 ${state.rehearsalSpeed}x`;
+  setText("rehearsalSpeedButton", label);
+  setText("rehearsalMapSpeedButton", `${state.rehearsalSpeed}x`);
+  byId("rehearsalMapSpeedButton")?.setAttribute("title", `리허설 배속 ${state.rehearsalSpeed}x`);
+}
+
+function getNextRehearsalSpeed() {
+  const currentIndex = REHEARSAL_SPEED_STEPS.indexOf(state.rehearsalSpeed);
+  return REHEARSAL_SPEED_STEPS[(currentIndex + 1) % REHEARSAL_SPEED_STEPS.length] || REHEARSAL_SPEED_STEPS[0];
+}
+
+function setRehearsalSpeed(speed) {
+  if (state.rehearsalStarted && !state.rehearsalPaused) captureRehearsalEventProgress();
+  state.rehearsalSpeed = REHEARSAL_SPEED_STEPS.includes(speed) ? speed : 1;
+  renderRehearsalSpeedControls();
+  window.WarGround3D?.setSpeed?.(state.rehearsalSpeed);
+  if (state.rehearsalStarted && !state.rehearsalPaused) scheduleNextEvent();
 }
 
 function formatPercent(value) {
@@ -1059,13 +1125,20 @@ function beginStageTransition(stage, overrides = {}) {
   clearTimer("transitionTimer");
   const overlay = renderStageTransitionOverlay(stage, overrides);
   if (!overlay) return;
+  const wasVisible = !overlay.hidden && overlay.classList.contains("is-active");
   overlay.hidden = false;
   overlay.classList.add("stage-transition-overlay");
   overlay.classList.remove("is-leaving");
+  if (!wasVisible) {
+    overlay.classList.remove("is-active");
+    void overlay.offsetWidth;
+  }
   overlay.classList.add("is-active");
   document.body.classList.add("is-stage-transitioning");
-  const duration = overrides.duration || 780;
-  state.transitionTimer = window.setTimeout(() => completeStageTransition(stage), duration);
+  if (overrides.autoComplete !== false) {
+    const duration = overrides.duration || 720;
+    state.transitionTimer = window.setTimeout(() => completeStageTransition(stage), duration);
+  }
 }
 
 function completeStageTransition(stage = state.currentStage) {
@@ -3107,98 +3180,135 @@ function makeSvg(tag, attrs = {}) {
   return el;
 }
 
+const ONTOLOGY_SAFE_MIN_Y = 84;
+const ONTOLOGY_SAFE_MAX_Y = 560;
+const ONTOLOGY_VIEWBOX_WIDTH = 1000;
+const ONTOLOGY_VIEWBOX_HEIGHT = 620;
+
+function getOntologyEntityNames(groupKey) {
+  const entityNames = {
+    planSeed: ["H-Hour", "1단계 돌파", "2단계 확보", "통제선 Alpha", "통제선 Bravo", "완료조건", "예비축", "분기점 04:20"],
+    assetSeed: ["K2 전차", "K21 장갑차", "K9 자주포", "UAV 정찰", "공병 장비", "의무차량", "전술무전", "중계차량", "연료차량", "정비반"],
+    terrainSeed: ["한강 이남", "능선 314", "협곡 진입부", "교량 Node-7", "우회로 B2", "가시권 차폐", "통신 음영", "하천 장애", "고지 관측", "후송로 Delta"],
+    logSeed: ["보급대기점", "탄약 적재율", "연료 지속", "정비 소요", "후송 시간", "예비 부품", "급유 창"],
+    ruleSeed: ["재판단 기준", "중단 조건", "승인권자", "보고 주기", "우회 승인", "증원 요청", "민간 피해 제한"],
+    coreEdge: ["A안 속도", "A안 노출", "협곡 병목", "통신 취약", "연막 조건", "정찰 선행", "차단점", "공병 지원"],
+    coreRoute: ["B안 안정성", "우회 거리", "보급 여유", "중계 확보", "후송 가능", "기동 여유", "예비축 연결", "재편성 지점"],
+    agentTalk: ["통신 반론", "지형 반론", "군수 보완", "레드팀 가정", "COA 비교", "위험 가중치", "중계 제안", "재판단 발언", "노출 검증", "보급 검증", "정찰 요청", "결심 후보"],
+    relayExpand: ["C1 중계", "C2 중계", "안테나 고도", "통신 복구", "보고 지연", "백업망", "전파 차폐"],
+    riskExpand: ["지휘공백", "장비 노출", "협곡 지연", "적 차단", "보고 단절", "후송 지연", "우회 실패", "가시권 상실"],
+    decisionTrace: ["B안 우선", "A안 조건부", "04:20 재판단", "보급 보강", "중계 삽입", "정찰 선행", "우회 권고", "결심카드"]
+  };
+  return entityNames[groupKey] || [];
+}
+
 function buildGraph() {
   const nodes = [
-    { id: "docPlan", kind: "document", tier: "key", x: 510, y: 85, size: 10, label: "작전계획서", meta: "PDF", detail: "임무, 기동 단계, 제한사항, 재판단 기준을 추출한 원천 문서.", evidence_ids: ["ev_plan_mission"] },
-    { id: "docCoa", kind: "document", tier: "key", x: 325, y: 105, size: 8, label: "COA 표", meta: "XLSX", detail: "A/B/C 방책의 속도, 위험, 보급 소요, 시간 여유를 정규화한 표.", evidence_ids: ["ev_coa_a", "ev_coa_b"] },
-    { id: "docComm", kind: "document", tier: "key", x: 155, y: 330, size: 8, label: "통신 지도", meta: "PNG", detail: "A안 중간 구간의 통신 음영과 예비 중계 후보지를 표시한 지도.", evidence_ids: ["ev_comm_gap"] },
-    { id: "docLog", kind: "document", tier: "key", x: 220, y: 485, size: 8, label: "군수 현황", meta: "XLSX", detail: "보급 대기점, 정비 가능 시간, 연료 지속성을 제공하는 군수 자료.", evidence_ids: ["ev_logistics_supply"] },
-    { id: "docWeather", kind: "document", tier: "key", x: 805, y: 285, size: 8, label: "기상 JSON", meta: "JSON", detail: "새벽 안개, 시정 저하, 시간대별 기상 위험을 제공.", evidence_ids: ["ev_weather_fog"] },
-    { id: "docSop", kind: "document", tier: "key", x: 410, y: 620, size: 8, label: "SOP 발췌", meta: "TXT", detail: "중단/전환/증원 요청 기준의 존재 여부를 검증하는 규정 텍스트.", evidence_ids: ["ev_sop_criteria"] },
-    { id: "mission", kind: "factor", tier: "key", x: 500, y: 170, size: 11, label: "임무 목표", meta: "MISSION", detail: "제한 시간 내 지정 집결지 도착과 예비대 전개태세 유지.", evidence_ids: ["ev_plan_mission"] },
-    { id: "coaA", kind: "coa", tier: "key", x: 285, y: 230, size: 10, label: "A안 최단경로", meta: "위험 높음", detail: "가장 빠르지만 통신 음영, 적 지연행동, 보급 여유 부족이 동시에 걸림.", evidence_ids: ["ev_coa_a"] },
-    { id: "coaB", kind: "coa", tier: "key", x: 512, y: 310, size: 11, label: "B안 우회경로", meta: "추천", detail: "이동 시간은 늘지만 통신과 보급 리스크가 분산되어 최종 추천 방책.", evidence_ids: ["ev_coa_b"] },
-    { id: "coaC", kind: "coa", tier: "key", x: 742, y: 215, size: 9, label: "C안 단계전개", meta: "예비", detail: "예비대 운용 여지는 있으나 임무 완료 시간이 늘어나는 예비 방책.", evidence_ids: ["ev_coa_b"] },
-    { id: "enemyDelay", kind: "factor", tier: "key", x: 770, y: 400, size: 9, label: "적 지연행동", meta: "ENEMY", detail: "협곡 입구와 교차로에서 A안 선두 제대를 묶을 가능성.", evidence_ids: ["ev_redteam_delay"] },
-    { id: "commGap", kind: "factor", tier: "key", x: 290, y: 350, size: 9, label: "통신 음영", meta: "COMMS", detail: "A안 2단계 중간 18분 구간에서 음성/데이터 갱신이 불안정.", evidence_ids: ["ev_comm_gap"] },
-    { id: "supplyPoint", kind: "factor", tier: "key", x: 445, y: 455, size: 8, label: "보급 대기점", meta: "LOG", detail: "추가 대기점 없이는 2단계 이후 지속성이 낮아짐.", evidence_ids: ["ev_logistics_supply"] },
-    { id: "fog", kind: "factor", tier: "key", x: 705, y: 510, size: 8, label: "새벽 안개", meta: "WX", detail: "시정 저하로 속도와 사고 대응 시간을 동시에 악화.", evidence_ids: ["ev_weather_fog"] },
-    { id: "evacRoute", kind: "factor", tier: "key", x: 705, y: 600, size: 8, label: "후송 경로", meta: "MED", detail: "주 후송로가 협소하여 사고 발생 시 대체로 지정 필요.", evidence_ids: ["ev_evac_route"] },
-    { id: "sopCriteria", kind: "factor", tier: "key", x: 500, y: 600, size: 8, label: "재판단 기준", meta: "SOP", detail: "중단, 전환, 증원 요청 기준을 결심카드에 명시해야 함.", evidence_ids: ["ev_sop_criteria"] },
-    { id: "commAgent", kind: "agent", tier: "key", x: 105, y: 360, size: 8, label: "통신참모", meta: "AGENT", detail: "음영지역과 예비 중계 수단을 분석.", evidence_ids: ["ev_comm_gap"] },
-    { id: "logAgent", kind: "agent", tier: "key", x: 118, y: 525, size: 8, label: "군수참모", meta: "AGENT", detail: "보급 대기점, 정비 시간, 연료 지속성을 검토.", evidence_ids: ["ev_logistics_supply"] },
-    { id: "redAgent", kind: "agent", tier: "key", x: 885, y: 485, size: 8, label: "레드팀", meta: "AGENT", detail: "방책별 실패경로를 공격적으로 탐색.", evidence_ids: ["ev_redteam_delay"] },
-    { id: "judgeAgent", kind: "agent", tier: "key", x: 650, y: 650, size: 8, label: "심판관", meta: "AGENT", detail: "최종 결심카드와 근거 체인을 검증.", evidence_ids: ["ev_coa_b", "ev_sop_criteria"] },
-    { id: "riskCmdGap", kind: "risk", tier: "key", x: 365, y: 525, size: 10, label: "지휘공백", meta: "RISK 92", detail: "통신 음영과 적 지연행동이 결합된 최상위 실패경로.", evidence_ids: ["ev_comm_gap", "ev_redteam_delay"] },
-    { id: "riskSustain", kind: "risk", tier: "key", x: 550, y: 540, size: 9, label: "지속성 저하", meta: "RISK 84", detail: "보급 대기점 부족과 정비 제한이 결합된 지속 운용 실패경로.", evidence_ids: ["ev_logistics_supply"] },
-    { id: "riskAccident", kind: "risk", tier: "key", x: 780, y: 640, size: 9, label: "사고 대응 지연", meta: "RISK 78", detail: "새벽 안개와 후송 경로 제약이 결합된 사고 대응 실패경로.", evidence_ids: ["ev_weather_fog", "ev_evac_route"] },
-    { id: "riskRejudge", kind: "risk", tier: "key", x: 465, y: 675, size: 8, label: "재판단 지연", meta: "RISK 73", detail: "SOP 기준 미명시로 중단/전환 판단이 지연되는 실패경로.", evidence_ids: ["ev_sop_criteria"] },
-    { id: "decision", kind: "decision", tier: "key", x: 635, y: 550, size: 12, label: "결심카드", meta: "B안 우선", detail: "B안을 우선 추천하고 A안은 예비 통신, 보급 대기점, 재판단 기준 보완 후 조건부 승인.", evidence_ids: ["ev_coa_b", "ev_comm_gap", "ev_logistics_supply", "ev_sop_criteria"] }
+    { id: "docPlan", kind: "document", tier: "key", x: 226, y: 164, size: 9, label: "작전계획서", meta: "OPORD", detail: "임무, 시간축, 단계, 통제선을 온톨로지 시드로 변환하는 원천 계획.", evidence_ids: ["ev_plan_mission"] },
+    { id: "docEquipment", kind: "document", tier: "key", x: 190, y: 292, size: 10, label: "아군 장비 제원", meta: "BLUE ASSET", detail: "K2, K21, K9, 드론, 통신장비의 속도, 화력, 항속, 통신범위를 엔티티로 생성.", evidence_ids: ["ev_coa_b", "ev_plan_mission"] },
+    { id: "docComm", kind: "document", tier: "key", x: 292, y: 424, size: 9, label: "지형·통신 모델", meta: "TERRAIN", detail: "능선, 협곡, 통신 음영, 중계 후보를 같은 좌표 기준으로 정규화.", evidence_ids: ["ev_comm_gap", "ev_weather_fog"] },
+    { id: "docLog", kind: "document", tier: "key", x: 442, y: 512, size: 8, label: "군수 지속성", meta: "LOG XLSX", detail: "보급 대기점, 정비 제한, 연료 지속성을 작전 제약 속성으로 변환.", evidence_ids: ["ev_logistics_supply"] },
+    { id: "docSop", kind: "document", tier: "key", x: 562, y: 466, size: 8, label: "SOP·재판단", meta: "RULE", detail: "중단, 전환, 증원 요청 기준을 결심 검증 규칙으로 연결.", evidence_ids: ["ev_sop_criteria"] },
+    { id: "missionSchema", kind: "schema", tier: "key", x: 392, y: 184, size: 9, label: "임무·시간축", meta: "SCHEMA", detail: "작전명, H-hour, 단계, 통제선, 완료 조건을 시간 그래프로 잠금.", evidence_ids: ["ev_plan_mission"] },
+    { id: "assetSchema", kind: "schema", tier: "key", x: 350, y: 300, size: 9, label: "아군 제대·장비", meta: "ENTITY", detail: "부대, 장비, 가용수량, 이동성, 통신범위를 관계형 엔티티로 구성.", evidence_ids: ["ev_coa_b", "ev_plan_mission"] },
+    { id: "terrainSchema", kind: "schema", tier: "key", x: 440, y: 392, size: 9, label: "지형·통신권역", meta: "GEO ENTITY", detail: "고도, 협곡, 가시권, 통신권역을 방책 경로와 연결.", evidence_ids: ["ev_comm_gap", "ev_weather_fog"] },
+    { id: "constraintSchema", kind: "schema", tier: "key", x: 526, y: 452, size: 8, label: "제약·지속성", meta: "CONSTRAINT", detail: "보급, 정비, 후송, 기상 조건을 위험 발생 조건으로 정규화.", evidence_ids: ["ev_logistics_supply", "ev_evac_route"] },
+    { id: "ruleSchema", kind: "schema", tier: "key", x: 570, y: 330, size: 8, label: "판단 규칙", meta: "SOP GATE", detail: "재판단 시각, 중단 조건, 승인 권한을 결심 카드 검증 규칙으로 유지.", evidence_ids: ["ev_sop_criteria"] },
+    { id: "graphCore", kind: "ontology", tier: "key", x: 500, y: 314, size: 18, label: "작전 지식 그래프", meta: "ONTOLOGY CORE", detail: "자료 엔티티, 속성, 제약, 방책, 위험을 같은 작전 의미망으로 묶은 중심 그래프.", evidence_ids: ["ev_plan_mission", "ev_coa_b", "ev_comm_gap", "ev_logistics_supply", "ev_sop_criteria"] },
+    { id: "coaA", kind: "coa", tier: "key", x: 586, y: 202, size: 9, label: "A안 최단경로", meta: "COA / FAST", detail: "속도는 빠르지만 통신 음영, 협곡, 적 지연행동이 한 지점에 겹치는 후보.", evidence_ids: ["ev_coa_a", "ev_comm_gap"] },
+    { id: "coaB", kind: "coa", tier: "key", x: 622, y: 420, size: 10, label: "B안 우회경로", meta: "COA / STABLE", detail: "시간은 늘지만 장비 운용, 통신, 보급 위험을 분산하는 추천 후보.", evidence_ids: ["ev_coa_b", "ev_logistics_supply"] },
+    { id: "commAgent", kind: "agent", tier: "key", x: 678, y: 148, size: 8, label: "통신참모", meta: "AGENT", detail: "지형·통신권역 노드를 검토하고 예비 중계 확장 노드를 제안.", evidence_ids: ["ev_comm_gap"] },
+    { id: "terrainAgent", kind: "agent", tier: "key", x: 714, y: 272, size: 8, label: "지형분석", meta: "AGENT", detail: "협곡, 능선, 후송로 제약을 방책별 취약 지점으로 토론.", evidence_ids: ["ev_comm_gap", "ev_evac_route"] },
+    { id: "logAgent", kind: "agent", tier: "key", x: 700, y: 392, size: 8, label: "군수참모", meta: "AGENT", detail: "장비 지속성과 보급 대기점 부족을 그래프에 위험 조건으로 추가.", evidence_ids: ["ev_logistics_supply"] },
+    { id: "redAgent", kind: "agent", tier: "key", x: 656, y: 506, size: 8, label: "레드팀", meta: "AGENT", detail: "적 지연행동과 아군 장비 운용 제약이 겹치는 실패경로를 제시.", evidence_ids: ["ev_redteam_delay"] },
+    { id: "debateRelay", kind: "debate", tier: "key", x: 780, y: 190, size: 7, label: "예비 중계 삽입", meta: "토론 확장", detail: "통신참모가 C1 중계 후보를 그래프에 추가해 A안 조건부 보완안을 생성.", evidence_ids: ["ev_comm_gap"] },
+    { id: "debateTerrain", kind: "debate", tier: "key", x: 812, y: 306, size: 7, label: "협곡 노출 반론", meta: "토론 확장", detail: "지형분석과 레드팀이 A안 협곡 통과 시 장비 기동 폭과 시야 제약을 반론으로 연결.", evidence_ids: ["ev_redteam_delay", "ev_comm_gap"] },
+    { id: "debateSupply", kind: "debate", tier: "key", x: 782, y: 426, size: 7, label: "보급대기점 보강", meta: "토론 확장", detail: "군수참모가 B안 우회축의 추가 보급 대기점과 정비 여유를 그래프에 확장.", evidence_ids: ["ev_logistics_supply"] },
+    { id: "debateRule", kind: "debate", tier: "key", x: 708, y: 540, size: 7, label: "04:20 재판단", meta: "토론 확장", detail: "SOP 기준을 결심 전 확인해야 할 명시 조건으로 승격.", evidence_ids: ["ev_sop_criteria"] },
+    { id: "riskCmdGap", kind: "risk", tier: "key", x: 872, y: 248, size: 9, label: "지휘공백", meta: "RISK 92", detail: "통신 음영과 적 지연행동이 결합되어 보고 갱신이 끊기는 실패경로.", evidence_ids: ["ev_comm_gap", "ev_redteam_delay"] },
+    { id: "riskExposure", kind: "risk", tier: "key", x: 866, y: 360, size: 8, label: "장비 노출", meta: "RISK 86", detail: "협곡·능선 지형과 장비 기동 폭이 맞물려 선두 제대가 노출되는 위험.", evidence_ids: ["ev_redteam_delay", "ev_comm_gap"] },
+    { id: "riskSustain", kind: "risk", tier: "key", x: 806, y: 488, size: 8, label: "지속성 저하", meta: "RISK 84", detail: "보급 대기점 부족과 정비 제한이 겹쳐 B안 보완 조건을 요구.", evidence_ids: ["ev_logistics_supply"] },
+    { id: "decision", kind: "decision", tier: "key", x: 724, y: 348, size: 13, label: "결심 후보 그래프", meta: "B안 우선", detail: "토론으로 확장된 그래프에서 B안 우선, A안 조건부 보완, 재판단 기준 명시를 결심카드 후보로 잠금.", evidence_ids: ["ev_coa_b", "ev_comm_gap", "ev_logistics_supply", "ev_sop_criteria"] }
   ];
 
   const edges = [
-    ["docPlan", "mission", "evidence", "추출"],
-    ["docCoa", "coaA", "evidence", "정규화"],
-    ["docCoa", "coaB", "evidence", "정규화"],
-    ["docCoa", "coaC", "evidence", "정규화"],
-    ["mission", "coaA", "semantic", "후보"],
-    ["mission", "coaB", "semantic", "후보"],
-    ["mission", "coaC", "semantic", "후보"],
-    ["coaA", "commGap", "failure", "노출"],
-    ["coaA", "enemyDelay", "failure", "취약"],
-    ["coaA", "supplyPoint", "failure", "소모"],
+    ["docPlan", "missionSchema", "evidence", "추출"],
+    ["docEquipment", "assetSchema", "evidence", "제원화"],
+    ["docComm", "terrainSchema", "evidence", "좌표화"],
+    ["docLog", "constraintSchema", "evidence", "지속성"],
+    ["docSop", "ruleSchema", "evidence", "규칙"],
+    ["missionSchema", "graphCore", "semantic", "정규화"],
+    ["assetSchema", "graphCore", "semantic", "엔티티"],
+    ["terrainSchema", "graphCore", "semantic", "공간관계"],
+    ["constraintSchema", "graphCore", "semantic", "제약"],
+    ["ruleSchema", "graphCore", "semantic", "판단규칙"],
+    ["graphCore", "coaA", "semantic", "후보"],
+    ["graphCore", "coaB", "semantic", "추천"],
+    ["graphCore", "commAgent", "debate", "검토할당"],
+    ["graphCore", "terrainAgent", "debate", "검토할당"],
+    ["graphCore", "logAgent", "debate", "검토할당"],
+    ["graphCore", "redAgent", "debate", "검토할당"],
+    ["commAgent", "debateRelay", "expansion", "제안"],
+    ["terrainAgent", "debateTerrain", "expansion", "반론"],
+    ["logAgent", "debateSupply", "expansion", "보완"],
+    ["redAgent", "debateRule", "expansion", "공격"],
+    ["coaA", "debateTerrain", "failure", "취약"],
+    ["debateRelay", "riskCmdGap", "failure", "차단점"],
+    ["debateTerrain", "riskExposure", "failure", "노출"],
+    ["debateSupply", "riskSustain", "failure", "부족"],
+    ["debateRule", "decision", "decision", "조건"],
+    ["riskCmdGap", "decision", "decision", "통신조건"],
+    ["riskExposure", "decision", "decision", "우회권고"],
+    ["riskSustain", "decision", "decision", "군수보완"],
     ["coaB", "decision", "decision", "추천"],
-    ["coaC", "decision", "decision", "예비"],
-    ["docComm", "commGap", "evidence", "커버리지"],
-    ["commAgent", "commGap", "debate", "주장"],
-    ["commGap", "riskCmdGap", "failure", "단절"],
-    ["redAgent", "enemyDelay", "debate", "가설"],
-    ["enemyDelay", "riskCmdGap", "failure", "지연"],
-    ["riskCmdGap", "decision", "decision", "조건"],
-    ["docLog", "supplyPoint", "evidence", "현황"],
-    ["logAgent", "supplyPoint", "debate", "검증"],
-    ["supplyPoint", "riskSustain", "failure", "부족"],
-    ["riskSustain", "decision", "decision", "보완"],
-    ["docWeather", "fog", "evidence", "예보"],
-    ["fog", "riskAccident", "failure", "시정"],
-    ["evacRoute", "riskAccident", "failure", "후송"],
-    ["riskAccident", "decision", "decision", "대체로"],
-    ["docSop", "sopCriteria", "evidence", "규정"],
-    ["sopCriteria", "riskRejudge", "failure", "미명시"],
-    ["riskRejudge", "decision", "decision", "명시"],
-    ["judgeAgent", "decision", "decision", "검증"]
+    ["graphCore", "decision", "decision", "결심 후보"]
   ].map(([from, to, mode, label]) => ({ from, to, mode, label }));
 
-  const supportSpecs = [
-    ["evp", "docPlan", "mission", "evidence", 7],
-    ["eva", "docCoa", "coaA", "evidence", 5],
-    ["evb", "docCoa", "coaB", "evidence", 5],
-    ["evc", "docComm", "commGap", "evidence", 6],
-    ["evl", "docLog", "supplyPoint", "evidence", 5],
-    ["evw", "docWeather", "fog", "evidence", 5],
-    ["evs", "docSop", "sopCriteria", "evidence", 5],
-    ["deb", "redAgent", "decision", "debate", 6]
+  const constellationSpecs = [
+    { prefix: "planSeed", from: "docPlan", to: "missionSchema", kind: "evidence", mode: "evidence", label: "임무 문장", count: 8, rx: 112, ry: 72, angle: 0.15 },
+    { prefix: "assetSeed", from: "docEquipment", to: "assetSchema", kind: "evidence", mode: "evidence", label: "장비 제원", count: 10, rx: 118, ry: 88, angle: 0.95 },
+    { prefix: "terrainSeed", from: "docComm", to: "terrainSchema", kind: "evidence", mode: "evidence", label: "지형 셀", count: 10, rx: 120, ry: 84, angle: 1.65 },
+    { prefix: "logSeed", from: "docLog", to: "constraintSchema", kind: "factor", mode: "semantic", label: "지속성 속성", count: 7, rx: 96, ry: 58, angle: 2.25 },
+    { prefix: "ruleSeed", from: "docSop", to: "ruleSchema", kind: "factor", mode: "semantic", label: "판단 규칙", count: 7, rx: 92, ry: 64, angle: 2.9 },
+    { prefix: "coreEdge", from: "graphCore", to: "coaA", kind: "schema", mode: "semantic", label: "방책 속성", count: 8, rx: 128, ry: 98, angle: 3.6 },
+    { prefix: "coreRoute", from: "graphCore", to: "coaB", kind: "schema", mode: "semantic", label: "우회 조건", count: 8, rx: 122, ry: 96, angle: 4.3 },
+    { prefix: "agentTalk", from: "graphCore", to: "terrainAgent", kind: "debate", mode: "debate", label: "에이전트 발화", count: 12, rx: 152, ry: 110, angle: 5.05 },
+    { prefix: "relayExpand", from: "commAgent", to: "riskCmdGap", kind: "debate", mode: "expansion", label: "중계 후보", count: 7, rx: 86, ry: 68, angle: 5.7 },
+    { prefix: "riskExpand", from: "debateTerrain", to: "riskExposure", kind: "risk", mode: "failure", label: "실패 가정", count: 8, rx: 92, ry: 76, angle: 0.55 },
+    { prefix: "decisionTrace", from: "decision", to: "riskSustain", kind: "decision", mode: "decision", label: "결심 근거", count: 8, rx: 118, ry: 82, angle: 1.25 }
   ];
-  supportSpecs.forEach(([prefix, from, to, mode, count], groupIndex) => {
-    const source = nodes.find((node) => node.id === from);
-    const target = nodes.find((node) => node.id === to);
-    for (let i = 0; i < count; i += 1) {
-      const ratio = (i + 1) / (count + 1);
-      const wave = Math.sin((i + groupIndex) * 1.7) * 42;
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  constellationSpecs.forEach((spec, groupIndex) => {
+    const source = nodes.find((node) => node.id === spec.from);
+    const target = nodes.find((node) => node.id === spec.to);
+    const entityNames = getOntologyEntityNames(spec.prefix);
+    if (!source || !target) return;
+    for (let i = 0; i < spec.count; i += 1) {
+      const orbit = 0.46 + (i % 5) * 0.13;
+      const angle = spec.angle + i * goldenAngle + groupIndex * 0.22;
       const node = {
-        id: `${prefix}${i}`,
-        kind: mode === "debate" ? "debate" : "evidence",
+        id: `${spec.prefix}${i}`,
+        kind: spec.kind,
         tier: "support",
-        x: source.x + (target.x - source.x) * ratio + wave,
-        y: source.y + (target.y - source.y) * ratio + Math.cos((i + groupIndex) * 1.3) * 34,
-        size: mode === "debate" ? 3.7 : 3.1,
-        label: mode === "debate" ? `토론 ${i + 1}` : `근거 ${i + 1}`,
-        meta: mode === "debate" ? "토론" : "근거",
-        detail: `${source.label}에서 ${target.label}(으)로 이어지는 ${mode === "debate" ? "토론" : "근거"} 연결 노드.`
+        x: clamp(
+          source.x + Math.cos(angle) * spec.rx * orbit + Math.sin(i + groupIndex) * 12,
+          54,
+          ONTOLOGY_VIEWBOX_WIDTH - 54
+        ),
+        y: clamp(
+          source.y + Math.sin(angle) * spec.ry * orbit + Math.cos(i * 1.35 + groupIndex) * 10,
+          ONTOLOGY_SAFE_MIN_Y,
+          ONTOLOGY_SAFE_MAX_Y
+        ),
+        size: spec.mode === "failure" || spec.mode === "decision" ? 4.2 : spec.mode === "debate" || spec.mode === "expansion" ? 3.9 : 3.4,
+        label: entityNames[i % entityNames.length] || `${spec.label} ${String(i + 1).padStart(2, "0")}`,
+        meta: spec.mode === "expansion" ? "토론 확장" : spec.mode === "debate" ? "AGENT NOTE" : spec.mode === "failure" ? "RISK TRACE" : spec.mode === "decision" ? "DECISION LINK" : "ONTOLOGY FACT",
+        detail: `${source.label}에서 ${target.label}(으)로 의미가 전파될 때 생성된 ${spec.label} 노드.`,
+        evidence_ids: source.evidence_ids || target.evidence_ids || []
       };
       nodes.push(node);
-      edges.push({ from, to: node.id, mode, label: mode === "debate" ? "발언" : "근거" });
-      edges.push({ from: node.id, to, mode, label: "연결" });
+      edges.push({ from: source.id, to: node.id, mode: spec.mode, label: spec.mode === "expansion" ? "확장" : spec.mode === "debate" ? "발화" : spec.label });
+      edges.push({ from: node.id, to: target.id, mode: spec.mode, label: "relation_type" });
     }
   });
 
@@ -3211,6 +3321,8 @@ function getOntologyNodeStyle(node) {
   const styleMap = {
     document: { className: "is-ontology-document", label: "문서", confidence: 94, layer: "source" },
     evidence: { className: "is-ontology-evidence", label: "근거", confidence: 82, layer: "source" },
+    schema: { className: "is-ontology-schema", label: "스키마", confidence: 90, layer: "schema" },
+    ontology: { className: "is-ontology-core", label: "코어", confidence: 96, layer: "core" },
     coa: { className: "is-ontology-coa", label: "방책", confidence: 88, layer: "course" },
     factor: { className: "is-ontology-factor", label: "제약", confidence: 86, layer: "course" },
     agent: { className: "is-ontology-agent", label: "에이전트", confidence: 79, layer: "review" },
@@ -3230,10 +3342,10 @@ function getOntologyNodeStyle(node) {
 function getOntologyLayerSummary() {
   const layers = [
     { key: "source", label: "문서·근거", kinds: ["document", "evidence"], detail: "원천 자료" },
-    { key: "course", label: "방책·제약", kinds: ["coa", "factor"], detail: "전술 의미" },
-    { key: "review", label: "에이전트·토론", kinds: ["agent", "debate"], detail: "검토 발화" },
-    { key: "risk", label: "실패경로", kinds: ["risk"], detail: "위험 인과" },
-    { key: "decision", label: "결심", kinds: ["decision"], detail: "승인 후보" }
+    { key: "schema", label: "온톨로지 스키마", kinds: ["schema", "coa", "factor"], detail: "엔티티·속성" },
+    { key: "core", label: "지식 그래프", kinds: ["ontology"], detail: "작전 의미망" },
+    { key: "review", label: "에이전트 토론", kinds: ["agent", "debate"], detail: "토론 확장" },
+    { key: "expansion", label: "위험·결심", kinds: ["risk", "decision"], detail: "그래프 확장" }
   ];
   return layers.map((layer) => {
     const nodes = graph.nodes.filter((node) => layer.kinds.includes(node.kind));
@@ -3273,7 +3385,7 @@ function renderOntologyRelationPulse() {
   const directEdges = graph.edges.filter((edge) => edge.from === node.id || edge.to === node.id);
   const topModes = [...new Set(directEdges.map((edge) => edge.mode))].slice(0, 3).join(" · ");
   target.innerHTML = `
-    <span>SELECTED SEMANTIC ROUTE</span>
+    <span>SELECTED ONTOLOGY ROUTE</span>
     <b>${node.label}</b>
     <em>${directEdges.length} relations${topModes ? ` / ${topModes}` : ""}</em>
   `;
@@ -3283,26 +3395,139 @@ function renderOntologyLayerRings() {
   const grid = qs(".grid-lines");
   if (!grid) return;
   [
-    { key: "source", cx: 270, cy: 335, rx: 240, ry: 252, label: "SOURCE" },
-    { key: "course", cx: 510, cy: 345, rx: 310, ry: 235, label: "COURSE / FACTOR" },
-    { key: "risk", cx: 585, cy: 545, rx: 260, ry: 145, label: "FAILURE PATH" },
-    { key: "decision", cx: 635, cy: 550, rx: 92, ry: 72, label: "COMMAND" }
+    { key: "source", cx: 278, cy: 320, rx: 235, ry: 218, label: "SOURCE FACTS" },
+    { key: "schema", cx: 446, cy: 316, rx: 210, ry: 178, label: "SCHEMA ENTITY MAP" },
+    { key: "core", cx: 516, cy: 320, rx: 120, ry: 108, label: "ONTOLOGY CORE" },
+    { key: "review", cx: 690, cy: 334, rx: 190, ry: 232, label: "AGENT DEBATE CLOUD" },
+    { key: "expansion", cx: 786, cy: 378, rx: 160, ry: 176, label: "RISK / DECISION EXPANSION" }
   ].forEach((ring) => {
     grid.appendChild(makeSvg("ellipse", {
       cx: ring.cx,
       cy: ring.cy,
       rx: ring.rx,
       ry: ring.ry,
-      class: `ontology-layer-ring is-${ring.key}`
+      class: `ontology-layer-ring ontology-cluster-ring is-${ring.key}`
     }));
     const label = makeSvg("text", {
-      x: ring.cx - ring.rx + 18,
-      y: ring.cy - ring.ry + 26,
+      x: ring.cx - ring.rx + 20,
+      y: ring.cy - ring.ry + 32,
       class: "ontology-layer-label"
     });
     label.textContent = ring.label;
     grid.appendChild(label);
   });
+}
+
+function getOntologyDirectEdges(nodeId = state.selectedNodeId) {
+  return graph.edges.filter((edge) => edge.from === nodeId || edge.to === nodeId);
+}
+
+function getOntologyNeighborIds(nodeId = state.selectedNodeId) {
+  const ids = new Set([nodeId]);
+  getOntologyDirectEdges(nodeId).forEach((edge) => {
+    ids.add(edge.from);
+    ids.add(edge.to);
+  });
+  return ids;
+}
+
+function isOntologySupportNodeVisible(node) {
+  return Boolean(node);
+}
+
+function shouldRenderOntologyEdge(edge, source = graph.nodeMap.get(edge.from), target = graph.nodeMap.get(edge.to)) {
+  return Boolean(source && target && activeEdge(edge));
+}
+
+function getOntologyNodeLabelTier(node, isSelected = node.id === state.selectedNodeId) {
+  if (isSelected || node.kind === "ontology" || (node.kind === "decision" && node.tier === "key")) return "primary";
+  if (node.tier === "key") return "key";
+  return "micro";
+}
+
+function getOntologyKindLabel(kind) {
+  return {
+    document: "문서 원천",
+    evidence: "근거 조각",
+    schema: "온톨로지 스키마",
+    ontology: "지식 그래프 코어",
+    coa: "방책 후보",
+    factor: "제약 속성",
+    agent: "토론 에이전트",
+    debate: "토론 확장",
+    risk: "실패경로 위험",
+    decision: "결심 후보"
+  }[kind] || "그래프 노드";
+}
+
+function getOntologyInspectorFields(node, directEdges) {
+  const ontologyStyle = getOntologyNodeStyle(node);
+  const relationModes = [...new Set(directEdges.map((edge) => edge.mode))].join(" / ") || "isolated";
+  const evidenceCount = node.evidence_ids?.length || 0;
+  const controlStatus =
+    node.kind === "decision"
+      ? "결심 후보 잠금"
+      : node.kind === "risk"
+        ? "위험 검증 중"
+        : node.kind === "agent" || node.kind === "debate"
+          ? "토론 확장 중"
+          : "온톨로지 정규화";
+  return [
+    { label: "control_status", value: controlStatus },
+    { label: "name", value: node.label },
+    { label: "ontology_type", value: `${getOntologyKindLabel(node.kind)} / ${node.meta}` },
+    { label: "source_evidence", value: evidenceCount ? `${evidenceCount}건 근거 연결` : "파생 노드" },
+    { label: "relation_type", value: relationModes },
+    { label: "semantic_confidence", value: `${ontologyStyle.confidence}%` }
+  ];
+}
+
+function renderOntologyInspectorOverlay() {
+  const target = byId("ontologyInspectorOverlay");
+  const node = graph.nodeMap.get(state.selectedNodeId);
+  if (!target || !node) return;
+  const directEdges = getOntologyDirectEdges(node.id);
+  const keyRelationEdges = directEdges.filter((edge) => {
+    const other = graph.nodeMap.get(edge.from === node.id ? edge.to : edge.from);
+    return other?.tier === "key";
+  });
+  const visibleRelationEdges = keyRelationEdges.slice(0, 5);
+  const fields = getOntologyInspectorFields(node, directEdges);
+  target.innerHTML = `
+    <header>
+      <span>SELECTED NODE</span>
+      <b>${node.label}</b>
+      <em>${getOntologyKindLabel(node.kind)}</em>
+    </header>
+    <div class="ontology-inspector-fields">
+      ${fields
+        .map(
+          (field) => `
+            <div class="ontology-inspector-field">
+              <span>${field.label}</span>
+              <b>${field.value}</b>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+    <p>${node.detail}</p>
+    <div class="ontology-inspector-relations">
+      <span>linked_nodes</span>
+      ${visibleRelationEdges
+        .map((edge) => {
+          const other = graph.nodeMap.get(edge.from === node.id ? edge.to : edge.from);
+          if (!other) return "";
+          return `
+            <button type="button" data-inspector-node-id="${other.id}">
+              <b>${other.label}</b>
+              <em>${edge.label} / ${edge.mode}</em>
+            </button>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
 }
 
 function normalizeSearchText(value) {
@@ -3521,7 +3746,10 @@ function applyMissionSearchResult(resultId) {
 }
 
 function activeEdge(edge) {
-  return state.graphMode === "all" || edge.mode === state.graphMode || (state.graphMode === "evidence" && edge.mode === "debate");
+  if (state.graphMode === "all") return true;
+  if (state.graphMode === "evidence") return edge.mode === "evidence" || edge.mode === "semantic";
+  if (state.graphMode === "debate") return edge.mode === "debate" || edge.mode === "expansion";
+  return edge.mode === state.graphMode;
 }
 
 function activeNodeIds() {
@@ -3538,11 +3766,11 @@ function renderGrid() {
   const grid = qs(".grid-lines");
   if (!grid) return;
   grid.innerHTML = "";
-  for (let x = 0; x <= 1000; x += 50) {
-    grid.appendChild(makeSvg("line", { x1: x, y1: 0, x2: x, y2: 700, class: "graph-grid-line" }));
+  for (let x = 0; x <= ONTOLOGY_VIEWBOX_WIDTH; x += 50) {
+    grid.appendChild(makeSvg("line", { x1: x, y1: 0, x2: x, y2: ONTOLOGY_VIEWBOX_HEIGHT, class: "graph-grid-line" }));
   }
-  for (let y = 0; y <= 700; y += 50) {
-    grid.appendChild(makeSvg("line", { x1: 0, y1: y, x2: 1000, y2: y, class: "graph-grid-line" }));
+  for (let y = 0; y <= ONTOLOGY_VIEWBOX_HEIGHT; y += 50) {
+    grid.appendChild(makeSvg("line", { x1: 0, y1: y, x2: ONTOLOGY_VIEWBOX_WIDTH, y2: y, class: "graph-grid-line" }));
   }
   renderOntologyLayerRings();
 }
@@ -3551,33 +3779,80 @@ function renderEdges() {
   const edgeLayer = byId("edgeLayer");
   if (!edgeLayer) return;
   edgeLayer.innerHTML = "";
+  const neighborIds = getOntologyNeighborIds();
+  let labelCount = 0;
   graph.edges.forEach((edge, index) => {
     const source = graph.nodeMap.get(edge.from);
     const target = graph.nodeMap.get(edge.to);
     if (!source || !target) return;
+    if (!shouldRenderOntologyEdge(edge, source, target)) return;
     const dx = target.x - source.x;
     const dy = target.y - source.y;
     const curve = ((index % 5) - 2) * 9;
+    const isDirect = edge.from === state.selectedNodeId || edge.to === state.selectedNodeId;
+    const isNeighborhood = neighborIds.has(edge.from) && neighborIds.has(edge.to);
+    const isActive = activeEdge(edge);
     const path = makeSvg("path", {
       d: `M ${source.x} ${source.y} C ${source.x + dx * 0.42} ${source.y + dy * 0.22 - curve}, ${source.x + dx * 0.58} ${source.y + dy * 0.78 + curve}, ${target.x} ${target.y}`,
-      class: `edge ${edge.mode} is-${edge.mode}${activeEdge(edge) ? "" : " muted"}`,
+      class: `edge ${edge.mode} is-${edge.mode}${isDirect ? " is-direct" : ""}${isNeighborhood ? " is-neighborhood" : ""}${isActive ? "" : " muted"}`,
       "data-relation-mode": edge.mode
     });
     path.style.setProperty("--edge-order", String(index % 9));
     edgeLayer.appendChild(path);
+    const shouldLabel =
+      isActive &&
+      isDirect &&
+      labelCount < 7 &&
+      source.tier === "key" &&
+      target.tier === "key" &&
+      edge.label !== "relation_type";
+    if (shouldLabel) {
+      const label = makeSvg("text", {
+        x: source.x + dx * 0.5,
+        y: source.y + dy * 0.5 - Math.sign(dy || 1) * 8,
+        class: `ontology-link-label is-${edge.mode}`
+      });
+      label.textContent = edge.label;
+      edgeLayer.appendChild(label);
+      labelCount += 1;
+    }
   });
+}
+
+function getOntologyLabelAnchor(node) {
+  const isLeft = node.x > 650;
+  const offset = node.size + (node.kind === "ontology" ? 18 : 12);
+  return {
+    className: isLeft ? "is-left" : "is-right",
+    x: isLeft ? node.x - offset : node.x + offset,
+    stemX: isLeft ? node.x - node.size - 6 : node.x + node.size + 6,
+    labelY: node.y - 7,
+    metaY: node.y + 8,
+    confidenceY: node.y + 23
+  };
+}
+
+function makeOntologyHexPoints(cx, cy, radius) {
+  return Array.from({ length: 6 }, (_, index) => {
+    const angle = -Math.PI / 6 + index * (Math.PI / 3);
+    return `${(cx + Math.cos(angle) * radius).toFixed(2)},${(cy + Math.sin(angle) * radius).toFixed(2)}`;
+  }).join(" ");
 }
 
 function renderNodes() {
   const nodeLayer = byId("nodeLayer");
   if (!nodeLayer) return;
   const activeIds = activeNodeIds();
+  const neighborIds = getOntologyNeighborIds();
   nodeLayer.innerHTML = "";
   graph.nodes.forEach((node) => {
+    if (!isOntologySupportNodeVisible(node)) return;
     const isSelected = node.id === state.selectedNodeId;
+    const isNeighbor = neighborIds.has(node.id) && !isSelected;
     const ontologyStyle = getOntologyNodeStyle(node);
+    const isDimmed = !activeIds.has(node.id);
     const group = makeSvg("g", {
-      class: `node ${node.kind} ${ontologyStyle.className}${isSelected ? " is-selected" : ""}${activeIds.has(node.id) ? "" : " is-dimmed"}`,
+      class: `node ${node.kind} ${ontologyStyle.className}${node.tier === "support" ? " is-support" : ""}${isSelected ? " is-selected" : ""}${isNeighbor ? " is-neighbor" : ""}${isDimmed ? " is-dimmed" : ""}`,
       tabindex: "0",
       role: "button",
       "aria-label": node.label,
@@ -3586,29 +3861,65 @@ function renderNodes() {
       "data-ontology-tier": node.tier,
       "data-ontology-layer": ontologyStyle.layer
     });
+    if (isSelected || isNeighbor) {
+      group.appendChild(makeSvg("circle", {
+        cx: node.x,
+        cy: node.y,
+        r: node.size + (isSelected ? 18 : 10),
+        class: "ontology-neighbor-ring"
+      }));
+    }
     group.appendChild(makeSvg("circle", {
       cx: node.x,
       cy: node.y,
-      r: node.size + (node.tier === "key" ? 12 : 7),
+      r: node.size + (node.tier === "key" ? 12 : 6),
       class: "node-halo"
+    }));
+    const visualRadius = isSelected ? node.size + 4 : node.size;
+    group.appendChild(makeSvg("polygon", {
+      points: makeOntologyHexPoints(node.x, node.y, visualRadius),
+      class: "ontology-node-polygon"
     }));
     group.appendChild(makeSvg("circle", {
       cx: node.x,
       cy: node.y,
-      r: isSelected ? node.size + 3 : node.size,
+      r: Math.max(1.8, visualRadius * 0.3),
       class: "node-dot"
     }));
 
-    if (node.tier === "key" || isSelected) {
-      const label = makeSvg("text", { x: node.x + node.size + 8, y: node.y - 4, class: "node-label" });
+    const labelTier = getOntologyNodeLabelTier(node, isSelected);
+    if (labelTier === "micro") {
+      const microLabel = makeSvg("text", {
+        x: node.x + node.size + 4,
+        y: node.y - 4,
+        class: "ontology-micro-label"
+      });
+      microLabel.textContent = node.label;
+      group.appendChild(microLabel);
+    } else {
+      const anchor = getOntologyLabelAnchor(node);
+      if (labelTier === "primary") {
+        group.appendChild(makeSvg("line", {
+          x1: node.x,
+          y1: node.y,
+          x2: anchor.stemX,
+          y2: node.y,
+          class: "ontology-node-stem"
+        }));
+      }
+      const labelBlock = makeSvg("g", { class: `ontology-label-block ${anchor.className} is-${labelTier}` });
+      const label = makeSvg("text", { x: anchor.x, y: anchor.labelY, class: "node-label" });
       label.textContent = node.label;
-      const meta = makeSvg("text", { x: node.x + node.size + 8, y: node.y + 10, class: "node-meta" });
-      meta.textContent = node.meta;
-      const confidence = makeSvg("text", { x: node.x + node.size + 8, y: node.y + 24, class: "semantic-confidence" });
-      confidence.textContent = `${ontologyStyle.label} ${ontologyStyle.confidence}%`;
-      group.appendChild(label);
-      group.appendChild(meta);
-      group.appendChild(confidence);
+      labelBlock.appendChild(label);
+      if (labelTier === "primary") {
+        const meta = makeSvg("text", { x: anchor.x, y: anchor.metaY, class: "node-meta" });
+        meta.textContent = node.meta;
+        const confidence = makeSvg("text", { x: anchor.x, y: anchor.confidenceY, class: "semantic-confidence" });
+        confidence.textContent = `${ontologyStyle.label} ${ontologyStyle.confidence}%`;
+        labelBlock.appendChild(meta);
+        labelBlock.appendChild(confidence);
+      }
+      group.appendChild(labelBlock);
     }
 
     group.addEventListener("click", () => selectNode(node.id));
@@ -3625,6 +3936,7 @@ function renderNodes() {
 function renderGraph() {
   renderOntologyDepthMap();
   renderOntologyRelationPulse();
+  renderOntologyInspectorOverlay();
   renderGrid();
   renderEdges();
   renderNodes();
@@ -3636,6 +3948,7 @@ function selectNode(nodeId) {
   renderEdges();
   renderNodes();
   renderOntologyRelationPulse();
+  renderOntologyInspectorOverlay();
   updateSelectedNode();
   syncRouteState();
 }
@@ -3724,14 +4037,65 @@ function setGraphMode(mode) {
   renderOntologyDepthMap();
   renderEdges();
   renderNodes();
+  renderOntologyInspectorOverlay();
   renderPageBriefings();
+}
+
+function getNextPrimaryStage(stage = state.currentStage) {
+  const currentIndex = primaryStageRail.indexOf(stage);
+  if (currentIndex < 0) return null;
+  return primaryStageRail[currentIndex + 1] || null;
+}
+
+function updateNextStageButton() {
+  const button = byId("nextStageButton");
+  if (!button) return;
+  const nextStage = getNextPrimaryStage();
+  const nextMeta = nextStage ? stageMeta[nextStage] : null;
+  button.disabled = state.stageTransitioning || !nextStage;
+  button.dataset.stageNext = nextStage || "";
+  if (state.stageTransitioning) {
+    button.setAttribute("aria-disabled", "true");
+    button.title = "단계 전환 중";
+  } else if (!nextStage) {
+    button.setAttribute("aria-disabled", "true");
+    button.title = "최종 단계";
+  } else {
+    button.setAttribute("aria-disabled", "false");
+    button.title = `다음 단계: ${nextMeta.phase}`;
+  }
+  setText("nextStageLabel", state.stageTransitioning ? "전환 중" : nextMeta?.phase || "최종 단계");
+}
+
+async function runStageNavigationTransition(stage) {
+  if (!stageMeta[stage] || state.stageTransitioning || stage === state.currentStage) return;
+  state.stageTransitioning = true;
+  updateNextStageButton();
+  beginStageTransition(stage, { autoComplete: false });
+  try {
+    await waitForStageTransitionPaint();
+    await wait(180);
+    setStage(stage, { skipTransition: true });
+    await waitForStageTransitionPaint();
+    await wait(360);
+  } finally {
+    completeStageTransition(stage);
+    state.stageTransitioning = false;
+    updateNextStageButton();
+  }
+}
+
+async function goToNextStage() {
+  const nextStage = getNextPrimaryStage();
+  if (!nextStage) return;
+  await runStageNavigationTransition(nextStage);
 }
 
 function setStage(stage, options = {}) {
   const meta = stageMeta[stage];
   if (!meta) return;
   const previousStage = state.currentStage;
-  if (previousStage !== stage && !options.skipTransition) beginStageTransition(stage);
+  if (previousStage !== stage && options.showTransition && !options.skipTransition) beginStageTransition(stage);
   state.currentStage = stage;
   document.body.dataset.stage = stage;
   document.querySelectorAll(".workspace-tab").forEach((button) => {
@@ -3758,19 +4122,19 @@ function setStage(stage, options = {}) {
   if (stage === "decision") setGraphMode("decision");
   renderPageBriefings();
   syncRouteState();
+  updateNextStageButton();
 }
 
 function syncCompactStageContext(stage) {
   const tabs = [...document.querySelectorAll(".workspace-tab")];
   const nav = document.querySelector(".workspace-tabs");
-  const activeIndex = tabs.findIndex((button) => button.dataset.stage === stage);
-  const anchorStages = new Set(["data", "decision", "receipt", "closeout"]);
-  if (activeIndex < 0) return;
   let visibleCount = 0;
-  tabs.forEach((button, index) => {
-    const visible = button.dataset.stage === stage || anchorStages.has(button.dataset.stage) || Math.abs(index - activeIndex) <= 1;
+  tabs.forEach((button) => {
+    const visible = primaryStageRail.includes(button.dataset.stage);
     button.classList.toggle("is-context-tab", visible);
     button.setAttribute("aria-hidden", String(!visible && button.dataset.stage !== stage));
+    button.setAttribute("aria-disabled", visible ? "false" : "true");
+    if (!visible) button.tabIndex = -1;
     if (visible) visibleCount += 1;
   });
   if (nav) nav.dataset.visibleTabs = String(visibleCount);
@@ -3788,7 +4152,7 @@ function scrollActiveWorkspaceTabIntoView() {
 function handleWorkspaceTabKeydown(event) {
   const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
   if (!keys.includes(event.key)) return;
-  const tabs = [...document.querySelectorAll(".workspace-tab")];
+  const tabs = [...document.querySelectorAll(".workspace-tab")].filter((button) => button.classList.contains("is-context-tab"));
   const currentIndex = tabs.indexOf(event.currentTarget);
   if (currentIndex < 0) return;
   event.preventDefault();
@@ -3799,7 +4163,6 @@ function handleWorkspaceTabKeydown(event) {
   if (event.key === "End") nextIndex = tabs.length - 1;
   const nextTab = tabs[nextIndex];
   nextTab.focus();
-  setStage(nextTab.dataset.stage);
 }
 
 function setFocusMode(enabled) {
@@ -10560,17 +10923,42 @@ function renderTimeline() {
   const list = byId("timelineEvents");
   if (!list) return;
   list.innerHTML = demoData.events
-    .map(
-      (event, index) => `
+    .map((event, index) => {
+      const preview = getEventConversationPreview(event);
+      return `
         <button class="timeline-event ${index === state.rehearsalIndex ? "is-active" : ""} ${index < state.rehearsalIndex ? "is-complete" : ""} ${event.severity}" type="button" data-event-index="${index}">
           <span>${event.time}</span>
           <b>${event.event}</b>
           <em>${event.severity}</em>
+          <div class="timeline-chat-preview is-${preview.tone}">
+            <span class="timeline-chat-avatars" aria-hidden="true">
+              ${preview.avatars.map((avatar) => `<i>${avatar}</i>`).join("")}
+            </span>
+            <span class="timeline-chat-copy">
+              <strong>${preview.lead}</strong>
+              <small>${preview.message}</small>
+            </span>
+            <span class="timeline-chat-count">${preview.count}문장</span>
+          </div>
         </button>
-      `
-    )
+      `;
+    })
     .join("");
   renderRehearsalScrubber();
+}
+
+function getEventConversationPreview(event) {
+  const scripts = getRadioScriptForEvent(event);
+  const first = scripts[0] || {};
+  return {
+    count: scripts.length || event?.agents?.length || 0,
+    lead: first.callsign || event?.agents?.[0]?.replace(" 에이전트", "") || "에이전트",
+    message: first.message || event?.impact || "이벤트 발생 시 관련 에이전트가 순차 보고합니다.",
+    tone: first.tone || (event?.severity === "high" ? "red" : event?.severity === "medium" ? "amber" : "blue"),
+    avatars: (scripts.length ? scripts : (event?.agents || []).map((agent) => ({ callsign: agent })))
+      .slice(0, 3)
+      .map((item) => getAgentAvatarLabel(item.callsign || item.agent || "AI"))
+  };
 }
 
 function getRehearsalProgress() {
@@ -10872,26 +11260,144 @@ function getRadioScriptForEvent(event) {
   }));
 }
 
+function getAgentAvatarLabel(value = "AI") {
+  const compact = String(value)
+    .replace(/에이전트/g, "")
+    .replace(/참모/g, "")
+    .replace(/[^가-힣A-Za-z0-9]/g, "")
+    .trim();
+  return compact.slice(0, 2) || "AI";
+}
+
+function getRadioToneForEvent(event) {
+  if (event?.severity === "high") return "red";
+  if (event?.severity === "medium") return "amber";
+  return "blue";
+}
+
+function getAgentConversationTabs() {
+  const counts = {
+    live: state.radioLog.length,
+    alerts: state.radioLog.filter((item) => item.tone === "red" || item.tone === "amber").length,
+    evidence: state.radioLog.filter((item) => item.evidence).length
+  };
+  return [
+    { id: "live", label: "전체", detail: "실시간", count: counts.live },
+    { id: "alerts", label: "경보", detail: "위험 발언", count: counts.alerts },
+    { id: "evidence", label: "근거", detail: "증거 연결", count: counts.evidence }
+  ];
+}
+
+function renderAgentConversationTabs() {
+  const target = byId("agentConversationTabs");
+  if (!target) return;
+  target.innerHTML = getAgentConversationTabs()
+    .map((tab) => {
+      const selected = state.agentConversationTab === tab.id;
+      return `
+        <button class="agent-conversation-tab ${selected ? "is-active" : ""}" type="button" role="tab" aria-selected="${selected ? "true" : "false"}" data-agent-conversation-tab="${tab.id}">
+          <span>${tab.detail}</span>
+          <b>${tab.label}</b>
+          <em>${tab.count}</em>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function getFilteredRadioLog() {
+  if (state.agentConversationTab === "alerts") {
+    return state.radioLog.filter((item) => item.tone === "red" || item.tone === "amber");
+  }
+  if (state.agentConversationTab === "evidence") {
+    return state.radioLog.filter((item) => item.evidence);
+  }
+  return state.radioLog;
+}
+
+function renderAgentTypingIndicator(event = null) {
+  const target = byId("agentTypingIndicator");
+  if (!target) return;
+  if (!event) {
+    target.className = "agent-typing-indicator";
+    target.innerHTML = `
+      <span class="typing-agent-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <b>커뮤니티 대기</b>
+      <em>수행 리허설을 실행하면 에이전트 대화가 시간순으로 올라옵니다.</em>
+    `;
+    return;
+  }
+  const scripts = getRadioScriptForEvent(event);
+  const names = scripts.slice(0, 2).map((item) => item.callsign).join(", ");
+  target.className = `agent-typing-indicator is-${getRadioToneForEvent(event)}`;
+  target.innerHTML = `
+    <span class="typing-agent-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <b>${event.time} ${event.event}</b>
+    <em>${names || "관련 에이전트"} 입력 중</em>
+  `;
+}
+
+function renderActiveAgentChips(event = null) {
+  const target = byId("activeAgentChips");
+  if (!target) return;
+  if (!event) {
+    target.innerHTML = "";
+    return;
+  }
+  const scripts = getRadioScriptForEvent(event);
+  target.innerHTML = event.agents
+    .map((agentName, index) => {
+      const transmission = scripts[index] || {};
+      const tone = transmission.tone || getRadioToneForEvent(event);
+      const label = agentName.replace(" 에이전트", "");
+      return `
+        <span class="active-agent-chip is-${tone}">
+          <i aria-hidden="true">${getAgentAvatarLabel(transmission.callsign || label)}</i>
+          <b>${label}</b>
+          <em>${transmission.channel || "대기"}</em>
+        </span>
+      `;
+    })
+    .join("");
+}
+
 function renderAgentRadioLog() {
   const target = byId("agentRadioLog");
   if (!target) return;
+  renderAgentConversationTabs();
+  setText("agentConversationCount", state.radioLog.length ? `${state.radioLog.length}문장` : "대기");
   if (!state.radioLog.length) {
     target.innerHTML = `
       <div class="agent-radio-empty">
-        <span>무전 대기</span>
-        <b>리허설 이벤트가 진행되면 에이전트 교신이 기록됩니다.</b>
+        <span>커뮤니티 대기</span>
+        <b>리허설 이벤트가 진행되면 에이전트 대화가 채팅처럼 기록됩니다.</b>
       </div>
     `;
     return;
   }
-  target.innerHTML = state.radioLog
-    .slice(0, 8)
-    .map((item) => `
-      <button type="button" class="agent-radio-log-row is-${item.tone}" data-radio-evidence-id="${item.evidence}" data-evidence-id="${item.evidence}">
-        <span>${item.time} · ${item.channel}</span>
-        <strong>${item.callsign}</strong>
-        <b>${item.finding}</b>
-        <em>${item.message}</em>
+  const filteredLog = getFilteredRadioLog();
+  if (!filteredLog.length) {
+    target.innerHTML = `
+      <div class="agent-radio-empty">
+        <span>채널 비어 있음</span>
+        <b>현재 필터에 해당하는 에이전트 발언이 아직 없습니다.</b>
+      </div>
+    `;
+    return;
+  }
+  target.innerHTML = filteredLog
+    .slice(0, 10)
+    .map((item, index) => `
+      <button type="button" class="agent-radio-log-row is-${item.tone}" style="--chat-index: ${index}" data-radio-evidence-id="${item.evidence}" data-evidence-id="${item.evidence}">
+        <span class="agent-chat-avatar" aria-hidden="true">${getAgentAvatarLabel(item.callsign)}</span>
+        <span class="agent-chat-bubble">
+          <span class="agent-chat-meta">
+            <strong>${item.callsign}</strong>
+            <em>${item.time} · ${item.channel}</em>
+            <i>${item.finding}</i>
+          </span>
+          <b>${item.message}</b>
+        </span>
       </button>
     `)
     .join("");
@@ -10904,8 +11410,9 @@ function queueRadioTransmission(transmission, event, index = 0) {
     const item = {
       id: `radio-${state.radioSerial += 1}`,
       eventId: event.id,
+      agentId: transmission.agentId || "",
       time: event.time,
-      tone: transmission.tone || (event.severity === "high" ? "red" : event.severity === "medium" ? "amber" : "blue"),
+      tone: transmission.tone || getRadioToneForEvent(event),
       channel: transmission.channel || "무전",
       callsign: transmission.callsign || "에이전트",
       message: transmission.message,
@@ -10961,6 +11468,7 @@ function update3dRehearsal(event) {
 
 function showEvent(index) {
   state.rehearsalIndex = clamp(index, 0, demoData.events.length - 1);
+  resetRehearsalEventClock();
   const event = demoData.events[state.rehearsalIndex];
   window.__warGroundCurrentEventId = event.id;
   document.body.dataset.rehearsalEventId = event.id;
@@ -10998,9 +11506,8 @@ function showEvent(index) {
       ${event.evidence_ids.map((id) => `<button type="button" class="evidence-link" data-evidence-id="${id}">${id}</button>`).join("")}
     </div>
   `;
-  byId("activeAgentChips").innerHTML = event.agents
-    .map((agent) => `<span>${agent}</span>`)
-    .join("");
+  renderActiveAgentChips(event);
+  renderAgentTypingIndicator(event);
   renderRehearsalBriefingStrip(event);
   renderRehearsalDecisionBridge(event);
   update3dRehearsal(event);
@@ -11026,7 +11533,7 @@ function scheduleNextEvent() {
   state.rehearsalTimer = window.setTimeout(() => {
     showEvent(state.rehearsalIndex + 1);
     scheduleNextEvent();
-  }, REHEARSAL_EVENT_DURATION_MS / state.rehearsalSpeed);
+  }, getRehearsalEventDelay());
 }
 
 function runRehearsal() {
@@ -11037,6 +11544,7 @@ function runRehearsal() {
   state.rehearsalStarted = true;
   state.rehearsalPaused = false;
   state.rehearsalIndex = 0;
+  resetRehearsalEventClock();
   setText("rehearsalPauseButton", "일시정지");
   clearRadioTraffic();
   window.WarGround3D?.start?.();
@@ -11051,6 +11559,7 @@ function restartRehearsalFromStart() {
   state.rehearsalStarted = true;
   state.rehearsalPaused = false;
   state.rehearsalIndex = -1;
+  resetRehearsalEventClock();
   setStage("rehearsal", { skipTransition: true });
   setText("rehearsalPauseButton", "일시정지");
   clearRadioTraffic();
@@ -11066,6 +11575,7 @@ function resetRehearsal() {
   clearTimer("rehearsalTimer");
   state.rehearsalIndex = -1;
   state.rehearsalPaused = false;
+  resetRehearsalEventClock();
   window.__warGroundCurrentEventId = "start";
   document.body.dataset.rehearsalEventId = "start";
   renderTimeline();
@@ -11075,7 +11585,8 @@ function resetRehearsal() {
   const interventionOverlay = byId("rehearsalInterventionOverlay");
   if (interventionOverlay) interventionOverlay.innerHTML = "";
   byId("currentEventCard").innerHTML = "<span>대기</span><strong>수행 리허설 실행 버튼을 누르세요.</strong><p>시간순 이벤트와 관련 에이전트가 자동 재생됩니다.</p>";
-  byId("activeAgentChips").innerHTML = "";
+  renderActiveAgentChips();
+  renderAgentTypingIndicator();
   renderRehearsalBriefingStrip();
   renderRehearsalDecisionBridge();
   clearRadioTraffic();
@@ -11087,17 +11598,19 @@ function resetRehearsal() {
 
 function toggleRehearsalPause() {
   if (!state.rehearsalStarted) return;
+  if (!state.rehearsalPaused) {
+    captureRehearsalEventProgress();
+    clearTimer("rehearsalTimer");
+  }
   state.rehearsalPaused = !state.rehearsalPaused;
+  if (!state.rehearsalPaused) state.rehearsalEventStartedAt = getRehearsalNow();
   setText("rehearsalPauseButton", state.rehearsalPaused ? "계속" : "일시정지");
   window.WarGround3D?.setPlayback?.(!state.rehearsalPaused);
   if (!state.rehearsalPaused) scheduleNextEvent();
 }
 
 function toggleRehearsalSpeed() {
-  state.rehearsalSpeed = state.rehearsalSpeed === 1 ? 2 : 1;
-  setText("rehearsalSpeedButton", `속도 ${state.rehearsalSpeed}x`);
-  window.WarGround3D?.setSpeed?.(state.rehearsalSpeed);
-  if (state.rehearsalStarted && !state.rehearsalPaused) scheduleNextEvent();
+  setRehearsalSpeed(getNextRehearsalSpeed());
 }
 
 function playStrikeReplay() {
@@ -12019,7 +12532,10 @@ function resetDemo() {
   state.rehearsalIndex = -1;
   state.rehearsalPaused = false;
   state.rehearsalSpeed = 1;
+  state.rehearsalEventElapsedMs = 0;
+  state.rehearsalEventStartedAt = 0;
   state.compareLlm = false;
+  state.agentConversationTab = "live";
   state.demoRemaining = 210;
   state.selectedAgentId = "red_team_agent";
   state.agentFilter = "all";
@@ -12068,7 +12584,7 @@ function resetDemo() {
   setText("agentLayerState", "대기");
   setText("staffState", "접수 필요");
   setText("agentProgressLabel", "0%");
-  setText("rehearsalSpeedButton", "속도 1x");
+  renderRehearsalSpeedControls();
   byId("agentProgressBar").style.width = "0%";
   byId("constraintGrid").innerHTML = "";
   byId("coaTable").innerHTML = "";
@@ -12606,7 +13122,10 @@ function applyRouteStateFromUrl() {
 
 function bindEvents() {
   document.querySelectorAll(".workspace-tab").forEach((button) => {
-    button.addEventListener("click", () => setStage(button.dataset.stage));
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      runStageNavigationTransition(button.dataset.stage);
+    });
     button.addEventListener("keydown", handleWorkspaceTabKeydown);
   });
   document.addEventListener("click", (event) => {
@@ -12721,6 +13240,7 @@ function bindEvents() {
     button.addEventListener("click", () => setGraphMode(button.dataset.graphMode));
   });
   byId("openMissionSearch").addEventListener("click", () => openMissionSearch());
+  byId("nextStageButton")?.addEventListener("click", goToNextStage);
   byId("openEvidenceTrace").addEventListener("click", () => openEvidenceTrace());
   byId("openBriefingSheet").addEventListener("click", () => openBriefingSheet());
   byId("togglePresenterModeButton").addEventListener("click", togglePresenterMode);
@@ -12793,6 +13313,7 @@ function bindEvents() {
   byId("rehearsalPauseButton").addEventListener("click", toggleRehearsalPause);
   byId("rehearsalRestartButton").addEventListener("click", restartRehearsalFromStart);
   byId("rehearsalSpeedButton").addEventListener("click", toggleRehearsalSpeed);
+  byId("rehearsalMapSpeedButton")?.addEventListener("click", toggleRehearsalSpeed);
   byId("terrainAnalysisButton").addEventListener("click", () => window.WarGround3D?.showTerrainAnalysis?.());
   byId("commanderViewButton").addEventListener("click", () => window.WarGround3D?.showCommanderResult?.());
   byId("strikeReplayButton").addEventListener("click", playStrikeReplay);
@@ -12846,9 +13367,20 @@ function bindEvents() {
       selectNode(pathButton.dataset.pathNodeId);
       return;
     }
+    const inspectorNodeButton = event.target.closest("[data-inspector-node-id]");
+    if (inspectorNodeButton) {
+      selectNode(inspectorNodeButton.dataset.inspectorNodeId);
+      return;
+    }
     const rehearsalAction = event.target.closest("[data-rehearsal-action]");
     if (rehearsalAction) {
       runRehearsalInterventionAction(rehearsalAction.dataset.rehearsalAction, rehearsalAction.dataset.rehearsalRef);
+      return;
+    }
+    const conversationTab = event.target.closest("[data-agent-conversation-tab]");
+    if (conversationTab) {
+      state.agentConversationTab = conversationTab.dataset.agentConversationTab || "live";
+      renderAgentRadioLog();
       return;
     }
     const coverageButton = event.target.closest("[data-coverage-failure-id]");

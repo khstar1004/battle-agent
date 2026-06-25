@@ -1,8 +1,8 @@
 ﻿<section class="page-view graph-page" data-page="ontology">
   <div class="page-heading">
     <div>
-      <p class="eyebrow">문서가 아니라 관계를 봅니다.</p>
-      <h2>그래프 구축</h2>
+      <p class="eyebrow">자료를 작전 지식그래프로 정규화합니다.</p>
+      <h2>온톨로지 그래프</h2>
     </div>
     <div class="graph-modes" role="tablist" aria-label="그래프 필터">
       <button class="mode-button is-active" data-graph-mode="all" type="button">전체</button>
@@ -14,18 +14,21 @@
   </div>
 
   <div class="page-guide-strip" id="graphGuideStrip" aria-label="그래프 구축 읽는 법">
-    <article><span>1</span><b>근거가 어디에 연결됐나</b><em>문서, 방책, 실패경로, 결심 사이의 연결선을 봅니다.</em></article>
-    <article><span>2</span><b>노드를 선택한다</b><em>오른쪽에서 선택 노드의 근거와 관련 발언을 확인합니다.</em></article>
-    <article><span>3</span><b>필터로 좁힌다</b><em>근거, 토론, 실패경로, 결심만 따로 확인합니다.</em></article>
+    <article><span>1</span><b>자료가 엔티티가 된다</b><em>작전계획, 장비, 지형, 군수 자료가 같은 스키마로 묶입니다.</em></article>
+    <article><span>2</span><b>근거가 어디에 연결됐나</b><em>참모 역할별 반론과 보완 제안이 그래프 위에 확장됩니다.</em></article>
+    <article><span>3</span><b>결심 후보가 잠긴다</b><em>확장된 위험과 근거만 결심 후보 그래프에 연결됩니다.</em></article>
   </div>
 
   <div class="graph-workspace">
-    <section class="graph-theater" aria-label="온톨로지 그래프">
+    <section class="graph-theater is-ontology" aria-label="온톨로지 그래프">
       <div class="graph-backdrop" aria-hidden="true"></div>
-      <div class="graph-stage">
-        <svg id="ontologySvg" viewBox="0 0 1000 700" role="img" aria-labelledby="ontologyTitle ontologyDesc">
+      <div class="graph-stage ontology-constellation-shell">
+        <div class="ontology-depth-map" id="ontologyDepthMap" aria-label="온톨로지 의미 레이어"></div>
+        <div class="ontology-relation-pulse" id="ontologyRelationPulse" aria-hidden="true"></div>
+        <div class="ontology-inspector-overlay" id="ontologyInspectorOverlay" aria-live="polite"></div>
+        <svg id="ontologySvg" viewBox="0 0 1000 620" role="img" aria-labelledby="ontologyTitle ontologyDesc">
           <title id="ontologyTitle">작전 온톨로지 네트워크</title>
-          <desc id="ontologyDesc">작전 자료, 방책, 제약, 에이전트, 실패경로, 결심카드를 연결한 온톨로지 그래프.</desc>
+          <desc id="ontologyDesc">아군 장비, 지형, 작전계획 요소를 온톨로지화하고 에이전트 토론으로 확장하는 지식 그래프.</desc>
           <defs>
             <filter id="nodeGlow" x="-40%" y="-40%" width="180%" height="180%">
               <feGaussianBlur stdDeviation="3" result="coloredBlur" />
@@ -43,13 +46,15 @@
       <div class="panel-heading"><span>그래프 인스펙터</span><b id="ontologyCountLabel">0개 노드</b></div>
       <div class="legend-block">
         <span class="legend-chip document"></span>문서/근거
+        <span class="legend-chip schema"></span>스키마
+        <span class="legend-chip core"></span>코어
         <span class="legend-chip coa"></span>방책
         <span class="legend-chip agent"></span>에이전트
-        <span class="legend-chip factor"></span>제약
         <span class="legend-chip risk"></span>위험
         <span class="legend-chip decision"></span>결심
       </div>
       <div class="selected-node" id="selectedNode"><b>선택 노드</b><span>노드를 선택하면 관련 파일, 에이전트 발언, 실패경로 연결을 표시합니다.</span></div>
+      <div class="graph-path-panel" id="graphPathPanel" aria-label="선택 노드 판단 경로"></div>
       <div class="evidence-panel" id="evidencePreview" aria-live="polite"></div>
     </aside>
   </div>

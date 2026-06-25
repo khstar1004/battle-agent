@@ -3439,7 +3439,8 @@ function setPlayback(value) {
 }
 
 function setSpeed(value) {
-  runtime.speed = Number(value) === 2 ? 2 : 1;
+  const speed = Number(value);
+  runtime.speed = speed === 4 ? 4 : speed === 2 ? 2 : 1;
 }
 
 window.WarGround3D = {

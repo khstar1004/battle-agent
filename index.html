@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WAR GROUND | 작전 리허설 콘솔</title>
     <link rel="icon" href="assets/bpk-logo.png?v=war-ground-direct-logo" />
-    <link rel="stylesheet" href="styles.css?v=prefill-loop-v1" />
+    <link rel="stylesheet" href="styles.css?v=primary-rail-v1" />
     <script type="importmap">
       {
         "imports": {
@@ -30,12 +30,12 @@
         </div>
 
         <nav class="workspace-tabs" aria-label="작업 화면" role="tablist">
-          <button class="workspace-tab is-active" id="tab-data" data-stage="data" type="button" role="tab" aria-selected="true" aria-current="page" aria-controls="page-data" tabindex="0" title="자료 투입"><span>01</span><b>자료</b></button>
-          <button class="workspace-tab" id="tab-ontology" data-stage="ontology" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-ontology" tabindex="-1" title="그래프 구축"><span>02</span><b>그래프</b></button>
-          <button class="workspace-tab" id="tab-agents" data-stage="agents" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-agents" tabindex="-1" title="가상부대 생성"><span>03</span><b>부대</b></button>
-          <button class="workspace-tab" id="tab-rehearsal" data-stage="rehearsal" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-rehearsal" tabindex="-1" title="수행 리허설"><span>04</span><b>리허설</b></button>
-          <button class="workspace-tab" id="tab-risk" data-stage="risk" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-risk" tabindex="-1" title="실패경로"><span>05</span><b>실패</b></button>
-          <button class="workspace-tab" id="tab-decision" data-stage="decision" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-decision" tabindex="-1" title="결심카드"><span>06</span><b>결심</b></button>
+          <button class="workspace-tab is-active" id="tab-data" data-stage="data" type="button" role="tab" aria-selected="true" aria-current="page" aria-controls="page-data" tabindex="0" title="자료 투입"><span>01</span><b>자료 투입</b></button>
+          <button class="workspace-tab" id="tab-ontology" data-stage="ontology" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-ontology" tabindex="-1" title="그래프 구축"><span>02</span><b>그래프 구축</b></button>
+          <button class="workspace-tab" id="tab-agents" data-stage="agents" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-agents" tabindex="-1" title="가상부대 생성"><span>03</span><b>가상부대</b></button>
+          <button class="workspace-tab" id="tab-rehearsal" data-stage="rehearsal" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-rehearsal" tabindex="-1" title="수행 리허설 · 3D 시뮬레이션"><span>04</span><b>수행 리허설</b></button>
+          <button class="workspace-tab" id="tab-risk" data-stage="risk" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-risk" tabindex="-1" title="실패경로"><span>05</span><b>실패경로</b></button>
+          <button class="workspace-tab" id="tab-decision" data-stage="decision" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-decision" tabindex="-1" title="결심카드"><span>06</span><b>결심카드</b></button>
           <button class="workspace-tab" id="tab-briefing" data-stage="briefing" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-briefing" tabindex="-1" title="브리핑"><span>07</span><b>브리핑</b></button>
           <button class="workspace-tab" id="tab-aar" data-stage="aar" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-aar" tabindex="-1" title="AAR 개선안"><span>08</span><b>AAR</b></button>
           <button class="workspace-tab" id="tab-audit" data-stage="audit" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-audit" tabindex="-1" title="감사 로그"><span>09</span><b>감사</b></button>
@@ -56,7 +56,12 @@
           <button class="workspace-tab" id="tab-prefill" data-stage="prefill" type="button" role="tab" aria-selected="false" aria-current="false" aria-controls="page-prefill" tabindex="-1" title="초기 접수 프리필"><span>24</span><b>초기</b></button>
         </nav>
 
-        <div class="system-actions compact-tools" aria-label="빠른 도구">
+        <div class="system-actions compact-tools stage-progress-actions" aria-label="단계 진행">
+          <button class="stage-next-button" id="nextStageButton" type="button" data-stage-next="ontology" title="다음 단계: 그래프 구축">
+            <span>다음 단계</span>
+            <b id="nextStageLabel">그래프 구축</b>
+            <i data-lucide="arrow-right" aria-hidden="true"></i>
+          </button>
           <button class="icon-button" id="openMissionSearch" type="button" title="작전 검색" aria-label="작전 검색">
             <i data-lucide="search" aria-hidden="true"></i>
           </button>
@@ -176,8 +181,8 @@
         <section class="page-view graph-page" id="page-ontology" data-page="ontology" role="tabpanel" aria-labelledby="tab-ontology" hidden>
           <div class="page-heading">
             <div>
-              <p class="eyebrow">문서가 아니라 관계를 봅니다.</p>
-              <h2>그래프 구축</h2>
+              <p class="eyebrow">자료를 작전 지식그래프로 정규화합니다.</p>
+              <h2>온톨로지 그래프</h2>
             </div>
             <div class="graph-modes" role="tablist" aria-label="그래프 필터">
               <button class="mode-button is-active" data-graph-mode="all" type="button">전체</button>
@@ -189,20 +194,21 @@
           </div>
 
           <div class="page-guide-strip" id="graphGuideStrip" aria-label="그래프 구축 읽는 법">
-            <article><span>1</span><b>근거가 어디에 연결됐나</b><em>문서, 방책, 실패경로, 결심 사이의 연결선을 봅니다.</em></article>
-            <article><span>2</span><b>노드를 선택한다</b><em>오른쪽에서 선택 노드의 근거와 관련 발언을 확인합니다.</em></article>
-            <article><span>3</span><b>필터로 좁힌다</b><em>근거, 토론, 실패경로, 결심만 따로 확인합니다.</em></article>
+            <article><span>1</span><b>자료가 엔티티가 된다</b><em>작전계획, 장비, 지형, 군수 자료가 같은 스키마로 묶입니다.</em></article>
+            <article><span>2</span><b>근거가 어디에 연결됐나</b><em>참모 역할별 반론과 보완 제안이 그래프 위에 확장됩니다.</em></article>
+            <article><span>3</span><b>결심 후보가 잠긴다</b><em>확장된 위험과 근거만 결심 후보 그래프에 연결됩니다.</em></article>
           </div>
 
           <div class="graph-workspace">
             <section class="graph-theater is-ontology" aria-label="온톨로지 그래프">
               <div class="graph-backdrop" aria-hidden="true"></div>
-              <div class="graph-stage">
+              <div class="graph-stage ontology-constellation-shell">
                 <div class="ontology-depth-map" id="ontologyDepthMap" aria-label="온톨로지 의미 레이어"></div>
                 <div class="ontology-relation-pulse" id="ontologyRelationPulse" aria-hidden="true"></div>
-                <svg id="ontologySvg" viewBox="0 0 1000 700" role="img" aria-labelledby="ontologyTitle ontologyDesc">
+                <div class="ontology-inspector-overlay" id="ontologyInspectorOverlay" aria-live="polite"></div>
+                <svg id="ontologySvg" viewBox="0 0 1000 620" role="img" aria-labelledby="ontologyTitle ontologyDesc">
                   <title id="ontologyTitle">작전 온톨로지 네트워크</title>
-                  <desc id="ontologyDesc">작전 자료, 방책, 제약, 에이전트, 실패경로, 결심카드를 연결한 온톨로지 그래프.</desc>
+                  <desc id="ontologyDesc">아군 장비, 지형, 작전계획 요소를 온톨로지화하고 에이전트 토론으로 확장하는 지식 그래프.</desc>
                   <defs>
                     <filter id="nodeGlow" x="-40%" y="-40%" width="180%" height="180%">
                       <feGaussianBlur stdDeviation="3" result="coloredBlur" />
@@ -220,9 +226,10 @@
               <div class="panel-heading"><span>그래프 인스펙터</span><b id="ontologyCountLabel">0개 노드</b></div>
               <div class="legend-block">
                 <span class="legend-chip document"></span>문서/근거
+                <span class="legend-chip schema"></span>스키마
+                <span class="legend-chip core"></span>코어
                 <span class="legend-chip coa"></span>방책
                 <span class="legend-chip agent"></span>에이전트
-                <span class="legend-chip factor"></span>제약
                 <span class="legend-chip risk"></span>위험
                 <span class="legend-chip decision"></span>결심
               </div>
@@ -331,10 +338,10 @@
                   <button class="mode-button" type="button" data-camera-mode="objective_focus">목표중심</button>
                   <button class="mode-button" type="button" data-camera-mode="ground_move">지상이동</button>
                 </div>
-                <div class="war-ground-zoom-controls" id="warGroundZoomControls" aria-label="3D 지도 확대 축소">
+                <div class="war-ground-zoom-controls" id="warGroundZoomControls" aria-label="3D 지도 확대 축소 및 리허설 배속">
                   <button class="mode-button" type="button" data-camera-zoom="in" aria-label="3D 지도 확대" title="확대">+</button>
                   <button class="mode-button" type="button" data-camera-zoom="out" aria-label="3D 지도 축소" title="축소">-</button>
-                  <button class="mode-button" type="button" data-camera-zoom="reset" aria-label="3D 지도 줌 기준 복귀" title="줌 기준">1x</button>
+                  <button class="mode-button" id="rehearsalMapSpeedButton" type="button" data-rehearsal-speed-toggle aria-label="리허설 배속 전환" title="리허설 배속">1x</button>
                 </div>
                 <div class="layer-control-stack" id="layerControlStack" aria-label="3D 지도 레이어 제어">
                   <button class="mode-button is-active" type="button" data-layer-toggle="routes">경로</button>
@@ -371,7 +378,18 @@
             <section class="hard-panel">
               <div class="panel-heading"><span>관련 에이전트 점등</span><b id="activeAgentCount">0명</b></div>
               <div id="activeAgentChips" class="active-agent-chips"></div>
-              <div id="agentRadioLog" class="agent-radio-log" aria-live="polite" aria-label="멀티에이전트 무전 대화 로그"></div>
+              <div class="agent-community-panel" aria-label="에이전트 커뮤니티 대화">
+                <div class="agent-community-header">
+                  <div>
+                    <span>AGENT COMMUNITY</span>
+                    <b>리허설 대화 스레드</b>
+                  </div>
+                  <strong id="agentConversationCount">대기</strong>
+                </div>
+                <div id="agentConversationTabs" class="agent-conversation-tabs" role="tablist" aria-label="에이전트 대화 채널"></div>
+                <div id="agentTypingIndicator" class="agent-typing-indicator" aria-live="polite"></div>
+                <div id="agentRadioLog" class="agent-radio-log" aria-live="polite" aria-label="멀티에이전트 무전 대화 로그"></div>
+              </div>
               <div class="terrain-analysis-panel" id="terrainAnalysisPanel"><div class="panel-heading compact-heading"><span>지형분석</span><b>실 DEM 적용</b></div><div id="terrainMetricGrid" class="terrain-metric-grid"></div><ul id="terrainBriefList" class="terrain-brief-list"></ul></div>
               <div class="commander-visualization-panel" id="commanderVisualizationPanel"><div class="panel-heading compact-heading"><span>지휘관 결과 시각화</span><b id="commanderConfidenceLabel">--</b></div><strong id="commanderRecommendation">결과 대기</strong><p id="commanderMessage">리허설 완료 후 지형·통신·군수 종합 결과가 표시됩니다.</p><div id="commanderOverlayList" class="commander-overlay-list"></div></div>
             </section>
