@@ -684,6 +684,193 @@ const agentUnitProfiles = {
   }
 };
 
+const agentCombatDossiers = {
+  commander_agent: {
+    summary: "전체 전투 흐름을 지휘 갱신 가능성 중심으로 재정렬하는 결심 셀.",
+    combatStyle: "속도보다 통제권 유지와 전환 승인선을 우선한다.",
+    signatureTrait: "결심권 잠금",
+    strength: "복수 실패경로가 겹칠 때 승인권자와 재판단 시각을 빠르게 고정한다.",
+    weakness: "현장 소규모 지연은 참모 보고가 늦으면 뒤늦게 반영된다.",
+    engagement: ["지휘망 유지", "A안 조건부 보류", "B안 안정 전개"]
+  },
+  ops_staff_agent: {
+    summary: "시간표와 단계 전환을 전투 리듬으로 계산하는 작전 통제 셀.",
+    combatStyle: "각 이벤트를 H-hour 대비 지연량으로 환산해 예비대 투입 시점을 압박한다.",
+    signatureTrait: "시간축 압박",
+    strength: "대기, 감속, 우회가 전체 제한시간에 주는 영향을 즉시 비교한다.",
+    weakness: "현장 체감 피로와 노면 상태는 다른 에이전트 입력이 필요하다.",
+    engagement: ["단계별 시간 여유", "예비대 트리거", "우회 전환"]
+  },
+  logistics_staff_agent: {
+    summary: "탄약, 연료, 정비 시간을 전투 지속 가능성으로 환산하는 군수 참모 셀.",
+    combatStyle: "빠른 돌파안이라도 보급 대기점과 정비 슬롯이 부족하면 조건부로 낮춘다.",
+    signatureTrait: "지속성 계산",
+    strength: "보급 병목이 전투 속도와 예비대 준비율에 주는 손실을 수치화한다.",
+    weakness: "적 위협 자체보다 보급선 유지 조건에 판단이 치우칠 수 있다.",
+    engagement: ["보급 대기점", "정비 우선순위", "연료 여유"]
+  },
+  comm_staff_agent: {
+    summary: "지휘 갱신이 끊기는 구간을 먼저 찾아 방책의 실전성을 깎는 통신 참모 셀.",
+    combatStyle: "교전보다 보고 주기, 중계 후보, 예비망 전환 조건을 우선 검증한다.",
+    signatureTrait: "통신 음영 탐지",
+    strength: "지형과 이동 경로가 겹치는 순간의 지휘공백 위험을 빠르게 찾아낸다.",
+    weakness: "단기 교전 효과보다 통신 안정성을 보수적으로 평가한다.",
+    engagement: ["예비 중계", "보고 주기", "지휘 갱신"]
+  },
+  medical_staff_agent: {
+    summary: "후송 시간과 사고 대응 여유를 방책 승인 조건으로 끌어올리는 의무 셀.",
+    combatStyle: "시정 저하, 협곡 정체, 후송로 제한이 겹치면 즉시 안전 여유를 요구한다.",
+    signatureTrait: "손실 완충",
+    strength: "사고 한 건이 전체 작전 템포를 무너뜨리는 지점을 빠르게 제시한다.",
+    weakness: "위험 회피 성향이 강해 공격적 돌파안에는 낮은 점수를 준다.",
+    engagement: ["대체 후송로", "응급 반응", "안개 보정"]
+  },
+  sop_agent: {
+    summary: "명령, 중단, 전환 기준이 문서상으로 잠겼는지 판정하는 규정 통제 셀.",
+    combatStyle: "행동 자체보다 누가 언제 멈추고 전환할 수 있는지를 먼저 검증한다.",
+    signatureTrait: "기준 잠금",
+    strength: "현장 대기를 만드는 불명확한 승인 문구를 찾아 결심카드에 반영한다.",
+    weakness: "현장 창의 기동은 기준 밖이면 보수적으로 차단한다.",
+    engagement: ["중단 조건", "대체 승인권자", "전환 기준"]
+  },
+  red_team_agent: {
+    summary: "아군 방책을 적 관점으로 공격해 가장 약한 연결부를 노출하는 대항 검증 셀.",
+    combatStyle: "빠른 경로, 좁은 협곡, 단일 통신선처럼 예측 가능한 패턴을 집중 공격한다.",
+    signatureTrait: "취약점 공격",
+    strength: "낙관적 방책의 숨은 실패 전이를 짧은 문장으로 끌어낸다.",
+    weakness: "실행 보완책보다 실패 가능성 탐색에 판단이 치우친다.",
+    engagement: ["A안 노출", "협곡 지연", "지휘공백 전이"]
+  },
+  judge_agent: {
+    summary: "근거 없는 주장과 과잉 권고를 제거해 최종 결심의 신뢰도를 잠그는 심판 셀.",
+    combatStyle: "교전 효과보다 근거 출처, 발언 일관성, 결심 문구의 추적성을 우선한다.",
+    signatureTrait: "근거 잠금",
+    strength: "상충 의견이 많아질 때 남길 주장과 버릴 주장을 빠르게 구분한다.",
+    weakness: "근거가 부족한 창의 대안은 실험 전에 낮게 평가한다.",
+    engagement: ["근거 체인", "주장 삭제", "최종 판정"]
+  },
+  company_commander_agent: {
+    summary: "선두 제대가 실제로 멈추는 지점과 보고 가능한 지점을 분리해 보는 현장 지휘 셀.",
+    combatStyle: "상급 계획보다 교차로, 대기 지점, 엄호 기준을 먼저 확인한다.",
+    signatureTrait: "현장 판단",
+    strength: "대열 정체가 지휘공백으로 번지기 전 우회 또는 엄호 요구를 낸다.",
+    weakness: "전체 군수 지속성보다 현재 선두 제대의 통과 가능성에 집중한다.",
+    engagement: ["선두 제대", "엄호 기준", "현장 보고"]
+  },
+  platoon_leader_agent: {
+    summary: "구간별 이동속도와 집결 대기열을 실제 전투 템포로 환산하는 소대 셀.",
+    combatStyle: "차량 간격, 대기 지점, 감속 구간을 기준으로 전진 가능 속도를 낮춰 계산한다.",
+    signatureTrait: "구간 기동",
+    strength: "계획 속도와 실제 이동속도의 차이를 이벤트 단위로 드러낸다.",
+    weakness: "장기 보급이나 지휘 승인 문제는 참모 셀 의존도가 높다.",
+    engagement: ["집결 지연", "감속 구간", "대기 위치"]
+  },
+  squad_leader_agent: {
+    summary: "통신 두절 시 분대 단위 유지 절차를 고정하는 현장 셀.",
+    combatStyle: "명령이 끊겨도 유지할 대형, 대기 시간, 후속 보고 기준을 먼저 잠근다.",
+    signatureTrait: "현장 유지",
+    strength: "보고 공백 속에서도 현장 제대가 무의미하게 흩어지지 않도록 만든다.",
+    weakness: "상급 의도 변화가 늦게 내려오면 보수적으로 대기한다.",
+    engagement: ["분대 유지", "대체 승인", "보고 재시도"]
+  },
+  driver_agent: {
+    summary: "야간 차간 유지와 노면 판독을 우선하는 기동 셀.",
+    combatStyle: "안개, 피로, 협곡 진입에서 속도를 낮추고 사고 확률을 먼저 줄인다.",
+    signatureTrait: "노면 판독",
+    strength: "계획 속도보다 실제 주행 가능 속도를 정직하게 낮춰 시간표를 보정한다.",
+    weakness: "적 접촉 상황에서는 엄호 판단을 다른 셀에 의존한다.",
+    engagement: ["차간 유지", "감속 진입", "시정 보정"]
+  },
+  radio_operator_agent: {
+    summary: "무전 실패를 가장 먼저 체감하고 예비망 전환을 요구하는 통신 실행 셀.",
+    combatStyle: "보고 주기가 한 번이라도 밀리면 중계, 재송신, 대체 채널을 순서대로 제안한다.",
+    signatureTrait: "보고 주기 감시",
+    strength: "지휘소가 놓치는 짧은 통신 공백을 현장 기준으로 빠르게 보고한다.",
+    weakness: "기동이나 군수 판단 자체는 다른 에이전트의 입력을 받아야 한다.",
+    engagement: ["예비망 전환", "재송신", "보고 누락"]
+  },
+  supply_soldier_agent: {
+    summary: "보급 대기열을 전투 지속 시간으로 환산하는 군수 실행 셀.",
+    combatStyle: "연료, 탄약, 정비 대기 순서를 실제 대열 정체 시간으로 바꿔 보고한다.",
+    signatureTrait: "대기열 계산",
+    strength: "보급 대기점 하나가 부족할 때 어느 시점부터 속도가 무너지는지 보여준다.",
+    weakness: "적 위협의 심리적 압박보다 물량과 처리량에 집중한다.",
+    engagement: ["연료 보충", "대기점 처리량", "탄약 여유"]
+  },
+  maintenance_agent: {
+    summary: "고장 가능성과 정비 우선순위를 전투 지속성으로 연결하는 정비 셀.",
+    combatStyle: "통신차량, 선두 차량, 보급 차량 순으로 정비 슬롯을 배정한다.",
+    signatureTrait: "정비 우선순위",
+    strength: "고장 하나가 대열 전체 속도를 낮추는 순간을 조기에 경고한다.",
+    weakness: "즉시 돌파보다 장비 보전 판단이 강하다.",
+    engagement: ["통신차 우선", "선두 차량 보전", "정비 시간 배분"]
+  },
+  reserve_leader_agent: {
+    summary: "예비대가 너무 늦거나 너무 빨리 움직이지 않도록 투입 기준을 고정하는 예비 셀.",
+    combatStyle: "재판단 시각, 위치, 통신 상태가 동시에 맞을 때만 예비대 이동을 권고한다.",
+    signatureTrait: "투입 타이밍",
+    strength: "지휘공백과 지속성 저하가 동시에 상승할 때 개입 기준을 분명히 한다.",
+    weakness: "기준이 불명확하면 적극 기동보다 대기 판단을 유지한다.",
+    engagement: ["04:20 기준", "예비축 유지", "조건부 투입"]
+  },
+  enemy_force_agent: {
+    summary: "아군의 예측 가능한 진입축을 지연행동으로 묶는 적군 행동 셀.",
+    combatStyle: "협곡 입구, 교차로, 통신 음영이 겹치는 지점에 지연 압박을 집중한다.",
+    signatureTrait: "지연 압박",
+    strength: "최단 경로의 강점을 되레 병목과 지휘공백으로 전환한다.",
+    weakness: "아군이 우회와 중계를 동시에 준비하면 효과가 급격히 낮아진다.",
+    engagement: ["협곡 차단", "교차로 지연", "A안 노출"]
+  },
+  weather_agent: {
+    summary: "새벽 안개와 시정 저하를 이동속도, 후송, 관측 손실로 바꾸는 기상 셀.",
+    combatStyle: "시간대별 시정 변화를 이동속도와 사고 가능성에 즉시 반영한다.",
+    signatureTrait: "시정 보정",
+    strength: "계획서에 없는 자연 마찰을 이벤트 초반에 강제로 드러낸다.",
+    weakness: "일단 기상이 안정되면 다른 전장 변수보다 영향력이 낮아진다.",
+    engagement: ["안개대", "후송 지연", "관측 제한"]
+  },
+  terrain_agent: {
+    summary: "협곡, 능선, 우회로가 전투 흐름을 끊는 지점을 찾는 지형 셀.",
+    combatStyle: "경사, 교차로, 은폐 가능성을 경로별 병목과 후송 제한으로 환산한다.",
+    signatureTrait: "병목 판독",
+    strength: "속도 문제가 아니라 대열이 끊기는 지점을 정확히 짚는다.",
+    weakness: "동적 적 행동은 레드팀 또는 적군 셀과 함께 봐야 한다.",
+    engagement: ["협곡 병목", "우회로", "후송 제한"]
+  },
+  vehicle_agent: {
+    summary: "차량 상태와 고장 전이를 기동 지속성으로 계산하는 장비 변수 셀.",
+    combatStyle: "장갑차, 지휘차, 보급차의 상태 저하가 어느 제대를 먼저 늦추는지 본다.",
+    signatureTrait: "장비 상태",
+    strength: "정비 제한이 전술 속도에 미치는 영향을 빠르게 보정한다.",
+    weakness: "인원 피로와 통신 절차는 직접 판단하지 않는다.",
+    engagement: ["차량 이탈", "기동 지속", "정비 제한"]
+  },
+  network_agent: {
+    summary: "지형과 통신 커버리지를 겹쳐 지휘 갱신 가능 구역을 재계산하는 네트워크 셀.",
+    combatStyle: "중계 후보와 음영 경계를 기준으로 보고 주기가 깨지는 지점을 예측한다.",
+    signatureTrait: "커버리지 겹침",
+    strength: "지도상 안전해 보이는 경로가 통신상 위험해지는 순간을 찾아낸다.",
+    weakness: "현장 무전병의 실제 교신 품질 입력이 있어야 정확도가 오른다.",
+    engagement: ["C1 중계", "음영 경계", "예비망"]
+  },
+  supply_route_agent: {
+    summary: "보급로 안정성과 대기점 접근성을 전투 지속 시간으로 환산하는 경로 셀.",
+    combatStyle: "우회 거리가 늘어도 보급과 후송 접근성이 유지되면 안정 방책으로 평가한다.",
+    signatureTrait: "보급로 안정",
+    strength: "B안처럼 느리지만 지속 가능한 경로의 실전 가치를 설명한다.",
+    weakness: "단기 돌파 기회는 과소평가할 수 있다.",
+    engagement: ["보급로 유지", "대기점 후보", "우회 안정"]
+  },
+  evac_route_agent: {
+    summary: "후송로가 막힐 때 사고 대응 시간이 작전 전체를 흔드는지를 계산하는 후송 셀.",
+    combatStyle: "주 후송로가 제한되면 대체로 개방 조건과 의료 셀 호출 시점을 앞당긴다.",
+    signatureTrait: "대체 후송",
+    strength: "전투 손실보다 늦은 대응이 만드는 작전 중단 위험을 보여준다.",
+    weakness: "공격 속도와 적 제압 효과는 낮은 우선순위로 둔다.",
+    engagement: ["대체로 개방", "사고 대응", "후송 시간"]
+  }
+};
+
 const staffRows = [
   ["적군", "A안 진입축에 지연행동 집중 가능성. 선두 제대 고립 시 지휘공백으로 전이.", "위험"],
   ["군수", "B안은 추가 대기점 없이 지속 가능. A안은 보급 대기점 1개 보강 필요.", "보완"],
@@ -742,6 +929,144 @@ const rehearsalRadioScripts = {
     { agentId: "comm_staff_agent", callsign: "통신참모", tone: "blue", channel: "참모", message: "B안 우회축은 음영 시간이 짧아 예비망 없이도 보고 주기 유지 가능.", finding: "통신 안정", evidence: "ev_coa_b" },
     { agentId: "logistics_staff_agent", callsign: "군수참모", tone: "blue", channel: "참모", message: "보급 대기점 접근성이 유지됩니다. B안 우선 추천에 동의.", finding: "합의", evidence: "ev_coa_b" }
   ]
+};
+
+const rehearsalDialogueBursts = {
+  start: [
+    { agentId: "radio_operator_agent", callsign: "무전", tone: "blue", channel: "통신", turnLabel: "확인 응답", message: "주망 수신 양호. 3분 주기 상황보고로 시작하고 음영 진입 전 예비망을 대기시킵니다.", finding: "보고 주기 설정", evidence: "ev_plan_mission" },
+    { agentId: "supply_soldier_agent", callsign: "보급", tone: "blue", channel: "군수", turnLabel: "상태 공유", message: "초기 연료·탄약 상태 정상. 2단계 전 보급 대기점 처리량을 다시 확인하겠습니다.", finding: "보급 상태 정상", evidence: "ev_logistics_supply" },
+    { agentId: "judge_agent", callsign: "심판", tone: "blue", channel: "검증", turnLabel: "판정 기록", message: "출발 조건과 제한시간 기준을 근거 테이블에 잠급니다. 이후 발언은 이벤트별 근거와 연결합니다.", finding: "기준 잠금", evidence: "ev_plan_mission" }
+  ],
+  fog: [
+    { agentId: "platoon_leader_agent", callsign: "소대", tone: "amber", channel: "현장", turnLabel: "후속 질문", message: "감속 기준을 8km/h로 잡으면 집결 지연은 몇 분까지 허용합니까?", finding: "속도 기준 확인", evidence: "ev_weather_fog" },
+    { agentId: "ops_staff_agent", callsign: "작전", tone: "amber", channel: "참모", turnLabel: "확인 응답", message: "현 속도면 H-hour 대비 6분 손실. 10분 초과 전까지는 B안 전환 준비만 유지합니다.", finding: "시간 손실 계산", evidence: "ev_weather_fog" },
+    { agentId: "evac_route_agent", callsign: "후송로", tone: "amber", channel: "지원", turnLabel: "조치 제안", message: "안개 구간에서는 주 후송로보다 남측 대체로가 빠릅니다. 의무 셀과 개방 조건을 맞추겠습니다.", finding: "대체로 제안", evidence: "ev_evac_route" }
+  ],
+  enemy_delay: [
+    { agentId: "terrain_agent", callsign: "지형", tone: "amber", channel: "환경", turnLabel: "후속 질문", message: "협곡 입구 정체가 5분을 넘기면 우회로 B2 진입권을 열어도 됩니까?", finding: "우회로 조건", evidence: "ev_redteam_delay" },
+    { agentId: "ops_staff_agent", callsign: "작전", tone: "amber", channel: "참모", turnLabel: "확인 응답", message: "교차로 차단이 확인되면 선두 제대는 엄호 유지, 예비대는 투입 대기선으로 올립니다.", finding: "엄호 전환", evidence: "ev_redteam_delay" },
+    { agentId: "comm_staff_agent", callsign: "통신참모", tone: "amber", channel: "참모", turnLabel: "조치 제안", message: "A안 병목에서 보고가 겹치면 즉시 예비망으로 분산합니다. 지휘 갱신 간격을 줄입니다.", finding: "보고 분산", evidence: "ev_comm_gap" }
+  ],
+  comm_gap: [
+    { agentId: "comm_staff_agent", callsign: "통신참모", tone: "red", channel: "참모", turnLabel: "후속 질문", message: "C1 중계팀 전진 준비. A안 2단계 진입 전 이동 승인 가능합니까?", finding: "중계 전진 요청", evidence: "ev_comm_gap" },
+    { agentId: "commander_agent", callsign: "지휘", tone: "red", channel: "지휘망", turnLabel: "확인 응답", message: "C1/C2 예비 중계팀을 A안 2단계 전방으로 올립니다. 현장 제대는 1개 보고주기 이상 누락 시 대기.", finding: "중계 승인", evidence: "ev_comm_gap" },
+    { agentId: "squad_leader_agent", callsign: "분대", tone: "amber", channel: "현장", turnLabel: "현장 확인", message: "대체 승인권자 기준 수신했습니다. 무전 두절 시 현 위치 유지 후 재송신 절차로 전환합니다.", finding: "두절 절차 확인", evidence: "ev_sop_criteria" },
+    { agentId: "network_agent", callsign: "통신망", tone: "red", channel: "통신", turnLabel: "위험 갱신", message: "중계 전진 전까지 통신 여유 1km 미만. 지휘공백 위험을 높음으로 유지합니다.", finding: "통신 여유 부족", evidence: "ev_comm_gap" }
+  ],
+  supply_gap: [
+    { agentId: "vehicle_agent", callsign: "차량", tone: "amber", channel: "장비", turnLabel: "후속 질문", message: "통신차량 정비 우선순위가 밀리면 예비망 운용 시간이 줄어듭니다. 정비 슬롯 재배치 필요합니다.", finding: "장비 우선순위", evidence: "ev_logistics_supply" },
+    { agentId: "logistics_staff_agent", callsign: "군수참모", tone: "amber", channel: "참모", turnLabel: "확인 응답", message: "통신차량과 선두 차량을 우선 정비로 고정. 보급 대기점 1개 추가 없이는 A안 지속 불가.", finding: "정비 재배치", evidence: "ev_logistics_supply" },
+    { agentId: "supply_route_agent", callsign: "보급로", tone: "blue", channel: "환경", turnLabel: "조치 제안", message: "B안 남측 우회축은 보급차 회차가 유지됩니다. 대기열은 B안에서 절반으로 줄어듭니다.", finding: "B안 보급 안정", evidence: "ev_coa_b" }
+  ],
+  criteria_gap: [
+    { agentId: "judge_agent", callsign: "심판", tone: "red", channel: "검증", turnLabel: "후속 질문", message: "전환 승인권자가 문서에 없습니다. 현장 대기 발생 시 누가 A안 보류를 선언합니까?", finding: "승인권자 공백", evidence: "ev_sop_criteria" },
+    { agentId: "commander_agent", callsign: "지휘", tone: "red", channel: "지휘망", turnLabel: "확인 응답", message: "04:20 기준, 통신 두절 1주기 초과 또는 보급 대기 10분 초과 시 B안 전환을 승인합니다.", finding: "재판단 기준 고정", evidence: "ev_sop_criteria" },
+    { agentId: "radio_operator_agent", callsign: "무전", tone: "amber", channel: "통신", turnLabel: "현장 확인", message: "재판단 기준 수신. 음영 진입 전 분대장과 예비대장에게 동일 문구로 재전파합니다.", finding: "기준 재전파", evidence: "ev_sop_criteria" }
+  ],
+  reserve_delay: [
+    { agentId: "reserve_leader_agent", callsign: "예비대", tone: "red", channel: "예비", turnLabel: "후속 질문", message: "투입 기준이 확정됐습니다. 현 위치 유지입니까, 전방 대기선으로 이동합니까?", finding: "예비대 위치 확인", evidence: "ev_sop_criteria" },
+    { agentId: "ops_staff_agent", callsign: "작전", tone: "red", channel: "참모", turnLabel: "확인 응답", message: "전방 대기선까지 이동, 교전 투입은 지휘 승인 후 실시. A안은 조건 보완 전 보류입니다.", finding: "예비대 전진", evidence: "ev_sop_criteria" },
+    { agentId: "logistics_staff_agent", callsign: "군수참모", tone: "amber", channel: "군수", turnLabel: "조치 제안", message: "예비대 이동 시 보급 대기열이 다시 증가합니다. B안 전환 전까지 급유 창을 분리합니다.", finding: "급유 창 분리", evidence: "ev_logistics_supply" }
+  ],
+  b_stabilized: [
+    { agentId: "commander_agent", callsign: "지휘", tone: "blue", channel: "지휘망", turnLabel: "확인 응답", message: "B안 우선 결심 후보로 잠급니다. A안은 중계·보급·재판단 기준 보완 시 조건부로만 유지합니다.", finding: "결심 후보 잠금", evidence: "ev_coa_b" },
+    { agentId: "terrain_agent", callsign: "지형", tone: "blue", channel: "환경", turnLabel: "상태 공유", message: "남측 우회축은 협곡 병목을 우회하고 후송 접근성이 유지됩니다. 지형 위험은 중간 이하입니다.", finding: "지형 안정", evidence: "ev_coa_b" },
+    { agentId: "sop_agent", callsign: "SOP", tone: "blue", channel: "검증", turnLabel: "판정 기록", message: "조건부 A안 문구와 B안 우선 문구를 결심카드 체크리스트에 반영합니다.", finding: "결심카드 반영", evidence: "ev_sop_criteria" }
+  ]
+};
+
+const rehearsalDialogueAdditions = {
+  start: [
+    { agentId: "terrain_agent", callsign: "지형", tone: "blue", channel: "환경", turnLabel: "지형 기준", message: "출발축 고도차와 협곡 입구를 3D 지형에 고정했습니다. 이후 지연은 경로별 시간 손실로 바로 환산합니다.", finding: "지형 기준선 고정", evidence: "ev_plan_mission", at: 0.72 },
+    { agentId: "platoon_leader_agent", callsign: "소대", tone: "blue", channel: "현장", turnLabel: "현장 복창", message: "선두·후속 간격 유지. 속도 저하, 통신 누락, 보급 대기 중 하나라도 뜨면 즉시 이벤트로 올리겠습니다.", finding: "마찰 보고 기준 공유", evidence: "ev_plan_mission", at: 0.88 }
+  ],
+  fog: [
+    { agentId: "terrain_agent", callsign: "지형", tone: "amber", channel: "환경", turnLabel: "시야 판정", message: "시정 저하 구간이 고저차 큰 S자 도로와 겹칩니다. 선두 차량은 급정지 대신 간격을 벌리는 게 낫습니다.", finding: "곡선구간 감속", evidence: "ev_weather_fog", at: 0.68 },
+    { agentId: "commander_agent", callsign: "지휘", tone: "amber", channel: "지휘망", turnLabel: "지휘 판단", message: "무리한 속도 회복 금지. 10분 손실 전까지 B안 준비 상태로 유지하고 후송 대체로를 먼저 열어 둡니다.", finding: "속도 회복 제한", evidence: "ev_evac_route", at: 0.9 }
+  ],
+  enemy_delay: [
+    { agentId: "vehicle_agent", callsign: "차량", tone: "amber", channel: "장비", turnLabel: "차량 반응", message: "전차 소대가 엄호 위치로 이동 중입니다. 선두 장갑차는 협곡 입구에서 정지하지 않도록 좌측 완충 공간 확보가 필요합니다.", finding: "엄호 위치 이동", evidence: "ev_redteam_delay", at: 0.62 },
+    { agentId: "commander_agent", callsign: "지휘", tone: "red", channel: "지휘망", turnLabel: "즉시 결심", message: "포격은 지연세력 억제용으로 제한. 지휘 갱신이 끊기면 A안 계속 전진보다 B안 전환을 우선 검토합니다.", finding: "A안 전진 제한", evidence: "ev_comm_gap", at: 0.88 }
+  ],
+  comm_gap: [
+    { agentId: "red_team_agent", callsign: "레드팀", tone: "red", channel: "검증", turnLabel: "반론", message: "중계팀이 늦으면 적 지연보다 통신 공백이 더 큰 실패 원인이 됩니다. 빠른 경로라는 장점이 사라집니다.", finding: "A안 이점 상실", evidence: "ev_comm_gap", at: 0.7 },
+    { agentId: "judge_agent", callsign: "심판", tone: "red", channel: "검증", turnLabel: "판정", message: "C1/C2 선배치가 결심 조건으로 올라갑니다. 이 조건이 빠지면 A안은 승인 불가로 기록합니다.", finding: "조건부 승인 판정", evidence: "ev_sop_criteria", at: 0.92 }
+  ],
+  supply_gap: [
+    { agentId: "driver_agent", callsign: "기동", tone: "amber", channel: "현장", turnLabel: "현장 체감", message: "급유 대기열이 길어지면 선두 제대보다 후속 차량 간격이 먼저 무너집니다. 집결지는 도착해도 전개태세가 약해집니다.", finding: "후속 간격 붕괴", evidence: "ev_logistics_supply", at: 0.7 },
+    { agentId: "commander_agent", callsign: "지휘", tone: "amber", channel: "지휘망", turnLabel: "지휘 판단", message: "보급 대기점 추가 전 A안 지속은 보류. B안의 보급 접근성을 결심 근거에 반영합니다.", finding: "A안 지속 보류", evidence: "ev_coa_b", at: 0.9 }
+  ],
+  criteria_gap: [
+    { agentId: "enemy_force_agent", callsign: "대항군", tone: "red", channel: "위협", turnLabel: "압박 가정", message: "현장 제대가 승인 대기하면 지연행동은 성공입니다. 명령이 늦는 순간 병목은 고정됩니다.", finding: "승인 대기 취약", evidence: "ev_redteam_delay", at: 0.64 },
+    { agentId: "judge_agent", callsign: "심판", tone: "red", channel: "검증", turnLabel: "판정 기록", message: "04:20 기준과 대체 승인권자를 결심카드 필수 조건으로 올립니다. 문서화 전에는 리허설 통과가 아닙니다.", finding: "결심카드 필수조건", evidence: "ev_sop_criteria", at: 0.9 }
+  ],
+  reserve_delay: [
+    { agentId: "network_agent", callsign: "통신망", tone: "red", channel: "통신", turnLabel: "연쇄 영향", message: "예비대 전진과 보고 갱신이 동시에 걸립니다. 통신 중계 없이 투입하면 지휘공백이 더 커집니다.", finding: "투입-통신 충돌", evidence: "ev_comm_gap", at: 0.62 },
+    { agentId: "commander_agent", callsign: "지휘", tone: "red", channel: "지휘망", turnLabel: "최종 판단", message: "A안은 보류. 예비대는 전방 대기선까지만 이동하고, 교전 투입은 B안 전환 판단 뒤 승인합니다.", finding: "A안 보류 확정", evidence: "ev_sop_criteria", at: 0.9 }
+  ],
+  b_stabilized: [
+    { agentId: "medical_staff_agent", callsign: "의무", tone: "blue", channel: "지원", turnLabel: "지원 확인", message: "B안 우회축에서는 대체 후송로 접근이 유지됩니다. 사고 대응 지연 위험은 관리 가능 수준입니다.", finding: "후송 안정", evidence: "ev_evac_route", at: 0.66 },
+    { agentId: "judge_agent", callsign: "심판", tone: "blue", channel: "검증", turnLabel: "종합 판정", message: "리허설 결론은 B안 우선, A안 조건부입니다. 조건은 통신, 군수, 재판단 세 항목으로 압축합니다.", finding: "최종 합의", evidence: "ev_coa_b", at: 0.9 }
+  ]
+};
+
+const rehearsalEventAlertBriefings = {
+  start: {
+    tag: "기준선",
+    headline: "출발선 통과, 리허설 클럭 시작",
+    situation: "기동·통신·군수 기준값을 같은 시간축에 고정했습니다.",
+    decision: "마찰 발생 시 근거와 조치안을 함께 보고",
+    action: "3D 지형 기준선 잠금"
+  },
+  fog: {
+    tag: "환경 마찰",
+    headline: "안개가 속도와 후송 여유를 동시에 압박",
+    situation: "선두 감속은 허용 가능하지만 후송 대체로 개방이 늦으면 사고 대응 지연으로 번집니다.",
+    decision: "10분 손실 전 B안 준비, 후송 대체로 선개방",
+    action: "속도 회복보다 간격 유지"
+  },
+  enemy_delay: {
+    tag: "교전 마찰",
+    headline: "협곡 입구 지연세력 접촉, 엄호 포격 진행",
+    situation: "대항군 차단이 A안의 예측 가능성을 찌르고 선두 제대가 병목에 걸립니다.",
+    decision: "엄호는 제한, 보고 공백 발생 시 B안 전환 검토",
+    action: "전차 소대 엄호 위치 이동"
+  },
+  comm_gap: {
+    tag: "지휘 위험",
+    headline: "보고 주기 누락, 지휘공백 실패경로 상승",
+    situation: "A안 2단계 음영에서 예비 중계 없이 전진하면 현장 판단이 승인 대기로 묶입니다.",
+    decision: "C1/C2 중계팀 선배치 없으면 A안 승인 불가",
+    action: "예비망 전환 권한 확인"
+  },
+  supply_gap: {
+    tag: "지속성 위험",
+    headline: "보급 대기열 누적, 후속 제대 전개태세 저하",
+    situation: "선두는 움직여도 후속 차량과 통신차량 정비가 밀리면 2단계 지속성이 떨어집니다.",
+    decision: "보급 대기점 추가 전 A안 지속 보류",
+    action: "정비 우선순위 재배치"
+  },
+  criteria_gap: {
+    tag: "기준 공백",
+    headline: "전환 승인권자 미지정, 현장 대기 발생",
+    situation: "SOP 기준이 시간표와 연결되지 않아 통신 두절 후 재판단이 늦어집니다.",
+    decision: "04:20 기준과 대체 승인권자를 결심카드에 고정",
+    action: "전환 문구 재전파"
+  },
+  reserve_delay: {
+    tag: "복합 실패",
+    headline: "예비대 투입 지연, 지휘공백과 지속성 저하 결합",
+    situation: "투입 시각이 늦어지고 통신·보급 조건이 동시에 흔들려 A안 보류 기준에 도달했습니다.",
+    decision: "A안 보류, 예비대는 전방 대기선까지만 이동",
+    action: "실패경로 확정"
+  },
+  b_stabilized: {
+    tag: "결론",
+    headline: "B안 우회축 안정성 확인, 조건부 A안으로 압축",
+    situation: "통신 갱신, 보급 접근성, 후송 여유가 유지되어 결심 후보가 정리됩니다.",
+    decision: "B안 우선, A안은 통신·군수·재판단 조건 충족 시 제한",
+    action: "결심카드 반영"
+  }
 };
 
 const stageMeta = {
@@ -933,6 +1258,9 @@ const state = {
   generatedAgentCount: 0,
   rehearsalIndex: -1,
   rehearsalTimer: null,
+  rehearsalStartTimer: null,
+  rehearsalStartToken: 0,
+  rehearsalEventAlertTimer: null,
   rehearsalPaused: false,
   rehearsalSpeed: 1,
   rehearsalEventElapsedMs: 0,
@@ -944,6 +1272,7 @@ const state = {
   demoRemaining: 210,
   selectedAgentId: "red_team_agent",
   agentFilter: "all",
+  agentWorkspaceNeedsRender: false,
   selectedFailureId: "command_gap",
   selectedEvidenceId: "ev_comm_gap",
   focusMode: false,
@@ -1015,6 +1344,21 @@ function waitForStageTransitionPaint() {
       window.requestAnimationFrame(resolve);
     });
   });
+}
+
+function queueRehearsalUiTask(task, delayMs = 0) {
+  const token = state.rehearsalStartToken;
+  window.requestAnimationFrame(() => {
+    state.rehearsalStartTimer = window.setTimeout(() => {
+      state.rehearsalStartTimer = null;
+      if (state.rehearsalStartToken !== token || !state.rehearsalStarted) return;
+      task();
+    }, delayMs);
+  });
+}
+
+function queueWarGround3dTask(task) {
+  queueRehearsalUiTask(task, 900);
 }
 
 function getRehearsalNow() {
@@ -2995,6 +3339,19 @@ function getAgentProfile(agent) {
   };
 }
 
+function getAgentCombatDossier(agent, profile) {
+  const dossier = agentCombatDossiers[agent.id];
+  if (dossier) return dossier;
+  return {
+    summary: `${profile.factionLabel} 역할을 ${agent.risk_focus[0] || "작전 위험"} 기준으로 검토하는 가상 전투 셀.`,
+    combatStyle: `${profile.specialty}을 중심으로 방책의 실행 가능성을 압박한다.`,
+    signatureTrait: profile.traits[0] || profile.temperament,
+    strength: `${agent.review_output || profile.specialty}을 다음 판단 화면으로 넘기는 데 강하다.`,
+    weakness: "세부 현장 조건은 연동 에이전트의 보고가 필요하다.",
+    engagement: profile.traits.slice(0, 3)
+  };
+}
+
 function getAgentFactionClass(profile) {
   return profile.faction === "opfor" ? "is-opfor" : `is-${profile.faction}`;
 }
@@ -3025,6 +3382,196 @@ function getAgentMetrics(agent, profile) {
       clamp((base[key] || 50) + (boost[key] || 0) + confidenceBoost, 12, 99)
     ])
   );
+}
+
+function getAgentWargameStats(agent, profile) {
+  const metrics = getAgentMetrics(agent, profile);
+  const sourceText = [
+    agent.name,
+    agent.role,
+    profile.specialty,
+    profile.temperament,
+    ...profile.traits,
+    ...agent.risk_focus
+  ].join(" ");
+  const factionBase = {
+    blue: { health: 82, move: 5.8, comm: 6.4, stamina: 72, armor: 42, reaction: 38 },
+    opfor: { health: 88, move: 7.1, comm: 5.5, stamina: 68, armor: 50, reaction: 30 },
+    environment: { health: 74, move: 4.9, comm: 7.2, stamina: 80, armor: 34, reaction: 44 },
+    control: { health: 68, move: 3.2, comm: 8.4, stamina: 76, armor: 28, reaction: 28 }
+  };
+  const layerBoost = {
+    staff: { health: -2, move: -0.6, comm: 1.4, stamina: 2, armor: -4, reaction: -2 },
+    field: { health: 10, move: 1.3, comm: -0.2, stamina: 6, armor: 8, reaction: 1 },
+    environment: { health: 2, move: 0.4, comm: 0.8, stamina: 9, armor: 0, reaction: 4 }
+  };
+  const base = factionBase[profile.faction] || factionBase.blue;
+  const boost = layerBoost[agent.layer] || {};
+  const confidence = Math.round((agent.confidence - 0.75) * 80);
+  let health = base.health + (boost.health || 0) + confidence + Math.round(metrics.support * 0.08);
+  let moveSpeedKph = base.move + (boost.move || 0) + (metrics.mobility - 55) / 28;
+  let commRangeKm = base.comm + (boost.comm || 0) + (metrics.command + metrics.control - 120) / 45;
+  let stamina = base.stamina + (boost.stamina || 0) + Math.round(metrics.support * 0.12);
+  let armor = base.armor + (boost.armor || 0) + Math.round(metrics.threat * 0.08);
+  let reactionSec = base.reaction + (boost.reaction || 0) - Math.round(metrics.control / 12);
+
+  if (/차량|운전|기동|이동|선두/.test(sourceText)) {
+    health += 7;
+    moveSpeedKph += 1.8;
+    armor += 10;
+    reactionSec -= 2;
+  }
+  if (/통신|중계|보고|무전|커버리지/.test(sourceText)) {
+    commRangeKm += 4.2;
+    reactionSec -= 3;
+  }
+  if (/군수|보급|정비|지속성|연료/.test(sourceText)) {
+    stamina += 12;
+    moveSpeedKph -= 0.4;
+    health += 4;
+  }
+  if (/의무|후송|안전|대체로/.test(sourceText)) {
+    stamina += 7;
+    commRangeKm += 1.2;
+  }
+  if (/적|레드팀|대항|매복|지연행동/.test(sourceText)) {
+    moveSpeedKph += 0.9;
+    reactionSec -= 4;
+    armor += 6;
+  }
+  if (/기상|지형|통신망|보급로|후송로/.test(sourceText)) {
+    commRangeKm += 1.8;
+    stamina += 5;
+  }
+  if (/SOP|심판|검증|기준|판정/.test(sourceText)) {
+    commRangeKm += 1.6;
+    moveSpeedKph -= 0.8;
+    reactionSec -= 3;
+  }
+
+  return {
+    health: clamp(Math.round(health), 45, 125),
+    moveSpeedKph: Number(clamp(moveSpeedKph, 1.4, 13.8).toFixed(1)),
+    commRangeKm: Number(clamp(commRangeKm, 1.2, 18).toFixed(1)),
+    stamina: clamp(Math.round(stamina), 35, 99),
+    armor: clamp(Math.round(armor), 12, 95),
+    reactionSec: clamp(Math.round(reactionSec), 12, 62)
+  };
+}
+
+function getAgentWargameStatItems(agent, profile) {
+  const stats = getAgentWargameStats(agent, profile);
+  return [
+    { key: "health", label: "체력", value: stats.health, suffix: "HP", detail: "피로·피격 버퍼", percent: Math.round((stats.health / 125) * 100) },
+    { key: "moveSpeedKph", label: "이동속도", value: stats.moveSpeedKph, suffix: "km/h", detail: "지형 보정 전", percent: Math.round((stats.moveSpeedKph / 13.8) * 100) },
+    { key: "commRangeKm", label: "통신범위", value: stats.commRangeKm, suffix: "km", detail: "보고 유지권", percent: Math.round((stats.commRangeKm / 18) * 100) },
+    { key: "stamina", label: "지속력", value: stats.stamina, suffix: "", detail: "장기 교전 여력", percent: stats.stamina },
+    { key: "armor", label: "방호", value: stats.armor, suffix: "", detail: "손실 흡수", percent: stats.armor },
+    { key: "reactionSec", label: "반응", value: stats.reactionSec, suffix: "초", detail: "짧을수록 우수", percent: Math.round(((62 - stats.reactionSec) / 50) * 100) }
+  ];
+}
+
+function getAgentStatline(agent, profile) {
+  const stats = getAgentWargameStats(agent, profile);
+  return `HP ${stats.health} · 이동 ${stats.moveSpeedKph}km/h · 통신 ${stats.commRangeKm}km`;
+}
+
+function getEventWargamePressure(event) {
+  const severity = { low: 8, medium: 18, high: 30 }[event?.severity] || 10;
+  const eventText = `${event?.event || ""} ${event?.detail || ""} ${event?.impact || ""}`;
+  return {
+    health: severity + (/적|지연행동|협곡|사고/.test(eventText) ? 8 : 0),
+    move: (/안개|이동속도|협곡|대기|지연/.test(eventText) ? 1.4 : 0.4) + (event?.severity === "high" ? 0.6 : 0),
+    comm: (/통신|보고|지휘|갱신/.test(eventText) ? 2.8 : 0.6) + (event?.severity === "high" ? 0.8 : 0)
+  };
+}
+
+function getAgentDialogueSimulation(agent, profile, event = null) {
+  const selectedEvent = event || getRelatedEvents(agent)[0] || demoData.events[0] || null;
+  const stats = getAgentWargameStats(agent, profile);
+  const pressure = getEventWargamePressure(selectedEvent);
+  const mitigatedDamage = clamp(Math.round(pressure.health - stats.armor * 0.16), 2, pressure.health);
+  const remainingHealth = clamp(stats.health - mitigatedDamage, 1, stats.health);
+  const effectiveMove = Number(clamp(stats.moveSpeedKph - pressure.move, 0.8, stats.moveSpeedKph).toFixed(1));
+  const commMargin = Number((stats.commRangeKm - pressure.comm).toFixed(1));
+  const moveJudgment = effectiveMove >= 5.8 ? "기동 유지" : effectiveMove >= 3.8 ? "감속 전개" : "대기/우회 필요";
+  const commJudgment = commMargin >= 4 ? "보고 주기 유지" : commMargin >= 1 ? "예비망 감시" : "중계 보강 필요";
+  const outcome = `${moveJudgment}, ${commJudgment}, 잔여 체력 ${remainingHealth}HP`;
+
+  return {
+    event: selectedEvent,
+    statline: getAgentStatline(agent, profile),
+    outcome,
+    dialogue: `${profile.callsign}: ${selectedEvent?.event || "리허설"} 조건에서 이동 ${effectiveMove}km/h로 보정. ${commJudgment} 상태로 판단한다.`,
+    detail: `압박 ${pressure.health} / 손실 ${mitigatedDamage} / 통신 여유 ${commMargin}km`
+  };
+}
+
+function renderAgentWargameStats(agent, profile) {
+  return `
+    <div class="agent-wargame-stats" aria-label="워게임 스탯">
+      ${getAgentWargameStatItems(agent, profile)
+        .map(
+          (item) => `
+            <div class="agent-wargame-stat is-${item.key}">
+              <span>${item.label}</span>
+              <b>${item.value}${item.suffix ? `<small>${item.suffix}</small>` : ""}</b>
+              <i><span style="width: ${clamp(item.percent, 4, 100)}%"></span></i>
+              <em>${item.detail}</em>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderAgentDialogueSimulation(agent, profile) {
+  const simulation = getAgentDialogueSimulation(agent, profile);
+  return `
+    <div class="agent-dialogue-sim" aria-label="스탯 반영 대화 시뮬레이션">
+      <div>
+        <span>스탯 반영 대화</span>
+        <b>${simulation.event?.time || "대기"} · ${simulation.event?.event || "리허설 대기"}</b>
+      </div>
+      <p>${simulation.dialogue}</p>
+      <em>${simulation.outcome}</em>
+      <small>${simulation.detail}</small>
+    </div>
+  `;
+}
+
+function renderAgentCombatDossier(agent, profile) {
+  const dossier = getAgentCombatDossier(agent, profile);
+  const engagement = (dossier.engagement || profile.traits || [])
+    .slice(0, 4)
+    .map((item) => `<li>${item}</li>`)
+    .join("");
+  return `
+    <section class="agent-combat-dossier" aria-label="에이전트 전투 도시어">
+      <p>${dossier.summary}</p>
+      <div>
+        <article>
+          <span>전투 성향</span>
+          <b>${dossier.signatureTrait}</b>
+          <em>${dossier.combatStyle}</em>
+        </article>
+        <article>
+          <span>판단 강점</span>
+          <b>강점</b>
+          <em>${dossier.strength}</em>
+        </article>
+        <article>
+          <span>취약점</span>
+          <b>주의</b>
+          <em>${dossier.weakness}</em>
+        </article>
+      </div>
+      <ul aria-label="교전 방식">
+        ${engagement}
+      </ul>
+    </section>
+  `;
 }
 
 function getAgentGrade(score) {
@@ -4116,6 +4663,7 @@ function setStage(stage, options = {}) {
       window.requestAnimationFrame(() => page.classList.add("is-stage-entering"));
     }
   });
+  if (stage === "agents") hydrateAgentWorkspaceIfNeeded();
   setText("phaseLabel", meta.phase);
   setText("alertLabel", meta.alert);
   if (stage === "risk") setGraphMode("failure");
@@ -10551,12 +11099,23 @@ function setRehearsalRunButtonDisabled(disabled) {
   });
 }
 
-function prepareRehearsalPrerequisites() {
+function prepareRehearsalPrerequisites(options = {}) {
+  const renderScenarioWorkspace = options.renderScenarioWorkspace !== false;
+  const renderAgentWorkspace = options.renderAgentWorkspace !== false;
+  const preserveFlow = options.preserveFlow === true;
   clearTimer("autoTimer");
   if (!state.scenarioLoaded) {
     state.scenarioLoaded = true;
-    renderScenarioData();
-    updateStats();
+    if (renderScenarioWorkspace) {
+      renderScenarioData();
+      updateStats();
+    } else {
+      setText("scenarioLoadState", "작전계획 입력 완료");
+      setText("pipelineState", "완료");
+      setText("coaState", "A/B/C 정규화");
+      setText("demoReadinessLabel", "운용 가능");
+      setText("mockStatusLabel", "작전 자료 접수");
+    }
     byId("generateAgentsButton").disabled = false;
     byId("loadScenarioButton").disabled = false;
   }
@@ -10571,11 +11130,30 @@ function prepareRehearsalPrerequisites() {
     setText("staffState", "합의 완료");
     byId("generateAgentsButton").disabled = false;
     setRehearsalRunButtonDisabled(false);
-    renderAgentLayers();
-    renderDebate();
-    updateAgentProgress();
-    updateFlow("agents");
+    if (renderAgentWorkspace) {
+      renderAgentLayers();
+      renderDebate();
+      state.agentWorkspaceNeedsRender = false;
+    } else {
+      state.agentWorkspaceNeedsRender = true;
+    }
+    if (renderAgentWorkspace) {
+      updateAgentProgress();
+    } else {
+      setText("agentReadyCount", `${state.generatedAgentCount} / ${demoData.agents.length}`);
+      setText("agentProgressLabel", "100%");
+      const bar = byId("agentProgressBar");
+      if (bar) bar.style.width = "100%";
+    }
+    if (!preserveFlow) updateFlow("agents");
   }
+}
+
+function hydrateAgentWorkspaceIfNeeded() {
+  if (!state.agentWorkspaceNeedsRender) return;
+  renderAgentLayers();
+  renderDebate();
+  state.agentWorkspaceNeedsRender = false;
 }
 
 function renderAgentLayers() {
@@ -10747,6 +11325,7 @@ function renderAgentProfile() {
       </div>
     </div>
     <p class="agent-profile-quote">“${profile.quote}”</p>
+    ${renderAgentCombatDossier(agent, profile)}
     <div class="agent-profile-stats">
       <div>
         <span>판단 신뢰도</span>
@@ -10759,6 +11338,8 @@ function renderAgentProfile() {
         <i><span style="width: ${agent.status === "대기" ? 16 : agent.status === "생성중" ? 58 : 100}%"></span></i>
       </div>
     </div>
+    ${renderAgentWargameStats(agent, profile)}
+    ${renderAgentDialogueSimulation(agent, profile)}
     <div class="agent-attribute-grid" aria-label="유닛 속성">
       ${metricBars}
     </div>
@@ -10893,6 +11474,7 @@ function generateAgents() {
     setRehearsalRunButtonDisabled(false);
     renderAgentLayers();
     renderDebate();
+    state.agentWorkspaceNeedsRender = false;
     updateAgentProgress();
     updateFlow("agents");
   };
@@ -11230,6 +11812,58 @@ function renderRehearsalIntervention(event) {
   `;
 }
 
+function renderRehearsalEventAlert(event) {
+  if (!event) return "";
+  const briefing = getRehearsalBriefing(event);
+  const alertBriefing = getRehearsalEventAlertBriefing(event);
+  const scripts = getRadioScriptForEvent(event);
+  const leadAgents = scripts
+    .slice(0, 3)
+    .map((turn) => turn.callsign)
+    .join(" · ");
+  const severityLabel = {
+    high: "즉시 판단",
+    medium: "주의 이벤트",
+    low: "기준 이벤트"
+  }[event.severity] || "주요 이벤트";
+  return `
+    <section class="rehearsal-event-alert is-${event.severity}" role="status">
+      <span>${event.time} · ${severityLabel} · ${alertBriefing.tag}</span>
+      <strong>${alertBriefing.headline}</strong>
+      <p>${alertBriefing.situation}</p>
+      <div>
+        <b>${alertBriefing.decision || briefing.decisionCue}</b>
+        <em>${alertBriefing.action}</em>
+      </div>
+      <small>${leadAgents || "관련 에이전트"} 교신 중 · ${scripts.length}턴</small>
+    </section>
+  `;
+}
+
+function getRehearsalEventAlertBriefing(event) {
+  return rehearsalEventAlertBriefings[event?.id] || {
+    tag: riskLabel(event?.severity || "low"),
+    headline: event?.event || "수행 리허설 이벤트",
+    situation: event?.detail || event?.impact || "관련 에이전트가 상황을 갱신합니다.",
+    decision: event?.impact || "판단 대기",
+    action: "근거 확인"
+  };
+}
+
+function showRehearsalEventAlert(event) {
+  const target = byId("rehearsalEventAlertOverlay");
+  if (!target) return;
+  clearTimer("rehearsalEventAlertTimer");
+  target.innerHTML = renderRehearsalEventAlert(event);
+  target.classList.remove("is-flashing", "is-muted");
+  void target.offsetWidth;
+  target.classList.add("is-flashing");
+  state.rehearsalEventAlertTimer = window.setTimeout(() => {
+    target.classList.add("is-muted");
+    state.rehearsalEventAlertTimer = null;
+  }, 2600);
+}
+
 function openFailurePathFromRehearsal(ref, eventId) {
   setStage("risk");
   selectFailurePath(ref, { sourceEventId: eventId || null });
@@ -11248,8 +11882,8 @@ function runRehearsalInterventionAction(action, ref) {
 
 function getRadioScriptForEvent(event) {
   const scripted = rehearsalRadioScripts[event?.id] || [];
-  if (scripted.length) return scripted;
-  return (event?.agents || []).slice(0, 3).map((agentName, index) => ({
+  if (scripted.length) return mergeRehearsalDialogueTurns(event, scripted);
+  return mergeRehearsalDialogueTurns(event, (event?.agents || []).slice(0, 3).map((agentName, index) => ({
     agentId: "",
     callsign: agentName.replace(" 에이전트", ""),
     tone: event?.severity === "high" ? "red" : event?.severity === "medium" ? "amber" : "blue",
@@ -11257,7 +11891,35 @@ function getRadioScriptForEvent(event) {
     message: `${event?.event || "리허설 이벤트"} 확인. 관련 허점과 조치 조건을 검토 중.`,
     finding: event?.impact || "상황 갱신",
     evidence: event?.evidence_ids?.[0] || "ev_plan_mission"
+  })));
+}
+
+function mergeRehearsalDialogueTurns(event, baseTurns = []) {
+  const burstTurns = rehearsalDialogueBursts[event?.id] || [];
+  const additionTurns = rehearsalDialogueAdditions[event?.id] || [];
+  const turns = [...baseTurns, ...burstTurns, ...additionTurns];
+  return turns.map((turn, index) => ({
+    turnLabel: turn.turnLabel || getRehearsalDialogueTurnLabel(index, baseTurns.length, burstTurns.length),
+    at: Number.isFinite(turn.at) ? turn.at : getDefaultDialogueTurnAt(index, turns.length),
+    ...turn
   }));
+}
+
+function getRehearsalDialogueTurnLabel(index, baseCount, burstCount) {
+  if (index < baseCount) return ["초기 보고", "수치 확인", "통제 지시"][index] || "초기 보고";
+  if (index < baseCount + burstCount) return ["후속 질문", "확인 응답", "조치 제안", "위험 갱신"][index - baseCount] || "후속 대화";
+  return ["현장 반응", "지휘 판단", "판정 기록"][index - baseCount - burstCount] || "실행 피드백";
+}
+
+function getDefaultDialogueTurnAt(index, total) {
+  if (total <= 1) return 0.12;
+  return clamp(0.08 + (index / Math.max(total - 1, 1)) * 0.82, 0.06, 0.94);
+}
+
+function getRadioTransmissionDelay(transmission, index, total) {
+  const at = Number.isFinite(transmission.at) ? transmission.at : getDefaultDialogueTurnAt(index, total);
+  const slotMs = REHEARSAL_EVENT_DURATION_MS * 0.92;
+  return Math.max(0, Math.round((slotMs * clamp(at, 0.04, 0.96)) / Math.max(0.5, state.rehearsalSpeed)));
 }
 
 function getAgentAvatarLabel(value = "AI") {
@@ -11273,6 +11935,19 @@ function getRadioToneForEvent(event) {
   if (event?.severity === "high") return "red";
   if (event?.severity === "medium") return "amber";
   return "blue";
+}
+
+function getTransmissionStatline(transmission) {
+  const agent = getAgentById(transmission.agentId);
+  if (!agent) return "";
+  return getAgentStatline(agent, getAgentProfile(agent));
+}
+
+function getTransmissionSimulationLine(transmission, event) {
+  const agent = getAgentById(transmission.agentId);
+  if (!agent) return `${event?.event || "리허설"} 조건 반영 대기`;
+  const simulation = getAgentDialogueSimulation(agent, getAgentProfile(agent), event);
+  return `${simulation.outcome} · ${simulation.detail}`;
 }
 
 function getAgentConversationTabs() {
@@ -11386,7 +12061,7 @@ function renderAgentRadioLog() {
     return;
   }
   target.innerHTML = filteredLog
-    .slice(0, 10)
+    .slice(0, 12)
     .map((item, index) => `
       <button type="button" class="agent-radio-log-row is-${item.tone}" style="--chat-index: ${index}" data-radio-evidence-id="${item.evidence}" data-evidence-id="${item.evidence}">
         <span class="agent-chat-avatar" aria-hidden="true">${getAgentAvatarLabel(item.callsign)}</span>
@@ -11394,17 +12069,19 @@ function renderAgentRadioLog() {
           <span class="agent-chat-meta">
             <strong>${item.callsign}</strong>
             <em>${item.time} · ${item.channel}</em>
-            <i>${item.finding}</i>
+            <i>${item.turnLabel ? `${item.turnLabel} · ` : ""}${item.finding}</i>
           </span>
+          ${item.statline ? `<span class="agent-chat-statline">${item.statline}</span>` : ""}
           <b>${item.message}</b>
+          ${item.simulationLine ? `<span class="agent-chat-simline">${item.simulationLine}</span>` : ""}
         </span>
       </button>
     `)
     .join("");
 }
 
-function queueRadioTransmission(transmission, event, index = 0) {
-  const delay = Math.round((index * 360) / Math.max(0.5, state.rehearsalSpeed));
+function queueRadioTransmission(transmission, event, index = 0, total = 1) {
+  const delay = getRadioTransmissionDelay(transmission, index, total);
   const timer = window.setTimeout(() => {
     const overlay = byId("agentRadioOverlay");
     const item = {
@@ -11417,10 +12094,13 @@ function queueRadioTransmission(transmission, event, index = 0) {
       callsign: transmission.callsign || "에이전트",
       message: transmission.message,
       finding: transmission.finding || event.impact,
-      evidence: transmission.evidence || event.evidence_ids?.[0] || "ev_plan_mission"
+      evidence: transmission.evidence || event.evidence_ids?.[0] || "ev_plan_mission",
+      turnLabel: transmission.turnLabel || "",
+      statline: getTransmissionStatline(transmission),
+      simulationLine: getTransmissionSimulationLine(transmission, event)
     };
     state.radioLog.unshift(item);
-    state.radioLog = state.radioLog.slice(0, 18);
+    state.radioLog = state.radioLog.slice(0, 24);
     renderAgentRadioLog();
     if (!overlay) return;
     const toast = document.createElement("button");
@@ -11431,7 +12111,7 @@ function queueRadioTransmission(transmission, event, index = 0) {
     toast.innerHTML = `
       <span>${item.time} · ${item.channel}</span>
       <strong>${item.callsign}</strong>
-      <b>${item.finding}</b>
+      <b>${item.turnLabel ? `${item.turnLabel} · ` : ""}${item.finding}</b>
       <em>${item.message}</em>
     `;
     overlay.prepend(toast);
@@ -11451,22 +12131,30 @@ function clearRadioTraffic(options = {}) {
 
 function triggerRadioTrafficForEvent(event) {
   clearRadioTraffic({ preserveLog: true });
-  getRadioScriptForEvent(event).forEach((transmission, index) => {
-    queueRadioTransmission(transmission, event, index);
+  const scripts = getRadioScriptForEvent(event);
+  scripts.forEach((transmission, index) => {
+    queueRadioTransmission(transmission, event, index, scripts.length);
   });
 }
 
-function update3dRehearsal(event) {
-  if (window.WarGround3D?.focusEvent) {
-    window.WarGround3D.focusEvent(event.id);
-  }
-  if (window.WarGround3D?.setPlayback) {
-    window.WarGround3D.setPlayback(!state.rehearsalPaused);
-  }
+function update3dRehearsal(event, options = {}) {
+  const runUpdate = () => {
+    if (window.WarGround3D?.focusEvent) {
+      window.WarGround3D.focusEvent(event.id);
+    }
+    if (window.WarGround3D?.setPlayback) {
+      window.WarGround3D.setPlayback(!state.rehearsalPaused);
+    }
+  };
   renderTerrainPanels(event);
+  if (options.defer3d) {
+    queueWarGround3dTask(runUpdate);
+    return;
+  }
+  runUpdate();
 }
 
-function showEvent(index) {
+function showEvent(index, options = {}) {
   state.rehearsalIndex = clamp(index, 0, demoData.events.length - 1);
   resetRehearsalEventClock();
   const event = demoData.events[state.rehearsalIndex];
@@ -11486,16 +12174,18 @@ function showEvent(index) {
   setText("rehearsalRiskLabel", event.linked_risks.length ? event.linked_risks.join(", ") : "기준 이벤트");
   setText("activeAgentCount", `${event.agents.length}명`);
   const interventionMarkup = renderRehearsalIntervention(event);
+  const alertBriefing = getRehearsalEventAlertBriefing(event);
   const interventionOverlay = byId("rehearsalInterventionOverlay");
   if (interventionOverlay) interventionOverlay.innerHTML = interventionMarkup;
+  showRehearsalEventAlert(event);
   byId("currentEventCard").innerHTML = `
     <span>${event.time}</span>
-    <strong>${event.event}</strong>
-    <p>${event.detail}</p>
+    <strong>${alertBriefing.headline}</strong>
+    <p>${alertBriefing.situation}</p>
     <div class="rehearsal-friction-banner is-${event.severity}">
       <span>${riskLabel(event.severity)}</span>
-      <b>${event.impact}</b>
-      <em>${event.linked_risks.length ? event.linked_risks.join(" · ") : "기준 상황"}</em>
+      <b>${alertBriefing.decision}</b>
+      <em>${alertBriefing.action || (event.linked_risks.length ? event.linked_risks.join(" · ") : "기준 상황")}</em>
     </div>
     ${interventionMarkup}
     <div class="rehearsal-sim-readout" aria-label="리허설 시뮬레이션 상태">
@@ -11506,19 +12196,33 @@ function showEvent(index) {
       ${event.evidence_ids.map((id) => `<button type="button" class="evidence-link" data-evidence-id="${id}">${id}</button>`).join("")}
     </div>
   `;
-  renderActiveAgentChips(event);
-  renderAgentTypingIndicator(event);
-  renderRehearsalBriefingStrip(event);
-  renderRehearsalDecisionBridge(event);
-  update3dRehearsal(event);
-  triggerRadioTrafficForEvent(event);
-  renderPageBriefings();
-  const pulse = byId("rehearsalPulse");
-  if (pulse) {
-    pulse.className = `map-pulse ${event.severity}`;
-    pulse.style.left = `${18 + state.rehearsalIndex * 9}%`;
+  const renderSecondaryEventState = () => {
+    renderActiveAgentChips(event);
+    renderAgentTypingIndicator(event);
+    renderRehearsalBriefingStrip(event);
+    renderRehearsalDecisionBridge(event);
+    update3dRehearsal(event, options);
+    triggerRadioTrafficForEvent(event);
+    const pulse = byId("rehearsalPulse");
+    if (pulse) {
+      pulse.className = `map-pulse ${event.severity}`;
+      pulse.style.left = `${18 + state.rehearsalIndex * 9}%`;
+    }
+    if (options.deferSecondary) {
+      queueRehearsalUiTask(() => {
+        renderPageBriefings();
+        syncRouteState();
+      }, 900);
+    } else {
+      renderPageBriefings();
+      syncRouteState();
+    }
+  };
+  if (options.deferSecondary) {
+    queueRehearsalUiTask(renderSecondaryEventState);
+  } else {
+    renderSecondaryEventState();
   }
-  syncRouteState();
 }
 
 function scheduleNextEvent() {
@@ -11527,7 +12231,7 @@ function scheduleNextEvent() {
   if (state.rehearsalIndex >= demoData.events.length - 1) {
     setText("timelineState", "리허설 완료");
     updateFlow("failure");
-    setStage("risk");
+    beginFailurePathAnalysisTransition();
     return;
   }
   state.rehearsalTimer = window.setTimeout(() => {
@@ -11536,25 +12240,69 @@ function scheduleNextEvent() {
   }, getRehearsalEventDelay());
 }
 
+function getFailurePathAnalysisTarget() {
+  const currentEvent = demoData.events[state.rehearsalIndex] || null;
+  const event = currentEvent?.linked_risks?.length
+    ? currentEvent
+    : [...demoData.events].reverse().find((item) => item.linked_risks?.length) || currentEvent;
+  const linkedFailures = (event?.linked_risks || [])
+    .map((failureId) => demoData.failures.find((failure) => failure.id === failureId))
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score);
+  return {
+    event,
+    failure: linkedFailures[0] || getFailureById(state.selectedFailureId)
+  };
+}
+
+function beginFailurePathAnalysisTransition() {
+  const { event, failure } = getFailurePathAnalysisTarget();
+  beginStageTransition("risk", {
+    kicker: "FAILURE PATH ANALYSIS",
+    title: "실패경로 분석중...",
+    detail: `${event?.time || "리허설 종료"} ${event?.event || "마찰"} 이벤트를 ${failure.title} 흐름으로 연결합니다.`,
+    steps: ["리허설 이벤트 수집", "위험 체인 계산", "실패경로 화면 준비"],
+    autoComplete: false
+  });
+  const overlay = byId("stageTransitionOverlay");
+  if (overlay) overlay.dataset.transitionStage = "risk-analysis";
+  state.transitionTimer = window.setTimeout(() => {
+    setStage("risk", { skipTransition: true });
+    selectFailurePath(failure.id, { sourceEventId: event?.id || null });
+    completeStageTransition("risk");
+  }, 1150);
+}
+
 function runRehearsal() {
+  clearTimer("rehearsalTimer");
+  clearTimer("rehearsalStartTimer");
+  if (state.currentStage !== "rehearsal") setStage("rehearsal", { skipTransition: true });
+  state.rehearsalStartToken += 1;
   if (!state.agentsGenerated) {
-    prepareRehearsalPrerequisites();
+    prepareRehearsalPrerequisites({ renderScenarioWorkspace: false, renderAgentWorkspace: false, preserveFlow: true });
   }
-  setStage("rehearsal");
   state.rehearsalStarted = true;
   state.rehearsalPaused = false;
-  state.rehearsalIndex = 0;
+  state.rehearsalIndex = -1;
   resetRehearsalEventClock();
   setText("rehearsalPauseButton", "일시정지");
+  const eventAlertOverlay = byId("rehearsalEventAlertOverlay");
+  if (eventAlertOverlay) {
+    clearTimer("rehearsalEventAlertTimer");
+    eventAlertOverlay.innerHTML = "";
+    eventAlertOverlay.classList.remove("is-flashing", "is-muted");
+  }
   clearRadioTraffic();
-  window.WarGround3D?.start?.();
-  showEvent(0);
+  showEvent(0, { defer3d: true, deferSecondary: true });
   updateFlow("rehearsal");
   scheduleNextEvent();
+  queueWarGround3dTask(() => window.WarGround3D?.start?.());
 }
 
 function restartRehearsalFromStart() {
-  prepareRehearsalPrerequisites();
+  clearTimer("rehearsalStartTimer");
+  state.rehearsalStartToken += 1;
+  prepareRehearsalPrerequisites({ renderScenarioWorkspace: false, renderAgentWorkspace: false, preserveFlow: true });
   clearTimer("rehearsalTimer");
   state.rehearsalStarted = true;
   state.rehearsalPaused = false;
@@ -11563,16 +12311,18 @@ function restartRehearsalFromStart() {
   setStage("rehearsal", { skipTransition: true });
   setText("rehearsalPauseButton", "일시정지");
   clearRadioTraffic();
-  window.WarGround3D?.focusEvent?.("start");
   window.WarGround3D?.setPlayback?.(false);
-  window.WarGround3D?.start?.();
-  showEvent(0);
+  showEvent(0, { defer3d: true, deferSecondary: true });
   updateFlow("rehearsal");
   scheduleNextEvent();
+  queueWarGround3dTask(() => window.WarGround3D?.start?.());
 }
 
 function resetRehearsal() {
   clearTimer("rehearsalTimer");
+  clearTimer("rehearsalStartTimer");
+  clearTimer("rehearsalEventAlertTimer");
+  state.rehearsalStartToken += 1;
   state.rehearsalIndex = -1;
   state.rehearsalPaused = false;
   resetRehearsalEventClock();
@@ -11584,6 +12334,11 @@ function resetRehearsal() {
   setText("activeAgentCount", "0명");
   const interventionOverlay = byId("rehearsalInterventionOverlay");
   if (interventionOverlay) interventionOverlay.innerHTML = "";
+  const eventAlertOverlay = byId("rehearsalEventAlertOverlay");
+  if (eventAlertOverlay) {
+    eventAlertOverlay.innerHTML = "";
+    eventAlertOverlay.classList.remove("is-flashing", "is-muted");
+  }
   byId("currentEventCard").innerHTML = "<span>대기</span><strong>수행 리허설 실행 버튼을 누르세요.</strong><p>시간순 이벤트와 관련 에이전트가 자동 재생됩니다.</p>";
   renderActiveAgentChips();
   renderAgentTypingIndicator();
@@ -12524,6 +13279,7 @@ function tickDemoClock() {
 function resetDemo() {
   clearTimer("autoTimer");
   clearTimer("rehearsalTimer");
+  clearTimer("transitionTimer");
   hideAutoDemoOverlay();
   state.scenarioLoaded = false;
   state.agentsGenerated = false;
@@ -12539,6 +13295,7 @@ function resetDemo() {
   state.demoRemaining = 210;
   state.selectedAgentId = "red_team_agent";
   state.agentFilter = "all";
+  state.agentWorkspaceNeedsRender = false;
   state.selectedFailureId = "command_gap";
   state.selectedEvidenceId = "ev_comm_gap";
   state.selectedBriefingStepId = "decision";

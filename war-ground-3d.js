@@ -185,6 +185,7 @@ const focusFireEffectTextures = {
 };
 
 const STRIKE_REPLAY_DURATION_SECONDS = 36;
+const REHEARSAL_ACTION_SLOT_SECONDS = 4.2;
 const strikeReplayTimeline = VISTA_SEUNGJIN_STAGE_27_REPLAY.actions.map((action) => ({
   ...action,
   at: action.atSeconds / STRIKE_REPLAY_DURATION_SECONDS
@@ -691,12 +692,16 @@ const runtime = {
   combatReplayRouteCues: new Map(),
   rehearsalActionState: "대기",
   rehearsalActionStartedAt: 0,
+  rehearsalActionElapsed: 0,
+  rehearsalActionProgress: 0,
   rehearsalActionActiveEventId: "start",
   rehearsalActionLayer: null,
   rehearsalActionProjectiles: new Map(),
   rehearsalActionTrails: new Map(),
   rehearsalActionParticipants: new Set(),
   rehearsalActionLastRender: 0,
+  lastStableDelta: 0,
+  lastScaledDelta: 0,
   layerVisibility: {
     routes: true,
     labels: true,
@@ -1950,7 +1955,7 @@ function createRehearsalMovementTrail(move) {
   );
   line.name = `movementTrails:${move.assetId}`;
   layer.add(line);
-  runtime.rehearsalActionTrails.set(move.assetId, { line, move, color });
+  runtime.rehearsalActionTrails.set(move.assetId, { line, move, color, lastProgress: -1 });
 }
 
 function createRehearsalArtilleryMission(mission) {
@@ -2017,7 +2022,8 @@ function createRehearsalArtilleryMission(mission) {
     impactFlash,
     impactDust,
     shockwave,
-    targetMark
+    targetMark,
+    lastTrailT: -1
   });
 }
 
@@ -2031,6 +2037,8 @@ function startRehearsalAction(eventId) {
   (plan.fires || []).forEach(createRehearsalArtilleryMission);
   runtime.rehearsalActionActiveEventId = eventId;
   runtime.rehearsalActionStartedAt = runtime.clock.elapsedTime;
+  runtime.rehearsalActionElapsed = 0;
+  runtime.rehearsalActionProgress = 0;
   runtime.rehearsalActionState = plan.visibleAction || "기동 진행";
   runtime.rehearsalActionLayer.visible = runtime.layerVisibility.effects;
   setTacticalActionShellActive(true);
@@ -2038,8 +2046,9 @@ function startRehearsalAction(eventId) {
 }
 
 function getRehearsalActionProgress(plan) {
-  const duration = Math.max(0.6, plan.duration || 4.2);
-  return THREE.MathUtils.clamp((runtime.clock.elapsedTime - runtime.rehearsalActionStartedAt) / duration, 0, 1);
+  const duration = Math.max(0.6, Math.min(plan.duration || REHEARSAL_ACTION_SLOT_SECONDS, REHEARSAL_ACTION_SLOT_SECONDS));
+  runtime.rehearsalActionProgress = THREE.MathUtils.clamp(runtime.rehearsalActionElapsed / duration, 0, 1);
+  return runtime.rehearsalActionProgress;
 }
 
 function animateRehearsalMovement(plan, progress) {
@@ -2065,15 +2074,18 @@ function animateRehearsalMovement(plan, progress) {
 
     const trail = runtime.rehearsalActionTrails.get(move.assetId);
     if (!trail) return;
-    const points = [];
-    const first = move.startAt ?? 0;
-    const last = Math.max(first, progress);
-    for (let index = 0; index < 14; index += 1) {
-      const t = index / 13;
-      points.push(getRehearsalMovementVector(move, THREE.MathUtils.lerp(first, last, t), lift));
+    if (Math.abs(trail.lastProgress - progress) > 0.012 || progress >= 0.995) {
+      const points = [];
+      const first = move.startAt ?? 0;
+      const last = Math.max(first, progress);
+      for (let index = 0; index < 14; index += 1) {
+        const t = index / 13;
+        points.push(getRehearsalMovementVector(move, THREE.MathUtils.lerp(first, last, t), lift));
+      }
+      trail.line.geometry.dispose();
+      trail.line.geometry = new THREE.BufferGeometry().setFromPoints(points);
+      trail.lastProgress = progress;
     }
-    trail.line.geometry.dispose();
-    trail.line.geometry = new THREE.BufferGeometry().setFromPoints(points);
     trail.line.material.opacity = plan.movementTrails ? 0.16 + local * 0.44 : 0;
   });
 }
@@ -2097,11 +2109,14 @@ function animateRehearsalArtillery(plan, progress) {
     effect.projectile.material.opacity = projectileVisible ? 0.96 : 0;
     effect.projectile.scale.setScalar(1.2 + Math.sin(runtime.clock.elapsedTime * 24) * 0.22);
 
-    const trailStart = Math.max(0, Math.floor(flightT * effect.curvePoints.length) - 14);
-    const trailEnd = Math.max(trailStart + 2, Math.floor(flightT * effect.curvePoints.length));
-    const trailPoints = effect.curvePoints.slice(trailStart, trailEnd);
-    effect.trail.geometry.dispose();
-    effect.trail.geometry = new THREE.BufferGeometry().setFromPoints(trailPoints.length ? trailPoints : [point, point]);
+    if (projectileVisible && Math.abs(effect.lastTrailT - flightT) > 0.014) {
+      const trailStart = Math.max(0, Math.floor(flightT * effect.curvePoints.length) - 14);
+      const trailEnd = Math.max(trailStart + 2, Math.floor(flightT * effect.curvePoints.length));
+      const trailPoints = effect.curvePoints.slice(trailStart, trailEnd);
+      effect.trail.geometry.dispose();
+      effect.trail.geometry = new THREE.BufferGeometry().setFromPoints(trailPoints.length ? trailPoints : [point, point]);
+      effect.lastTrailT = flightT;
+    }
     effect.trail.material.opacity = projectileVisible ? 0.72 : 0;
 
     setSpriteOpacity(effect.muzzle, muzzleT > 0 && muzzleT < 1 ? Math.max(0, 0.82 - muzzleT * 1.2) : 0);
@@ -2128,9 +2143,10 @@ function renderRehearsalActionReadout(plan, progress, force = false) {
   setStatus(`${plan.label} · ${runtime.rehearsalActionState} ${percent}%`);
 }
 
-function animateRehearsalAction(delta) {
+function animateRehearsalAction(delta, scaledDelta) {
   if (!runtime.rehearsalActionLayer) return;
   const plan = getRehearsalActionPlan(runtime.rehearsalActionActiveEventId);
+  advanceRehearsalActionClock(scaledDelta);
   const progress = getRehearsalActionProgress(plan);
   runtime.rehearsalActionLayer.visible = runtime.layerVisibility.effects;
   animateRehearsalMovement(plan, progress, delta);
@@ -3185,6 +3201,19 @@ function setSpriteOpacity(sprite, opacity) {
   if (sprite?.material) sprite.material.opacity = THREE.MathUtils.clamp(opacity, 0, 1);
 }
 
+function getStableFrameDelta(rawDelta) {
+  return THREE.MathUtils.clamp(Number(rawDelta) || 0, 0, 1 / 30);
+}
+
+function getScaledFrameDelta(delta) {
+  return delta * Math.max(0.5, runtime.speed || 1);
+}
+
+function advanceRehearsalActionClock(scaledDelta) {
+  if (!runtime.playing || !runtime.rehearsalActionLayer) return;
+  runtime.rehearsalActionElapsed += scaledDelta;
+}
+
 function animateFocusFireEffect(effect) {
   const duration = effect.duration || 4.6;
   const t = THREE.MathUtils.clamp(effect.age / duration, 0, 1);
@@ -3247,10 +3276,10 @@ function animateFocusFireEffect(effect) {
   });
 }
 
-function animateEffects(delta) {
+function animateEffects(delta, scaledDelta = getScaledFrameDelta(delta)) {
   runtime.effects.forEach((effect) => {
     if (!effect.group.visible) return;
-    effect.age += delta * runtime.speed;
+    effect.age += scaledDelta;
     if (effect.kind === "focus-fire") {
       animateFocusFireEffect(effect);
       renderStrikeTelemetry();
@@ -3265,14 +3294,17 @@ function animateEffects(delta) {
 }
 
 function animate() {
-  const delta = runtime.clock.getDelta();
+  const delta = getStableFrameDelta(runtime.clock.getDelta());
+  const scaledDelta = getScaledFrameDelta(delta);
+  runtime.lastStableDelta = delta;
+  runtime.lastScaledDelta = scaledDelta;
   if (runtime.playing) {
-    runtime.routeProgress = THREE.MathUtils.clamp(runtime.routeProgress + delta * 0.028 * runtime.speed, 0, 1);
+    runtime.routeProgress = THREE.MathUtils.clamp(runtime.routeProgress + scaledDelta * 0.028, 0, 1);
   }
   updateRoutedUnits();
-  animateRehearsalAction(delta);
-  animateCombatReplay(delta);
-  animateEffects(delta);
+  animateRehearsalAction(delta, scaledDelta);
+  animateCombatReplay(delta, scaledDelta);
+  animateEffects(delta, scaledDelta);
   refreshSelectionMarker();
   refreshAssetInfluenceOverlay();
   runtime.camera.position.lerp(runtime.cameraPosition, 0.045);
@@ -3494,6 +3526,10 @@ window.WarGround3D = {
       rehearsalActionState: runtime.rehearsalActionState,
       rehearsalActionEventId: runtime.rehearsalActionActiveEventId,
       rehearsalActionStartedAt: Number(runtime.rehearsalActionStartedAt.toFixed(3)),
+      rehearsalActionElapsed: Number(runtime.rehearsalActionElapsed.toFixed(3)),
+      rehearsalActionProgress: Number(runtime.rehearsalActionProgress.toFixed(3)),
+      lastStableDelta: Number(runtime.lastStableDelta.toFixed(4)),
+      lastScaledDelta: Number(runtime.lastScaledDelta.toFixed(4)),
       visibleAction: getRehearsalActionPlan(runtime.rehearsalActionActiveEventId).visibleAction,
       tacticalActions: getRehearsalActionPlan(runtime.rehearsalActionActiveEventId).tacticalActions || [],
       artilleryArcs: runtime.rehearsalActionProjectiles.size,

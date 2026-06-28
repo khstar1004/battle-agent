@@ -17,7 +17,18 @@
     <article><span>3</span><b>어떤 방책을 비교하나</b><em>A/B/C 방책의 시간, 통신, 군수 위험을 비교합니다.</em></article>
   </div>
 
-  <section class="intake-empty-state" id="intakeEmptyState" aria-live="polite"></section>
+  <section class="intake-empty-state" id="intakeEmptyState" aria-live="polite">
+    <div class="intake-empty-copy">
+      <span>NO INPUT PACKAGE</span>
+      <h3>아직 접수된 작전 자료가 없습니다.</h3>
+      <p>자료 화면의 접수 버튼을 실행하면 입력 자료, 작전 성격, 방책 비교, 근거 품질이 생성됩니다.</p>
+    </div>
+    <div class="intake-empty-drop" aria-hidden="true">
+      <i data-lucide="file-plus-2"></i>
+      <b>작전 자료 대기</b>
+      <em>PDF / XLSX / PNG / JSON / TXT</em>
+    </div>
+  </section>
 
   <div class="data-grid" id="dataGrid" hidden>
     <section class="hard-panel">

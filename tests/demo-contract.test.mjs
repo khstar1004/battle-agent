@@ -103,6 +103,33 @@ describe("WAR GROUND demo contract", () => {
     assert.match(css, /\.agent-card\.is-opfor/);
   });
 
+  it("adds per-agent wargame stats and uses them in rehearsal dialogue", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "function getAgentWargameStats",
+      "function renderAgentWargameStats",
+      "function getAgentDialogueSimulation",
+      "function getTransmissionSimulationLine",
+      "health",
+      "moveSpeedKph",
+      "commRangeKm",
+      "체력",
+      "이동속도",
+      "통신범위",
+      "스탯 반영 대화"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".agent-wargame-stats",
+      ".agent-wargame-stat",
+      ".agent-dialogue-sim",
+      ".agent-chat-statline",
+      ".agent-chat-simline"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
   it("supports interactive failure-path and decision-card analysis surfaces", () => {
     const html = readText("index.html");
     const app = readText("app.js");
@@ -240,6 +267,14 @@ describe("WAR GROUND demo contract", () => {
     ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
 
     [
+      "class=\"intake-empty-copy\"",
+      "NO INPUT PACKAGE",
+      "아직 접수된 작전 자료가 없습니다.",
+      "작전 자료 대기",
+      "PDF / XLSX / PNG / JSON / TXT"
+    ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from initial data empty markup`));
+
+    [
       "function renderIntakeEmptyState",
       "function getInputDocumentManifest",
       "function renderInputDocumentManifest",
@@ -263,6 +298,32 @@ describe("WAR GROUND demo contract", () => {
       ".operation-identity-map",
       ".operation-identity-chip",
       "@keyframes intake-reveal"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
+  });
+
+  it("adds richer role-specific combat dossiers for every virtual unit", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "const agentCombatDossiers",
+      "function getAgentCombatDossier",
+      "function renderAgentCombatDossier",
+      "agent-combat-dossier",
+      "전투 성향",
+      "교전 방식",
+      "판단 강점",
+      "취약점",
+      "야간 차간 유지와 노면 판독을 우선하는 기동 셀",
+      "보급 대기열을 전투 지속 시간으로 환산하는 군수 실행 셀",
+      "통신 두절 시 분대 단위 유지 절차를 고정하는 현장 셀"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      ".agent-combat-dossier",
+      ".agent-combat-dossier article",
+      ".agent-combat-dossier p",
+      ".agent-combat-dossier ul"
     ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
   });
 
@@ -1630,17 +1691,32 @@ describe("WAR GROUND demo contract", () => {
       "id=\"rehearsalMapSpeedButton\"",
       "data-rehearsal-speed-toggle",
       "agentRadioOverlay",
+      "rehearsalEventAlertOverlay",
       "agentRadioLog"
     ].forEach((signature) => assert.ok(html.includes(signature), `${signature} is missing from index.html`));
 
     [
       "const rehearsalRadioScripts",
+      "const rehearsalDialogueBursts",
+      "const rehearsalDialogueAdditions",
+      "const rehearsalEventAlertBriefings",
       "function getRehearsalSimulationReadout",
       "function getRadioScriptForEvent",
+      "function mergeRehearsalDialogueTurns",
+      "function getRehearsalEventAlertBriefing",
+      "function getRadioTransmissionDelay",
       "function queueRadioTransmission",
       "function renderAgentRadioLog",
       "function triggerRadioTrafficForEvent",
+      "function renderRehearsalEventAlert",
+      "function showRehearsalEventAlert",
       "function clearRadioTraffic",
+      "후속 질문",
+      "확인 응답",
+      "C1 중계팀 전진 준비",
+      "협곡 입구 지연세력 접촉, 엄호 포격 진행",
+      "A안 보류, 예비대는 전방 대기선까지만 이동",
+      "교신 중 · ${scripts.length}턴",
       "data-radio-evidence-id",
       "무전"
     ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
@@ -1657,6 +1733,9 @@ describe("WAR GROUND demo contract", () => {
       ".agent-radio-overlay",
       ".agent-radio-toast",
       ".agent-radio-log",
+      ".rehearsal-event-alert-overlay",
+      ".rehearsal-event-alert",
+      ".rehearsal-event-alert.is-high",
       ".war-ground-zoom-controls",
       ".rehearsal-friction-banner",
       ".rehearsal-sim-readout"
@@ -1767,9 +1846,21 @@ describe("WAR GROUND demo contract", () => {
       "function setTacticalActionShellActive",
       "rehearsalActionState",
       "rehearsalActionStartedAt",
+      "rehearsalActionElapsed",
+      "rehearsalActionProgress",
+      "lastStableDelta",
       "rehearsalActionLayer",
       "rehearsalActionProjectiles",
       "rehearsalActionTrails",
+      "function getStableFrameDelta",
+      "function getScaledFrameDelta",
+      "function advanceRehearsalActionClock",
+      "runtime.rehearsalActionElapsed += scaledDelta",
+      "getRehearsalActionProgress(plan)",
+      "const REHEARSAL_ACTION_SLOT_SECONDS = 4.2",
+      "Math.min(plan.duration || REHEARSAL_ACTION_SLOT_SECONDS, REHEARSAL_ACTION_SLOT_SECONDS)",
+      "lastProgress: -1",
+      "lastTrailT: -1",
       "tacticalActions",
       "artilleryArcs",
       "arcTube",
@@ -1819,9 +1910,68 @@ describe("WAR GROUND demo contract", () => {
       "state.rehearsalIndex = -1",
       "setStage(\"rehearsal\", { skipTransition: true })",
       "window.WarGround3D?.focusEvent?.(\"start\")",
-      "showEvent(0)",
+      "showEvent(0, { defer3d: true, deferSecondary: true })",
       "scheduleNextEvent()"
     ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+  });
+
+  it("keeps rehearsal launch responsive and moves major event alerts out of the map center", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "rehearsalStartTimer: null",
+      "rehearsalStartToken: 0",
+      "function queueWarGround3dTask",
+      "if (state.currentStage !== \"rehearsal\") setStage(\"rehearsal\", { skipTransition: true });",
+      "renderScenarioWorkspace: false",
+      "prepareRehearsalPrerequisites({ renderScenarioWorkspace: false, renderAgentWorkspace: false",
+      "showEvent(0, { defer3d: true, deferSecondary: true })",
+      "queueWarGround3dTask(() => window.WarGround3D?.start?.())"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    const launchStart = app.indexOf("function runRehearsal()");
+    const launchEnd = app.indexOf("function restartRehearsalFromStart", launchStart);
+    const launchBody = app.slice(launchStart, launchEnd);
+    assert.ok(!launchBody.includes("runDeferredRehearsalStart()"), "runRehearsal should not wait before showing the first event");
+
+    [
+      "rehearsalEventAlertTimer: null",
+      "state.rehearsalEventAlertTimer = window.setTimeout",
+      ".rehearsal-event-alert-overlay.is-muted .rehearsal-event-alert",
+      "top: 12px",
+      "width: min(560px, calc(100% - 132px))",
+      "@media (max-width: 720px)",
+      ".rehearsal-event-alert p,\n  .rehearsal-event-alert div",
+      ".rehearsal-intervention-overlay {\n    display: none;",
+      "backdrop-filter: blur(8px) saturate(1.08)"
+    ].forEach((signature) => {
+      assert.ok(app.includes(signature) || css.includes(signature), `${signature} is missing from rehearsal alert implementation`);
+    });
+  });
+
+  it("shows a failure-path analysis loading transition after rehearsal completes", () => {
+    const app = readText("app.js");
+    const css = readText("styles.css");
+
+    [
+      "function beginFailurePathAnalysisTransition",
+      "실패경로 분석중",
+      "리허설 이벤트 수집",
+      "위험 체인 계산",
+      "실패경로 화면 준비",
+      "beginStageTransition(\"risk\", {",
+      "autoComplete: false",
+      "setStage(\"risk\", { skipTransition: true })",
+      "completeStageTransition(\"risk\")",
+      "beginFailurePathAnalysisTransition();"
+    ].forEach((signature) => assert.ok(app.includes(signature), `${signature} is missing from app.js`));
+
+    [
+      "[data-transition-stage=\"risk-analysis\"]",
+      ".stage-transition-overlay[data-transition-stage=\"risk-analysis\"] .stage-loader-ring",
+      "실패경로 분석 전환"
+    ].forEach((signature) => assert.ok(css.includes(signature), `${signature} is missing from styles.css`));
   });
 
   it("keeps the 3D rehearsal visualization professional and low-clutter", () => {
@@ -1851,6 +2001,7 @@ describe("WAR GROUND demo contract", () => {
 
     [
       "const STRIKE_REPLAY_DURATION_SECONDS = 36",
+      "runtime.speed = speed === 4 ? 4 : speed === 2 ? 2 : 1",
       "const PROFESSIONAL_LABEL_SCALE",
       "ctx.roundRect",
       "rgba(6, 12, 13, 0.72)",
